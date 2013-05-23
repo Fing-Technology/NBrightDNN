@@ -20,7 +20,8 @@ namespace NBrightDNN.controls
 
         protected override void OnInit(EventArgs e)
         {
-            if (Utils.RequestQueryStringParam(Context, "SkinSrc") == "")
+            if (Utils.RequestQueryStringParam(Context, "SkinSrc") == "" &&
+                !Context.Request.CurrentExecutionFilePath.EndsWith(".aspx"))
             {
                 base.OnInit(e);                
             }
