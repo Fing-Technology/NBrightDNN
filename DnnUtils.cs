@@ -118,12 +118,12 @@ namespace NBrightDNN
 
         public static void PurgeDataBaseInfo(int portalId, int moduleId, DataCtrlInterface objCtrl, string entityTypeCode, int purgeDays = -7)
         {
-            var l = objCtrl.GetListInfo(portalId, moduleId, entityTypeCode);
+            var l = objCtrl.GetList(portalId, moduleId, entityTypeCode);
             foreach (NBrightInfo obj in l)
             {
                 if (obj.ModifiedDate < (DateTime.Now.AddDays(purgeDays)))
                 {
-                    objCtrl.DeleteInfo(obj.ItemID);                    
+                    objCtrl.Delete(obj.ItemID);                    
                 }
             }
 

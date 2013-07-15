@@ -20,12 +20,12 @@ namespace NBrightDNN.controls
         public DataCtrlInterface ObjCtrl { get; set; }
 
         protected const string EncrytionKey = "";
-        private bool _activatePaging = false;
 
         protected NBrightCore.controls.PagingCtrl CtrlPaging;
         protected Repeater CtrlSearch;
         protected Repeater CtrlList;
 		protected LiteralControl CtrlListMsg;
+        private bool _activatePaging = false;
 
         protected UserDataInfo UInfo;
 
@@ -64,7 +64,6 @@ namespace NBrightDNN.controls
 
         public bool FileHasBeenUploaded = false;
 
-
         #region "Page Events"
 
         protected override void OnInit(EventArgs e)
@@ -90,10 +89,17 @@ namespace NBrightDNN.controls
             //make sure we have a valid culture code in upper and lower case. (url re-writers can make all url lowercase)
             EntityLangauge = EntityLangauge.Substring(0, 2).ToLower() + "-" + EntityLangauge.Substring(3, 2).ToUpper();
 
+            //get the ItemId
             ItemId = Utils.RequestQueryStringParam(Context, "itemid");
 
+            //get the langauge ItemId
             ItemIdLang = Utils.RequestQueryStringParam(Context, "itemidlang");
-            if (ItemIdLang == "") ItemIdLang = "0";
+            if (ItemIdLang == "" && ItemId != "")
+            {
+                ItemIdLang = "0";
+                var obj = GetDataLang();
+                if (obj != null) ItemIdLang = obj.ItemID.ToString();
+            }
 
             CtrlSearch = new Repeater();
             this.Controls.Add(CtrlSearch);
@@ -117,7 +123,6 @@ namespace NBrightDNN.controls
 
         protected override void OnLoad(System.EventArgs e)
         {
-            base.OnLoad(e);
 
             //Get UserDataInfo
             if (Page.IsPostBack)
@@ -137,7 +142,10 @@ namespace NBrightDNN.controls
 			//NBrightCore.common.Utils.SaveFile(PortalSettings.HomeDirectoryMapPath + "\\NBrightLogTrace.txt", NBrightLogTrace);
 			//// Debug code for cache improvement timing: REMOVE FOR BUILD
 
+            base.OnLoad(e);
+
         }
+
 
         #endregion
 
@@ -145,113 +153,112 @@ namespace NBrightDNN.controls
 
         /* *********************  Object Gets ********************** */
 
-        public NBrightInfo GetData(int intItemId)
+        /// <summary>
+        /// Gets singe record of Data including language data merged onto the XML. 
+        /// </summary>
+        /// <param name = "lang">Tells function which language data should be included.  If empty no langauge data is included in the return data.</param>
+        /// <param name = "seluserId">Allows selection of data for a specific user</param>
+        public NBrightInfo GetData(string lang = "", string seluserId = "")
         {
-            return (NBrightInfo)((DataCtrlInterface)ObjCtrl).GetInfo(intItemId);
-        }
-
-        public NBrightInfo GetData()
-        {
-            var objInfo = new NBrightInfo();
-
             if (Utils.IsNumeric(ItemId))
-            {
-                return (NBrightInfo) ((DataCtrlInterface) ObjCtrl).GetInfo(Convert.ToInt32(ItemId));
-            }
+                return GetData(Convert.ToInt32(ItemId), EntityTypeCodeLang, lang, seluserId);
             return null;
         }
 
-        public NBrightInfo GetDataLang()
+        /// <summary>
+        /// Gets singe record of Data including language data merged onto the XML. 
+        /// </summary>
+        /// <param name = "itemId">Record DB ItemId</param>
+        /// <param name = "entityTypeCodeLang">EntityTypeCodeLang, if empty no language data is returned.</param>
+        /// <param name = "lang">Tells function which language data should be included.  If empty no langauge data is included in the return data.</param>
+        /// <param name = "seluserId">Allows selection of data for a specific user</param>
+        public NBrightInfo GetData(int itemId, string entityTypeCodeLang = "", string lang = "", string seluserId = "")
         {
-            var objInfo = new NBrightInfo();
-
-            if (Utils.IsNumeric(ItemIdLang))
+            if (seluserId != "")
             {
-                return (NBrightInfo) ((DataCtrlInterface) ObjCtrl).GetInfo(Convert.ToInt32(ItemIdLang));
+                var strFilter = " and userid = '" + seluserId + "' ";
+                var l = GetList(PortalId, ModuleId, EntityTypeCode, strFilter, "", 1, 0, 0, 0, entityTypeCodeLang, lang);
+                return l.Count >= 1 ? l[0] : null;
             }
+            return (NBrightInfo)((DataCtrlInterface)ObjCtrl).Get(itemId, entityTypeCodeLang, lang);                
+        }
+
+        /// <summary>
+        /// Gets singe record of language Data. (EntityLangauge).
+        /// </summary>
+        /// <param name="seluserId">select by userid.  (not to be confused with a language param)</param>
+        /// <returns></returns>
+        public NBrightInfo GetDataLang(string seluserId = "")
+        {
+            if (Utils.IsNumeric(ItemId))
+                return GetDataLang(Convert.ToInt32(ItemId), EntityLangauge, seluserId);
             return null;
         }
 
-        public NBrightInfo GetData(string cultureCode, int moduleid = -1, string SelUserId = "")
+        /// <summary>
+        /// Gets singe record of language Data. 
+        /// </summary>
+        /// <param name="parentItemId">Parent itemId</param>
+        /// <param name="lang">Entity langauge to select</param>
+        /// <param name="seluserId">select by userid</param>
+        /// <returns></returns>
+        public NBrightInfo GetDataLang(int parentItemId, string lang = "", string seluserId = "")
         {
-            return GetData(ItemId, cultureCode, moduleid, SelUserId);
+            if (lang == "") lang = EntityLangauge;
+            var strFilter = " and parentitemid = '" + parentItemId + "' and lang = '" + lang + "' ";
+            if (seluserId != "")
+            {
+                strFilter += " and userid = '" + seluserId + "' ";
+            }
+            var l = GetList(PortalId, ModuleId, EntityTypeCodeLang, strFilter, "", 1);
+            return l.Count >= 1 ? l[0] : null;
         }
 
-        public NBrightInfo GetData(string parentItemId, string cultureCode,int moduleid = -1,string SelUserId = "")
-        {
-            if (moduleid == -1) moduleid = ModuleId; // so satellite modules can pass correct moduleid.
-
-			//test for XML lang for backward compatiblity.
-			var strFilter = " and (Lang = '" + cultureCode + "' or ISNULL(Lang,'') = '' or [xmlData].value('(genxml/hidden/lang)[1]', 'nvarchar(10)') = '" + cultureCode + "' or [xmlData].value('(genxml/hidden/lang)[1]', 'nvarchar(10)') = '' ) ";
-        	
-			if (Utils.IsNumeric(parentItemId))
-            {
-                strFilter = " and parentitemid = " + parentItemId + strFilter;
-            }
-            if (SelUserId != "")
-            {
-                strFilter = " and userid = " + SelUserId + strFilter;
-            }
-
-
-            NBrightInfo rtnObj = null;
-            var l = ((DataCtrlInterface) ObjCtrl).GetListInfo(PortalId, ModuleId, EntityTypeCodeLang, strFilter, "");
-            foreach(var o in l)
-            {
-                if ((cultureCode == o.Lang) | (cultureCode == o.GetXmlProperty("genxml/hidden/lang"))) // test XML lang for backward compatibility
-                {
-                    rtnObj = o;
-                    break;
-                }
-            }
-            if (rtnObj == null)
-            {                
-                // create new object to return.
-                rtnObj = new NBrightInfo();
-                rtnObj.ItemID = -1;
-                rtnObj.ModuleId = ModuleId;
-                rtnObj.PortalId = PortalId;
-                rtnObj.TypeCode = EntityTypeCodeLang;
-            	rtnObj.Lang = cultureCode;
-                if (Utils.IsNumeric(parentItemId))
-                {
-                    rtnObj.ParentItemId = Convert.ToInt32(parentItemId);
-                }
-                rtnObj.SetXmlProperty("genxml/hidden/lang", cultureCode);
-            }
-            return rtnObj;
-        }
 
         /* *********************  list Gets ********************** */
 
-        public List<NBrightInfo> GetList(Repeater rp1, int moduleRefId, string entityTypeCode, int returnLimit = 0, int pageNumber = 0, int pageSize = 0, string selUserId = "", bool debugMode = false)
+        /// <summary>
+        /// Gets a list of Data records, using the meta data in the repeater to specify the filter and order.
+        /// </summary>
+        /// <param name="rp1"></param>
+        /// <param name="portalId"></param>
+        /// <param name="moduleId"></param>
+        /// <param name="entityTypeCode"></param>
+        /// <param name="returnLimit"></param>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="recordCount"></param>
+        /// <param name="entityTypeCodeLang">If empty no langauge data is returned</param>
+        /// <param name = "lang">Tells function which language data should be included.  If empty no langauge data is included in the return data.</param>
+        /// <returns></returns>
+       public List<NBrightInfo> GetList(Repeater rp1, int portalId, int moduleId, string entityTypeCode, int returnLimit = 0, int pageNumber = 0, int pageSize = 0, int recordCount = 0, string entityTypeCodeLang = "", string lang = "")
         {
-            return ((DataCtrlInterface)ObjCtrl).GetListWithLang(rp1, PortalId, moduleRefId, entityTypeCode, returnLimit, pageNumber, pageSize, EntityTypeCodeLang, selUserId,debugMode);
+            var sqlSearchFilter = GenXmlFunctions.GetSqlSearchFilters(rp1);
+            var sqlOrderBy = GenXmlFunctions.GetSqlOrderBy(rp1);
+            //Default orderby if not set
+            if (String.IsNullOrEmpty(sqlOrderBy)) sqlOrderBy = " Order by ModifiedDate DESC ";
+
+            return ((DataCtrlInterface)ObjCtrl).GetList(portalId, moduleId, entityTypeCode, sqlSearchFilter, sqlOrderBy, returnLimit, pageNumber, pageSize, recordCount, entityTypeCodeLang, lang);
         }
 
-        public List<NBrightInfo> GetList(Repeater rp1, string entityTypeCode, int returnLimit = 0, int pageNumber = 0, int pageSize = 0, string selUserId = "", bool debugMode = false)
+        /// <summary>
+        /// Gets a list of Data records
+        /// </summary>
+        /// <param name="portalId"></param>
+        /// <param name="moduleId"></param>
+        /// <param name="entityTypeCode"></param>
+        /// <param name="sqlSearchFilter"></param>
+        /// <param name="sqlOrderBy"></param>
+        /// <param name="returnLimit"></param>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="recordCount"></param>
+        /// <param name="entityTypeCodeLang">If empty no langauge data is returned</param>
+        /// <param name = "lang">Tells function which language data should be included.  If empty no langauge data is included in the return data.</param>
+        /// <returns></returns>
+        public List<NBrightInfo> GetList(int portalId, int moduleId, string entityTypeCode, string sqlSearchFilter = "", string sqlOrderBy = "", int returnLimit = 0, int pageNumber = 0, int pageSize = 0, int recordCount = 0, string entityTypeCodeLang = "", string lang = "")
         {
-            return ((DataCtrlInterface)ObjCtrl).GetListWithLang(rp1, PortalId, ModuleId, entityTypeCode, returnLimit, pageNumber, pageSize, EntityTypeCodeLang, selUserId,debugMode);
-        }
-
-        public List<NBrightInfo> GetList(Repeater rp1, int returnLimit = 0, int pageNumber = 0, int pageSize = 0, string selUserId = "", bool debugMode = false)
-        {
-            return ((DataCtrlInterface)ObjCtrl).GetListWithLang(rp1, PortalId, ModuleId, EntityTypeCode, returnLimit, pageNumber, pageSize, EntityTypeCodeLang, selUserId,debugMode);
-        }
-
-        public List<NBrightInfo> GetList(string strFilters = "", string strOrderBy = "", int returnLimit = 0, int pageNumber = 0, int pageSize = 0, int recordCount = 0, string selUserId = "", bool debugMode = false)
-        {
-            return GetList(PortalId, ModuleId, EntityTypeCode, EntityTypeCodeLang, strFilters, strOrderBy, returnLimit, pageNumber, pageSize, recordCount, selUserId,debugMode);
-        }
-
-        public List<NBrightInfo> GetList(string entityTypeCode, string entityTypeCodeLang, string strFilters = "", string strOrderBy = "", int returnLimit = 0, int pageNumber = 0, int pageSize = 0, int recordCount = 0, string selUserId = "", bool debugMode = false)
-        {
-            return GetList(PortalId, ModuleId, entityTypeCode, entityTypeCodeLang, strFilters, strOrderBy, returnLimit, pageNumber, pageSize, recordCount, selUserId, debugMode);
-        }
-
-        public List<NBrightInfo> GetList(int portalId, int moduleId, string entityTypeCode, string entityTypeCodeLang, string strFilters = "", string strOrderBy = "", int returnLimit = 0, int pageNumber = 0, int pageSize = 0, int recordCount = 0, string selUserId = "", bool debugMode = false)
-        {
-            return ((DataCtrlInterface)ObjCtrl).GetListWithLang(portalId, moduleId, entityTypeCode, strFilters, strOrderBy, returnLimit, pageNumber, pageSize, recordCount, entityTypeCodeLang, selUserId, debugMode);
+            return ((DataCtrlInterface)ObjCtrl).GetList(portalId, moduleId, entityTypeCode, sqlSearchFilter, sqlOrderBy, returnLimit, pageNumber, pageSize, recordCount, entityTypeCodeLang, lang);
         }
 
         #endregion
@@ -265,11 +272,11 @@ namespace NBrightDNN.controls
 
         public void DeleteAllEntityData(int portalId, int moduleId, string entityTypeCode, string uploadFolder)
         {
-            var l = GetList(portalId, moduleId, entityTypeCode,"","","",0,0,0,0,"",true);
+            var l = GetList(portalId, moduleId, entityTypeCode);
             foreach (var obj in l)
             {
                 DeleteLinkedFiles(obj.ItemID, uploadFolder);
-                ((DataCtrlInterface)ObjCtrl).DeleteInfo(obj.ItemID);
+                ((DataCtrlInterface)ObjCtrl).Delete(obj.ItemID);
             }
         }
 
@@ -291,21 +298,21 @@ namespace NBrightDNN.controls
 
         public void DeleteData(int itemID, string uploadFolder)
         {
-            var objInfo = ((DataCtrlInterface)ObjCtrl).GetInfo(itemID);
+            var objInfo = ((DataCtrlInterface)ObjCtrl).Get(itemID);
             if (objInfo != null)
             {
 
                 var strFilter = " and parentitemid = '" + itemID.ToString("") + "' ";
 
                 // delete any child records linked to parent.
-                var l = GetList(objInfo.PortalId,-1,"","",strFilter,"",0,0,0,0,"",true);
+                var l = GetList(objInfo.PortalId,-1,"",strFilter);
                 foreach (var o in l)
                 {
                     DeleteData(o.ItemID,uploadFolder);
                 }
 
                 DeleteLinkedFiles(itemID, uploadFolder);
-                ((DataCtrlInterface)ObjCtrl).DeleteInfo(itemID);
+                ((DataCtrlInterface)ObjCtrl).Delete(itemID);
 
             }
 
@@ -313,11 +320,11 @@ namespace NBrightDNN.controls
 
         public void DeleteLinkedFiles(int itemId, string uploadFolder)
         {
-            var obj = ObjCtrl.GetInfo(itemId);
+            var obj = ObjCtrl.Get(itemId);
             if (uploadFolder != "" & obj != null)
             {
                 obj.XMLData = GenXmlFunctions.DeleteFile(obj.XMLData, PortalSettings.HomeDirectoryMapPath + uploadFolder);
-                ObjCtrl.UpdateInfo(obj);
+                ObjCtrl.Update(obj);
             }
         }
 
@@ -342,7 +349,7 @@ namespace NBrightDNN.controls
             if (Utils.IsNumeric(itemId))
             {
                 // read any existing data or create new.
-                objInfo = ObjCtrl.GetInfo(Convert.ToInt32(itemId));
+                objInfo = ObjCtrl.Get(Convert.ToInt32(itemId));
                 if (objInfo == null)
                 {
                     objInfo = new NBrightInfo();
@@ -370,7 +377,7 @@ namespace NBrightDNN.controls
                     objInfo.GUIDKey = GUIDKey;
                 }
 
-                objInfo.ItemID = ((DataCtrlInterface)ObjCtrl).UpdateInfo(objInfo);
+                objInfo.ItemID = ((DataCtrlInterface)ObjCtrl).Update(objInfo);
 
             }
             return objInfo;
@@ -385,7 +392,7 @@ namespace NBrightDNN.controls
                 GenXmlFunctions.SetHiddenField(rp1, "itemid", ItemId);
                 //rebuild xml
                 objInfo.XMLData = GenXmlFunctions.GetGenXml(rp1);
-                objInfo.ItemID = ((DataCtrlInterface)ObjCtrl).UpdateInfo(objInfo);
+                objInfo.ItemID = ((DataCtrlInterface)ObjCtrl).Update(objInfo);
             }
             return objInfo;
         }
@@ -402,49 +409,49 @@ namespace NBrightDNN.controls
                 objInfo.XMLData = GenXmlFunctions.GetGenXml(rp1);
                 objInfo.ParentItemId = Convert.ToInt32(ItemId);
             	objInfo.Lang = EntityLangauge;
-                objInfo.ItemID = ((DataCtrlInterface)ObjCtrl).UpdateInfo(objInfo);
+                objInfo.ItemID = ((DataCtrlInterface)ObjCtrl).Update(objInfo);
             }
             return objInfo;
         }
 
         public int UpdateData(NBrightInfo objInfo)
         {
-            return ((DataCtrlInterface)ObjCtrl).UpdateInfo(objInfo);
+            return ((DataCtrlInterface)ObjCtrl).Update(objInfo);
         }
 
         public int AddBlankEntity(string DatabaseTypeCode)
         {
             var objInfo = new NBrightInfo { ItemID = -1, PortalId = PortalId, ModuleId = ModuleId, TypeCode = DatabaseTypeCode, ModifiedDate = DateTime.Now };
-            return ((DataCtrlInterface)ObjCtrl).UpdateInfo(objInfo);
+            return ((DataCtrlInterface)ObjCtrl).Update(objInfo);
         }
 
         public void CopyDataLang(string fromCultureCode, string toCultureCode, string uploadFolder = "")
         {
-            if ((fromCultureCode != "" & toCultureCode != "") & (fromCultureCode != toCultureCode))
+            if ((fromCultureCode != "" & toCultureCode != "") & (fromCultureCode != toCultureCode) && Utils.IsNumeric(ItemId))
             {
-                var newItemID = -1;
-                var objToLang = GetData(toCultureCode);
+                var newItemId = -1;
+                var objToLang = GetDataLang(Convert.ToInt32(ItemId),toCultureCode);
                 if (objToLang != null)
                 {
-                    newItemID = objToLang.ItemID;
+                    newItemId = objToLang.ItemID;
                 }
 
-                var objFromLang = GetData(fromCultureCode);
+                var objFromLang = GetDataLang(Convert.ToInt32(ItemId), fromCultureCode);
                 if (objFromLang != null)
                 {
-                    objFromLang.ItemID = newItemID;
+                    objFromLang.ItemID = newItemId;
                     objFromLang.SetXmlProperty("genxml/hidden/lang", toCultureCode);
                     objFromLang.SetXmlProperty("genxml/hidden/itemid", objFromLang.ItemID.ToString(""));
                 	objFromLang.Lang = toCultureCode;
-					if (newItemID >= 0)
+					if (newItemId >= 0)
                     {
-                        DeleteData(newItemID, uploadFolder);
+                        DeleteData(newItemId, uploadFolder);
                     }
                     else
                     {
-                        newItemID = UpdateData(objFromLang);
-                        objFromLang.SetXmlProperty("genxml/hidden/itemid", newItemID.ToString(""));
-                        objFromLang.ItemID = newItemID;
+                        newItemId = UpdateData(objFromLang);
+                        objFromLang.SetXmlProperty("genxml/hidden/itemid", newItemId.ToString(""));
+                        objFromLang.ItemID = newItemId;
                     }
                     UpdateData(objFromLang);
                 }
@@ -455,10 +462,10 @@ namespace NBrightDNN.controls
 
         #region "userData search methods"
 
-        public void SetSearchUserDataInfoVar()
+        public void SetSearchUserDataInfoVar(Repeater rpSearch)
         {
-            var strFilters = GenXmlFunctions.GetSqlSearchFilters(CtrlSearch);
-            var strOrderBy = GenXmlFunctions.GetSqlOrderBy(CtrlSearch);
+            var strFilters = GenXmlFunctions.GetSqlSearchFilters(rpSearch);
+            var strOrderBy = GenXmlFunctions.GetSqlOrderBy(rpSearch);
 
             if (GenXmlFunctions.GetHiddenField(CtrlSearch, "lang") != "")
             {
@@ -524,23 +531,29 @@ namespace NBrightDNN.controls
 
         #region "Display Methods"
 
-        public void DoList(int moduleRefId, Repeater rp1, int returnLimit = 0, int pageNumber = 0, int pageSize = 0, string selUserId = "", bool debugMode = false)
+        public void DoList(Repeater rp1, int portalId, int moduleId, string typeCode, int returnLimit = 0, int pageNumber = 0, int pageSize = 0, int recordCount = 0, string typeCodeLang = "", string lang = "")
         {
-            rp1.DataSource = GetList(rp1, moduleRefId, EntityTypeCode, returnLimit, pageNumber, pageSize, selUserId,debugMode);
+            rp1.DataSource = GetList(rp1, portalId, moduleId, typeCode, returnLimit, pageNumber, pageSize, recordCount, typeCodeLang, lang);
             rp1.DataBind();
         }
 
-        public void DoList(Repeater rp1, int returnLimit = 0, int pageNumber = 0, int pageSize = 0, string selUserId = "", bool debugMode = false)
+        public void DoDetailLang(Repeater rp1, bool forceDisplay = true)
         {
-            rp1.DataSource = GetList(rp1, returnLimit, pageNumber, pageSize, selUserId, debugMode);
-            rp1.DataBind();
+            NBrightInfo obj = null;
+            obj = GetDataLang();
+            if (obj == null && forceDisplay)
+            {
+                obj = new NBrightInfo {ModuleId = ModuleId, PortalId = PortalId, XMLData = "<genxml></genxml>"};
+            }
+            if (obj != null)
+            {
+                ItemIdLang = obj.ItemID.ToString(); //assign ItemIdLang. Is done on init, but making sure here.
+                var l = new List<object> {obj};
+                rp1.DataSource = l;
+                rp1.DataBind();
+            }
         }
 
-        public void DoList(Repeater rp1, string typeCode, int returnLimit = 0, int pageNumber = 0, int pageSize = 0, string selUserId = "", bool debugMode = false)
-        {
-            rp1.DataSource = GetList(rp1, typeCode, returnLimit, pageNumber, pageSize, selUserId, debugMode);
-            rp1.DataBind();
-        }
 
         public void DoDetail(Repeater rp1, NBrightInfo obj)
         {
@@ -549,80 +562,18 @@ namespace NBrightDNN.controls
             rp1.DataBind();
         }
 
-        /// <summary>
-        /// Return NBrightInfo with Extra Langauge Data in the XML of the parent item.
-        /// </summary>
-        /// <param name="rp1"></param>
-        /// <param name="cultureCode"></param>
-        public void DoDetailWithLang(Repeater rp1, string cultureCode, string selUserId = "")
-        {
-            DoDetailWithLang(rp1, cultureCode, ModuleId, selUserId);
-        }
 
-        public void DoDetailWithLang(Repeater rp1, string cultureCode, int ModuleRefId, string selUserId = "")
+        public void DoDetail(Repeater rp1,bool forceDisplay = true)
         {
-            int result;
-            if (Utils.IsNumeric(ItemId))
+            NBrightInfo obj = null;
+            if (Utils.IsNumeric(ItemId)) obj = GetData(Convert.ToInt32(ItemId), EntityTypeCodeLang, EntityLangauge);            
+            if (obj == null && forceDisplay) obj = new NBrightInfo { ModuleId = ModuleId, PortalId = PortalId, XMLData = "<genxml></genxml>" };
+            if (obj != null)
             {
-                NBrightInfo obj = null;
-                obj = ((DataCtrlInterface)ObjCtrl).GetDataWithLang(PortalId, ModuleRefId, ItemId, cultureCode, EntityTypeCodeLang, selUserId);
-                if (obj != null)
-                {
-                    EntityLangauge = cultureCode;
-                }
                 var l = new List<object> { obj };
                 rp1.DataSource = l;
                 rp1.DataBind();
             }
-
-        }
-
-        /// <summary>
-        /// Return the NBrightInfo item of the culture.
-        /// </summary>
-        /// <param name="rp1"></param>
-        /// <param name="cultureCode"></param>
-        public void DoDetail(Repeater rp1, string cultureCode, int moduleid = -1, string selUserId = "")
-        {
-            int result;
-            if (Utils.IsNumeric(ItemId))
-            {
-                NBrightInfo obj = null;
-                obj = GetData(ItemId, cultureCode, moduleid, selUserId);               
-                if (obj != null)
-                {
-                    EntityLangauge = cultureCode;
-                }
-                var l = new List<object> {obj};
-                rp1.DataSource = l;
-                rp1.DataBind();
-            }
-
-        }
-
-        public void DoDetail(Repeater rp1)
-        {
-            int result;
-            if (Utils.IsNumeric(ItemId))
-            {
-                NBrightInfo obj = null;
-                obj = ((DataCtrlInterface) ObjCtrl).GetInfo(Convert.ToInt32(ItemId));
-                var l = new List<object> {obj};
-                rp1.DataSource = l;
-                rp1.DataBind();
-            }
-
-        }
-
-        public void DoDisplay(Repeater rp1)
-        {
-            var obj = new NBrightInfo();
-            obj.ModuleId = ModuleId;
-            obj.PortalId = PortalId;
-            obj.XMLData = "<genxml></genxml>";
-            var l = new List<object> { obj };
-            rp1.DataSource = l;
-            rp1.DataBind();            
         }
 
         public List<NBrightInfo> GetListByUserDataInfoVar(string typeCode,string webserviceurl = "")
@@ -639,7 +590,7 @@ namespace NBrightDNN.controls
                     var xmlDoc = new XmlDataDocument();
                     
                     // pass the userdatainfo into the header request (saves using or creating a post field or adding to url)
-                    var objInfo = ObjCtrl.GetInfo(UInfo.ItemId);
+                    var objInfo = ObjCtrl.Get(UInfo.ItemId);
                     var userdatainfo = "";
                     if (objInfo != null)
                     {
@@ -687,26 +638,16 @@ namespace NBrightDNN.controls
                     }
                     else
                     {
-                        recordCount = ObjCtrl.GetListInfoCount(UInfo.SearchPortalId, UInfo.SearchModuleId, EntityTypeCode, UInfo.SearchFilters, EntityTypeCodeLang);
+                        recordCount = ObjCtrl.GetListCount(UInfo.SearchPortalId, UInfo.SearchModuleId, EntityTypeCode, UInfo.SearchFilters, EntityTypeCodeLang, EntityLangauge);
                     }
                 }
 
 
-                if (!Utils.IsNumeric(UInfo.SearchPageNumber))
-                {
-                    UInfo.SearchPageNumber = "1";
-                    UInfo.Save();
-                }
-
-                if (!Utils.IsNumeric(UInfo.SearchPageSize) | !Utils.IsNumeric(UInfo.SearchReturnLimit))
-                {
-                    UInfo.SearchPageSize = GenXmlFunctions.GetHiddenField(CtrlSearch, "searchpagesize");
-                    UInfo.SearchReturnLimit = GenXmlFunctions.GetHiddenField(CtrlSearch, "searchreturnlimit");
-                    if (!Utils.IsNumeric(UInfo.SearchPageSize)) UInfo.SearchPageSize = "25";
-                    if (!Utils.IsNumeric(UInfo.SearchReturnLimit)) UInfo.SearchReturnLimit = "0";
-                    UInfo.Save(); 
-                }
-
+                if (!Utils.IsNumeric(UInfo.SearchPageNumber)) UInfo.SearchPageNumber = "1";
+                UInfo.SearchPageSize = GenXmlFunctions.GetHiddenField(CtrlSearch, "searchpagesize");
+                UInfo.SearchReturnLimit = GenXmlFunctions.GetHiddenField(CtrlSearch, "searchreturnlimit");
+                if (!Utils.IsNumeric(UInfo.SearchPageSize)) UInfo.SearchPageSize = "25";
+                if (!Utils.IsNumeric(UInfo.SearchReturnLimit)) UInfo.SearchReturnLimit = "0";
 
                 if (_activatePaging)
                 {
@@ -745,7 +686,7 @@ namespace NBrightDNN.controls
 				}
 				else
 				{
-					return GetList(UInfo.SearchPortalId, UInfo.SearchModuleId, EntityTypeCode, EntityTypeCodeLang, UInfo.SearchFilters, UInfo.SearchOrderby, Convert.ToInt32(UInfo.SearchReturnLimit), Convert.ToInt32(UInfo.SearchPageNumber), Convert.ToInt32(UInfo.SearchPageSize), recordCount);
+                    return GetList(UInfo.SearchPortalId, UInfo.SearchModuleId, EntityTypeCode, UInfo.SearchFilters, UInfo.SearchOrderby, Convert.ToInt32(UInfo.SearchReturnLimit), Convert.ToInt32(UInfo.SearchPageNumber), Convert.ToInt32(UInfo.SearchPageSize), recordCount, EntityTypeCodeLang,Utils.GetCurrentCulture());
 				}
             }
             catch (Exception)
@@ -793,7 +734,9 @@ namespace NBrightDNN.controls
                 }
             }
 
-            UInfo.Save();
+            if (!Utils.IsNumeric(UInfo.SearchPageSize)) UInfo.SearchPageSize = "25";
+            if (!Utils.IsNumeric(UInfo.SearchReturnLimit)) UInfo.SearchReturnLimit = "0";
+            if (!Utils.IsNumeric(UInfo.SearchPageNumber)) UInfo.SearchPageNumber = "1";
 
             _activatePaging = withPaging;
             CtrlList.HeaderTemplate = new GenXmlTemplate(listheaderTemplate);
@@ -821,24 +764,6 @@ namespace NBrightDNN.controls
 			strListHeader = TemplCtrl.GetTemplateData(CtrlTypeCode + "_ListH.html", Utils.GetCurrentCulture());
 			strListBody = TemplCtrl.GetTemplateData(CtrlTypeCode + "_List.html", Utils.GetCurrentCulture());
 			strListFooter = TemplCtrl.GetTemplateData(CtrlTypeCode + "_ListF.html", Utils.GetCurrentCulture());
-
-            //set default filter
-            if (UInfo.SearchClearAfter == "")
-            {
-                UInfo.SearchFilters = "";
-            }
-
-            if (UInfo.SearchOrderby == "")
-            {
-                if (withSearch && strListSearch != "")
-                {
-                    UInfo.SearchOrderby = GenXmlFunctions.GetSqlOrderBy(strListSearch);
-                }
-                if (UInfo.SearchOrderby == "")
-                {
-                    UInfo.SearchOrderby = GenXmlFunctions.GetSqlOrderBy(strListHeader);
-                }
-            }
 
             OnInitActivateList(strListHeader, strListBody, strListFooter, strListSearch, withPaging);
 

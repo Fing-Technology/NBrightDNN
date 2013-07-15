@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Xml;
+using NBrightCore;
 using NBrightCore.common;
 using NBrightCore.providers;
 using NBrightCore.render;
@@ -21,7 +22,7 @@ namespace NBrightDNN.render
         // This section overrides the interface methods for the GenX provider.
         // It allows providers to create controls/Literals in the NBright template system.
 
-        public override bool CreateGenControl(string ctrltype, Control container, XmlNode xmlNod, string rootname = "genxml", string databindColum = "XMLData")
+        public override bool CreateGenControl(string ctrltype, Control container, XmlNode xmlNod, string rootname = "genxml", string databindColum = "XMLData", string cultureCode = "")
         {
             _rootname = rootname;
             _databindColumn = databindColum;
@@ -247,6 +248,8 @@ namespace NBrightDNN.render
             var container = (IDataItemContainer)gte.NamingContainer;
             try
             {
+                gte.Visible = NBrightGlobal.IsVisible;
+
                 if ((gte.Attributes["databind"] != null))
                 {
                     gte.Text = (string)DataBinder.Eval(container.DataItem, gte.Attributes["databind"]);
@@ -291,6 +294,8 @@ namespace NBrightDNN.render
             var container = (IDataItemContainer)dte.NamingContainer;
             try
             {
+                dte.Visible = NBrightGlobal.IsVisible;
+
                 if ((dte.Attributes["databind"] != null))
                 {
                     dte.Text = Convert.ToString(DataBinder.Eval(container.DataItem, dte.Attributes["databind"]));
@@ -321,7 +326,7 @@ namespace NBrightDNN.render
         /// [<tag id="lbllabelkey" type="dnnlabelcontrol" Text="label : " HelpText="Help text to be displayed"  />]
         /// </para>
         /// </summary>
-        private static void CreateLabelControl(Control container, XmlNode xmlNod)
+        private void CreateLabelControl(Control container, XmlNode xmlNod)
         {
             var lblc = new GenLabelControl(xmlNod);
             if (xmlNod.Attributes != null && (xmlNod.Attributes["id"] != null))
@@ -333,6 +338,7 @@ namespace NBrightDNN.render
                     lblc.Attributes.Add("databind", xmlNod.Attributes["databind"].InnerXml);
                 }
 
+                lblc.DataBinding += LiteralDataBinding;
                 container.Controls.Add(lblc);
             }
         }
@@ -349,15 +355,29 @@ namespace NBrightDNN.render
         /// [<tag type="dnnhomedirectory" />]
         /// </para>
         /// </summary>
-        private static void CreatePortalHomeDirectory(Control container)
+        private void CreatePortalHomeDirectory(Control container)
         {
             var lc = new Literal();
             var PS = DnnUtils.GetCurrentPortalSettings();
             lc.Text = PS.HomeDirectory;
+            lc.DataBinding += LiteralDataBinding;
             container.Controls.Add(lc);
         }
 
         #endregion
+
+        private void LiteralDataBinding(object sender, EventArgs e)
+        {
+            try
+            {
+                var lc = (Literal)sender;
+                lc.Visible = NBrightGlobal.IsVisible;
+            }
+            catch (Exception)
+            {
+                //do nothing
+            }
+        }
 
         #endregion
 

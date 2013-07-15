@@ -135,7 +135,6 @@ namespace NBrightDNN.controls
             oe.KeyID = -1;
             oe.ModuleControlID = -1;
             oe.ModuleDefID = -1;
-            //oe.NavigateUrl = IsPageBasedBackOffice ? NBrightStoreUtils.GetManagerPageUrl(int.Parse(Request.QueryString["mid"])) : DotNetNuke.Common.Globals.NavigateURL(p.TabId);
             oe.NavigateUrl = DotNetNuke.Common.Globals.NavigateURL(p.TabId);
             oe.TabLevel = "";
             oe.ControlSrc = "";

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using DotNetNuke.Common.Utilities;
 using NBrightCore.common;
 using NBrightCore.render;
 
@@ -34,7 +35,12 @@ namespace NBrightDNN
             UserDataKey = Cookie.GetCookieValue(portalId, "UserDataInfo", "UserDataKey", moduleId.ToString(""));
             if (UserDataKey != "")
             {
-                _obj = objCtrl.GetInfoByGuidKey(portalId, -1, "USERDATAINFO", UserDataKey);
+                var strFilter = " and guidkey = '" + UserDataKey + "' ";
+                var l = objCtrl.GetList(portalId, moduleId, "USERDATAINFO", strFilter, "", 1);
+                if (l.Count >= 1)
+                {
+                    _obj = l[0];
+                }
                 if (_obj == null)
                 {
                     CreateNewUserDataInfoRecord();
@@ -45,11 +51,13 @@ namespace NBrightDNN
                 CreateNewUserDataInfoRecord();
             }
 
+            if (_obj == null) return;
 
             ItemId = _obj.ItemID;
             GUIDKey = _obj.GUIDKey;
-                var s = GenXmlFunctions.GetGenXmlValue(_obj.XMLData, "root/current/tabid");
-            if (Utils.IsNumeric(s)) TabId = Convert.ToInt32(s); else TabId = -1;
+            var s = GenXmlFunctions.GetGenXmlValue(_obj.XMLData, "root/current/tabid");
+            if (Utils.IsNumeric(s)) TabId = Convert.ToInt32(s);
+            else TabId = -1;
 
             SkinSrc = GenXmlFunctions.GetGenXmlValue(_obj.XMLData, "root/current/skinsrc");
             EntityTypeCode = GenXmlFunctions.GetGenXmlValue(_obj.XMLData, "root/current/entitytypecode");
@@ -97,12 +105,8 @@ namespace NBrightDNN
 
             var d = new XmlDataDocument();
             s = GenXmlFunctions.GetGenXmlValue(_obj.XMLData, "root/extraxml");
-            if (s != "")
-            {
-                d.LoadXml(s);
-            }
+            if (s != "") d.LoadXml(s);
             ExtraXml = d;
-
         }
 
         #region "properties"
@@ -175,6 +179,7 @@ namespace NBrightDNN
                     strXml += "<searchgenxml>" + SearchGenXml + "</searchgenxml>";
                     strXml += "<searchorderby><![CDATA[" + SearchOrderby + "]]></searchorderby>";
                     strXml += "<searchpagenumber>" + SearchPageNumber + "</searchpagenumber>";
+                    strXml += "<searchpagesize>" + SearchPageSize + "</searchpagesize>";
                     strXml += "<searchreturnlimit>" + SearchReturnLimit + "</searchreturnlimit>";
                     strXml += "<searchsearchdate1>" + SearchDate1 + "</searchsearchdate1>";
                     strXml += "<searchsearchdate2>" + SearchDate2 + "</searchsearchdate2>";
@@ -219,7 +224,7 @@ namespace NBrightDNN
                                               ModuleId.ToString(""));
                     }
 
-                    _obj.ItemID = _objCtrl.UpdateInfo(_obj);
+                    _obj.ItemID = _objCtrl.Update(_obj);
                     ItemId = _obj.ItemID;
                 }
             }
@@ -234,6 +239,7 @@ namespace NBrightDNN
             SearchGenXml = "";
             SearchOrderby = "";
             SearchPageNumber = "";
+            SearchPageSize = "25";
             SearchReturnLimit = "";
             SearchDate1 = "";
             SearchDate2 = "";
@@ -263,7 +269,7 @@ namespace NBrightDNN
             _obj.TypeCode = "USERDATAINFO";
             // Do NOT update here, it creates blank records with no data.
             //  On devices/PC that don;t save cookies this creates multiple blank records.
-            //_obj.ItemID = _objCtrl.UpdateInfo(_obj);
+            //_obj.ItemID = _objCtrl.Update(_obj);
         }
 
         #endregion

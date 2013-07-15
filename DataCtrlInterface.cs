@@ -15,18 +15,12 @@ namespace NBrightDNN
 {
     public abstract class DataCtrlInterface
     {
-        public abstract List<NBrightInfo> GetListInfo(int PortalId, int ModuleId, string TypeCode, string SQLSearchFilter = "", string SQLOrderBy = "", int ReturnLimit = 0, int PageNumber = 0, int PageSize = 0, int RecordCount = 0, string TypeCodeLang = "");
-        public abstract int GetListInfoCount(int PortalId, int ModuleId, string TypeCode, string SQLSearchFilter = "", string TypeCodeLang = "");
-        public abstract NBrightInfo GetInfo(int ItemID);
-        public abstract NBrightInfo GetInfoByType(int PortalId, int ModuleId, string EntityTypeCode, string selUserId = "", string lang = "");
-        public abstract NBrightInfo GetInfoByGuidKey(int PortalId, int ModuleId, string EntityTypeCode, string GuidKey, string selUserId = "");
-        public abstract int UpdateInfo(NBrightInfo objInfo);
-        public abstract void DeleteInfo(int ItemID);
+        public abstract List<NBrightInfo> GetList(int portalId, int moduleId, string typeCode, string sqlSearchFilter = "", string sqlOrderBy = "", int returnLimit = 0, int pageNumber = 0, int pageSize = 0, int recordCount = 0, string typeCodeLang = "", string lang = "");
+        public abstract int GetListCount(int portalId, int moduleId, string typeCode, string sqlSearchFilter = "", string typeCodeLang = "", string lang = "");
+        public abstract NBrightInfo Get(int itemId, string typeCodeLang = "", string lang = "");
+        public abstract int Update(NBrightInfo objInfo);
+        public abstract void Delete(int itemId);
         public abstract void CleanData();
-
-        public abstract NBrightInfo GetDataWithLang(int PortalId, int ModuleId, string parentItemId, string cultureCode, string entityTypeCodeLang, string selUserId = "");
-        public abstract List<NBrightInfo> GetListWithLang(Repeater rp1, int portalId, int moduleId, string typeCode, int returnLimit = 0, int pageNumber = 0, int pageSize = 0, string entityTypeCodeLang = "", string selUserId = "", bool debugMode = false);
-        public abstract List<NBrightInfo> GetListWithLang(int portalId, int moduleId, string typeCode, string strFilters, string strOrderBy, int returnLimit = 0, int pageNumber = 0, int pageSize = 0, int recordCount = 0, string entityTypeCodeLang = "", string selUserId = "", bool debugMode = false);
 
     }
 
@@ -53,14 +47,19 @@ namespace NBrightDNN
             get { return _xmlData; } 
             set 
             {
+                XMLDoc = null;
                 _xmlData = value;
                 try
                 {
-                    XMLDoc = new XmlDataDocument();
-                    XMLDoc.LoadXml(_xmlData);
+                    if (!String.IsNullOrEmpty(_xmlData))
+                    {
+                        XMLDoc = new XmlDataDocument();
+                        XMLDoc.LoadXml(_xmlData);                        
+                    }
                 }
                 catch (Exception)
                 {
+                    //trap erorr and don't report. (The XML might be invalid, but we don;t want to stop processing here.)
                     XMLDoc = null;
                 }
             } 
@@ -285,6 +284,18 @@ namespace NBrightDNN
             //Removexref node, if there.
             if (XMLDoc.SelectSingleNode("genxml/" + nodeName + "/id[.='" + value + "']") != null)
                 RemoveXmlNode("genxml/" + nodeName + "/id[.='" + value + "']");
+        }
+
+
+        public List<String> GetXrefList(string nodeName)
+        {
+            var strList = new List<String>();
+            var nodList = XMLDoc.SelectNodes("genxml/" + nodeName + "/id");
+            foreach (XmlNode nod in nodList)
+            {
+                strList.Add(nod.InnerText);
+            }
+            return strList;
         }
 
 

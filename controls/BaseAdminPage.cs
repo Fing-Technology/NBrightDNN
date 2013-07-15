@@ -37,7 +37,7 @@ namespace NBrightDNN.controls
             {
                 case "selectitemid":
                     UInfo.SelItemId = cArg;
-                    UInfo.Save();
+                    //UInfo.Save();
                     Response.Redirect(UInfo.RtnSelUrl);
                     break;
                 case "edit":
@@ -46,16 +46,17 @@ namespace NBrightDNN.controls
                 case "delete":
                     if (Utils.IsNumeric(cArg))
                     {
-						var obj = ((DataCtrlInterface)ObjCtrl).GetInfo(Convert.ToInt32(cArg));
+						var obj = ((DataCtrlInterface)ObjCtrl).Get(Convert.ToInt32(cArg));
 						if (obj.ModuleId == ModuleId | obj.ModuleId == -1) //only delete items linked with this module or portalwide (-1). 
 						{
-							((DataCtrlInterface)ObjCtrl).DeleteInfo(Convert.ToInt32(cArg));
+							((DataCtrlInterface)ObjCtrl).Delete(Convert.ToInt32(cArg));
 						}
                     }
                     Response.Redirect(EditUrl(CtrlTypeCode));
                     break;
                 case "search":
-                    SetSearchUserDataInfoVar();
+                    var rp = (Repeater) source;
+                    SetSearchUserDataInfoVar(rp);
                     Response.Redirect(EditUrl(CtrlTypeCode));
                     break;
                 case "sort":
@@ -88,7 +89,8 @@ namespace NBrightDNN.controls
             switch (e.CommandName.ToLower())
             {
                 case "search":
-                    SetSearchUserDataInfoVar();
+                    var rp = (Repeater)source;
+                    SetSearchUserDataInfoVar(rp);
                     Response.Redirect(EditUrl(CtrlTypeCode));
                     break;
                 case "resetsearch":
@@ -117,12 +119,12 @@ namespace NBrightDNN.controls
         #region "update functions"
 
 
-        private void SortEntityRecords(string EntityType, string FromId, string ToId)
+        private void SortEntityRecords(string entityType, string fromId, string toId)
         {
-            if (Utils.IsNumeric(FromId) && Utils.IsNumeric(ToId))
+            if (Utils.IsNumeric(fromId) && Utils.IsNumeric(toId))
             {
-                var objInfo = base.GetData(Convert.ToInt32(FromId));
-                var objInfoTo = base.GetData(Convert.ToInt32(ToId));
+                var objInfo = base.GetData(Convert.ToInt32(fromId));
+                var objInfoTo = base.GetData(Convert.ToInt32(toId));
 				if ((objInfo != null && objInfoTo != null) && (objInfo.ItemID != objInfoTo.ItemID))
                 {
                     var strOrderBy = " Order by [xmlData].value('(genxml/hidden/recordsortorder)[1]', 'nvarchar(7)') ";
@@ -132,12 +134,12 @@ namespace NBrightDNN.controls
                     var l = new List<NBrightInfo>();
                     if (base.OverRideInfoList == null)
                     {
-                        l = base.GetList(PortalId, ModuleId, EntityType, "", "", strOrderBy);
+                        l = base.GetList(PortalId, ModuleId, entityType, "", strOrderBy);
                     }
                     else
                     {
                         // Make sure we only change the sort order without language xml attached.
-                        l = base.GetList(base.OverRideInfoList[0].PortalId, -1, base.OverRideInfoList[0].TypeCode, "", "", strOrderBy);
+                        l = base.GetList(base.OverRideInfoList[0].PortalId, -1, base.OverRideInfoList[0].TypeCode, "", strOrderBy);
                     }
 
                     // move items in list
@@ -189,9 +191,6 @@ namespace NBrightDNN.controls
 
 
         #endregion
-
-
-
 
 
     }
