@@ -92,6 +92,8 @@ namespace NBrightDNN.controls
             CtrlTabMenu.Visible = false;
         }
 
+        public string OverrideEditUrlBase { get; set; }
+
         public new string EditUrl()
         {
             return this.EditUrl("", "", "Edit");
@@ -152,7 +154,23 @@ namespace NBrightDNN.controls
 				lp += 1;
 			}
 
-			return Globals.NavigateURL(PortalSettings.ActiveTab.TabID, key, paramlist);
+		    var targetUrl = "";
+            if(String.IsNullOrEmpty(OverrideEditUrlBase))
+                targetUrl = Globals.NavigateURL(PortalSettings.ActiveTab.TabID, key, paramlist);
+            else
+            {
+                targetUrl = OverrideEditUrlBase;
+                // add controlkey to the list
+                targetUrl += targetUrl.Contains("?") ? "&" : "?";
+                targetUrl += "ctl=" + key;
+                // add other params
+                foreach (var s in paramlist)
+                {
+                    targetUrl += "&" + s;
+                }
+            }
+
+            return targetUrl;
 		}
     }
 }

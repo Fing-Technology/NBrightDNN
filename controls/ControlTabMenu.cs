@@ -66,7 +66,7 @@ namespace NBrightDNN.controls
 
         private string GetActionXml()
         {
-            var p = (PortalModuleBase)this.Parent;
+            var p = (BaseAdmin)this.Parent;
 
             var strXML = "<root>";
 
@@ -118,7 +118,7 @@ namespace NBrightDNN.controls
                     o.KeyID = c.KeyID;
                     o.ModuleControlID = c.ModuleControlID;
                     o.ModuleDefID = c.ModuleDefID;
-                    o.NavigateUrl = p.ModuleContext.EditUrl(c.ControlKey);
+                    o.NavigateUrl = p.EditUrl(c.ControlKey);
                     o.TabLevel = "";
                     o.ControlSrc = c.ControlSrc;
                     strXML += DotNetNuke.Common.Utilities.XmlUtils.Serialize(o);
@@ -135,6 +135,7 @@ namespace NBrightDNN.controls
             oe.KeyID = -1;
             oe.ModuleControlID = -1;
             oe.ModuleDefID = -1;
+            //oe.NavigateUrl = IsPageBasedBackOffice ? NBrightStoreUtils.GetManagerPageUrl(int.Parse(Request.QueryString["mid"])) : DotNetNuke.Common.Globals.NavigateURL(p.TabId);
             oe.NavigateUrl = DotNetNuke.Common.Globals.NavigateURL(p.TabId);
             oe.TabLevel = "";
             oe.ControlSrc = "";
