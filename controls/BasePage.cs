@@ -480,23 +480,25 @@ namespace NBrightDNN.controls
 
         public void UpdateUserData()
         {
-            UInfo.UserId =  UserInfo.UserID;
-            UInfo.TabId = TabId;
-            UInfo.SkinSrc = Globals.QueryStringEncode(Utils.RequestQueryStringParam(Context, "SkinSrc"));
-            UInfo.EntityTypeCode = EntityTypeCode;
-            UInfo.CtrlTypeCode = CtrlTypeCode;
-
-            // set these returns independantly, to allow return to previous pages & ajax called over paging. 
-            //UInfo.RtnSelUrl = EditUrl("itemid", ItemId, CtrlTypeCode);
-            //UInfo.RtnUrl = EditUrl("itemid", ItemId, CtrlTypeCode);
-            //UInfo.FromItemId = ItemId;
-            
-            if (CtrlSearch.Visible)
+            if (UserInfo.UserID >= 0) // only save this to DB if it's a registered user.  We don;t want robots creating records in DB.
             {
-                UInfo.SearchGenXml = GenXmlFunctions.GetGenXml(CtrlSearch);                
-            }
-            UInfo.Save();
+                UInfo.UserId = UserInfo.UserID;
+                UInfo.TabId = TabId;
+                UInfo.SkinSrc = Globals.QueryStringEncode(Utils.RequestQueryStringParam(Context, "SkinSrc"));
+                UInfo.EntityTypeCode = EntityTypeCode;
+                UInfo.CtrlTypeCode = CtrlTypeCode;
 
+                // set these returns independantly, to allow return to previous pages & ajax called over paging. 
+                //UInfo.RtnSelUrl = EditUrl("itemid", ItemId, CtrlTypeCode);
+                //UInfo.RtnUrl = EditUrl("itemid", ItemId, CtrlTypeCode);
+                //UInfo.FromItemId = ItemId;
+
+                if (CtrlSearch.Visible)
+                {
+                    UInfo.SearchGenXml = GenXmlFunctions.GetGenXml(CtrlSearch);
+                }
+                UInfo.Save();
+            }
         }
 
 

@@ -143,81 +143,85 @@ namespace NBrightDNN
 
         public void Save()
         {
-            if (!String.IsNullOrEmpty(CtrlTypeCode))
+            if (UserId >= 0) // only save this to DB if it's a valid user.  We don;t want robots creating records in DB.
             {
-
-                var strXml = "<root>";
-
-                strXml += "<current>";
-                strXml += "<userid>" + UserId.ToString("") + "</userid>";
-                strXml += "<tabid>" + TabId.ToString("") + "</tabid>";
-                strXml += "<moduleid>" + ModuleId.ToString("") + "</moduleid>";
-                strXml += "<skinsrc>" + SkinSrc + "</skinsrc>";
-                strXml += "<entitytypecode>" + EntityTypeCode + "</entitytypecode>";
-                strXml += "<entitytypecodelang>" + EntityTypeCodeLang + "</entitytypecodelang>";
-                strXml += "<ctrltypecode>" + CtrlTypeCode + "</ctrltypecode>";
-                strXml += "<rtnselurl>" + RtnSelUrl + "</rtnselurl>";
-                strXml += "<rtnurl>" + RtnUrl + "</rtnurl>";
-                strXml += "<fromitemid>" + FromItemId + "</fromitemid>";
-                strXml += "<selitemid>" + SelItemId + "</selitemid>";
-                strXml += "<seltype>" + SelType + "</seltype>";
-                strXml += "<sortitemid>" + SortItemId + "</sortitemid>";
-                strXml += "</current>";
-
-                strXml += "<" + CtrlTypeCode.ToLower() + ">";
-
-                strXml += "<searchclearafter>" + SearchClearAfter + "</searchclearafter>";
-                strXml += "<searchextra1>" + SearchExtra1 + "</searchextra1>";
-                strXml += "<searchextra2>" + SearchExtra2 + "</searchextra2>";
-                strXml += "<searchfilters><![CDATA[" + SearchFilters + "]]></searchfilters>";
-                strXml += "<searchgenxml>" + SearchGenXml + "</searchgenxml>";
-                strXml += "<searchorderby><![CDATA[" + SearchOrderby + "]]></searchorderby>";
-                strXml += "<searchpagenumber>" + SearchPageNumber + "</searchpagenumber>";
-                strXml += "<searchreturnlimit>" + SearchReturnLimit + "</searchreturnlimit>";
-                strXml += "<searchsearchdate1>" + SearchDate1 + "</searchsearchdate1>";
-                strXml += "<searchsearchdate2>" + SearchDate2 + "</searchsearchdate2>";
-                strXml += "<searchportalid>" + SearchPortalId + "</searchportalid>";
-                strXml += "<searchmoduleid>" + SearchModuleId + "</searchmoduleid>";
-
-                strXml += "</" + CtrlTypeCode.ToLower() + ">";
-
-                strXml += "<extraxml>";
-                if (ExtraXml != null)
+                if (!String.IsNullOrEmpty(CtrlTypeCode))
                 {
-                    strXml += ExtraXml.OuterXml;
+
+                    var strXml = "<root>";
+
+                    strXml += "<current>";
+                    strXml += "<userid>" + UserId.ToString("") + "</userid>";
+                    strXml += "<tabid>" + TabId.ToString("") + "</tabid>";
+                    strXml += "<moduleid>" + ModuleId.ToString("") + "</moduleid>";
+                    strXml += "<skinsrc>" + SkinSrc + "</skinsrc>";
+                    strXml += "<entitytypecode>" + EntityTypeCode + "</entitytypecode>";
+                    strXml += "<entitytypecodelang>" + EntityTypeCodeLang + "</entitytypecodelang>";
+                    strXml += "<ctrltypecode>" + CtrlTypeCode + "</ctrltypecode>";
+                    strXml += "<rtnselurl>" + RtnSelUrl + "</rtnselurl>";
+                    strXml += "<rtnurl>" + RtnUrl + "</rtnurl>";
+                    strXml += "<fromitemid>" + FromItemId + "</fromitemid>";
+                    strXml += "<selitemid>" + SelItemId + "</selitemid>";
+                    strXml += "<seltype>" + SelType + "</seltype>";
+                    strXml += "<sortitemid>" + SortItemId + "</sortitemid>";
+                    strXml += "</current>";
+
+                    strXml += "<" + CtrlTypeCode.ToLower() + ">";
+
+                    strXml += "<searchclearafter>" + SearchClearAfter + "</searchclearafter>";
+                    strXml += "<searchextra1>" + SearchExtra1 + "</searchextra1>";
+                    strXml += "<searchextra2>" + SearchExtra2 + "</searchextra2>";
+                    strXml += "<searchfilters><![CDATA[" + SearchFilters + "]]></searchfilters>";
+                    strXml += "<searchgenxml>" + SearchGenXml + "</searchgenxml>";
+                    strXml += "<searchorderby><![CDATA[" + SearchOrderby + "]]></searchorderby>";
+                    strXml += "<searchpagenumber>" + SearchPageNumber + "</searchpagenumber>";
+                    strXml += "<searchreturnlimit>" + SearchReturnLimit + "</searchreturnlimit>";
+                    strXml += "<searchsearchdate1>" + SearchDate1 + "</searchsearchdate1>";
+                    strXml += "<searchsearchdate2>" + SearchDate2 + "</searchsearchdate2>";
+                    strXml += "<searchportalid>" + SearchPortalId + "</searchportalid>";
+                    strXml += "<searchmoduleid>" + SearchModuleId + "</searchmoduleid>";
+
+                    strXml += "</" + CtrlTypeCode.ToLower() + ">";
+
+                    strXml += "<extraxml>";
+                    if (ExtraXml != null)
+                    {
+                        strXml += ExtraXml.OuterXml;
+                    }
+                    strXml += "</extraxml>";
+
+                    strXml += "</root>";
+
+                    if (String.IsNullOrEmpty(_obj.XMLData))
+                    {
+                        _obj.XMLData = strXml;
+                    }
+                    else
+                    {
+                        // merge current
+                        _obj.ReplaceXmlNode(strXml, "root/current", "root");
+
+                        // merge search data
+                        _obj.ReplaceXmlNode(strXml, "root/" + CtrlTypeCode.ToLower(), "root");
+
+                        // merge extra xml data
+                        _obj.ReplaceXmlNode(strXml, "root/extraxml", "root");
+                    }
+
+                    // create new userdatakey if needed.
+                    if (String.IsNullOrEmpty(_obj.GUIDKey))
+                    {
+                        UserDataKey = Guid.NewGuid().ToString("");
+                        _obj.GUIDKey = UserDataKey;
+                        _obj.ItemID = -1;
+                        // Cookie does not exists, so create.
+                        Cookie.SetCookieValue(PortalId, "UserDataInfo", "UserDataKey", UserDataKey,
+                                              ModuleId.ToString(""));
+                    }
+
+                    _obj.ItemID = _objCtrl.UpdateInfo(_obj);
+                    ItemId = _obj.ItemID;
                 }
-                strXml += "</extraxml>";
-
-                strXml += "</root>";
-
-                if (String.IsNullOrEmpty(_obj.XMLData))
-                {
-                    _obj.XMLData = strXml;
-                }
-                else
-                {
-                    // merge current
-                    _obj.ReplaceXmlNode(strXml, "root/current", "root");
-
-                    // merge search data
-                    _obj.ReplaceXmlNode(strXml, "root/" + CtrlTypeCode.ToLower(), "root");
-
-                    // merge extra xml data
-                    _obj.ReplaceXmlNode(strXml, "root/extraxml", "root");
-                }
-
-                // create new userdatakey if needed.
-                if (String.IsNullOrEmpty(_obj.GUIDKey))
-                {
-                    UserDataKey = Guid.NewGuid().ToString("");
-                    _obj.GUIDKey = UserDataKey;
-                    _obj.ItemID = -1;
-                    // Cookie does not exists, so create.
-                    Cookie.SetCookieValue(PortalId, "UserDataInfo", "UserDataKey", UserDataKey, ModuleId.ToString(""));
-                }
-
-                _obj.ItemID  = _objCtrl.UpdateInfo(_obj);
-                ItemId = _obj.ItemID;
             }
         }
 
