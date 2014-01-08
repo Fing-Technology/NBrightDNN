@@ -158,12 +158,12 @@ namespace NBrightDNN
                     strXml += "<userid>" + UserId.ToString("") + "</userid>";
                     strXml += "<tabid>" + TabId.ToString("") + "</tabid>";
                     strXml += "<moduleid>" + ModuleId.ToString("") + "</moduleid>";
-                    strXml += "<skinsrc>" + SkinSrc + "</skinsrc>";
+                    strXml += "<skinsrc><![CDATA[" + SkinSrc + "]]></skinsrc>";
                     strXml += "<entitytypecode>" + EntityTypeCode + "</entitytypecode>";
                     strXml += "<entitytypecodelang>" + EntityTypeCodeLang + "</entitytypecodelang>";
                     strXml += "<ctrltypecode>" + CtrlTypeCode + "</ctrltypecode>";
-                    strXml += "<rtnselurl>" + RtnSelUrl + "</rtnselurl>";
-                    strXml += "<rtnurl>" + RtnUrl + "</rtnurl>";
+                    strXml += "<rtnselurl><![CDATA[" + RtnSelUrl + "]]></rtnselurl>";
+                    strXml += "<rtnurl><![CDATA[" + RtnUrl + "]]></rtnurl>";
                     strXml += "<fromitemid>" + FromItemId + "</fromitemid>";
                     strXml += "<selitemid>" + SelItemId + "</selitemid>";
                     strXml += "<seltype>" + SelType + "</seltype>";

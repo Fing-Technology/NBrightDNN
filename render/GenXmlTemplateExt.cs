@@ -22,7 +22,7 @@ namespace NBrightDNN.render
         // This section overrides the interface methods for the GenX provider.
         // It allows providers to create controls/Literals in the NBright template system.
 
-        public override bool CreateGenControl(string ctrltype, Control container, XmlNode xmlNod, string rootname = "genxml", string databindColum = "XMLData", string cultureCode = "")
+        public override bool CreateGenControl(string ctrltype, Control container, XmlNode xmlNod, string rootname = "genxml", string databindColum = "XMLData", string cultureCode = "", Dictionary<string, string> settings = null)
         {
             _rootname = rootname;
             _databindColumn = databindColum;
@@ -338,7 +338,7 @@ namespace NBrightDNN.render
                     lblc.Attributes.Add("databind", xmlNod.Attributes["databind"].InnerXml);
                 }
 
-                lblc.DataBinding += LiteralDataBinding;
+                // no event triggered for dnn label control, so we can;t remove it with visible = false, so dnnlabels need to be hidden by css.
                 container.Controls.Add(lblc);
             }
         }

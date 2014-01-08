@@ -37,7 +37,7 @@ namespace NBrightDNN.controls
             {
                 case "selectitemid":
                     UInfo.SelItemId = cArg;
-                    //UInfo.Save();
+                    UInfo.Save();
                     Response.Redirect(UInfo.RtnSelUrl);
                     break;
                 case "edit":
@@ -177,7 +177,7 @@ namespace NBrightDNN.controls
                     objInfo.ItemID = -1;
                     base.UpdateData(objInfo);
 
-                    var strFilters = " and parentitemid = '" + CopyItemId + "' ";
+                    var strFilters = " and NB1.parentitemid = '" + CopyItemId + "' ";
                     var l = base.GetList(PortalId,ModuleId,"%","", strFilters);
                     foreach(var o in l)
                     {

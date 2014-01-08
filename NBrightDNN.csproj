@@ -33,11 +33,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DotNetNuke">
-      <HintPath>..\..\DNN_Ref\DNN6\DotNetNuke.dll</HintPath>
+      <HintPath>..\DNN6x\bin610\DotNetNuke.dll</HintPath>
     </Reference>
     <Reference Include="SharpZipLib, Version=0.81.0.1407, Culture=neutral">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\DNN_Ref\DNN6\SharpZipLib.dll</HintPath>
+      <HintPath>..\DNN6x\bin610\SharpZipLib.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />

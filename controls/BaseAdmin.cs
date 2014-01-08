@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using DotNetNuke.Entities.Modules;
-using DotNetNuke.Entities.Portals;
 using DotNetNuke.Common;
 using NBrightCore.common;
 using NBrightCore.render;
@@ -18,64 +14,61 @@ namespace NBrightDNN.controls
 
         public ControlTabMenu CtrlTabMenu;
 
+
         protected override void OnInit(EventArgs e)
         {
             if (Utils.RequestQueryStringParam(Context, "SkinSrc") == "" &&
                 !Context.Request.CurrentExecutionFilePath.EndsWith(".aspx"))
             {
-                base.OnInit(e);                
+                base.OnInit(e);
             }
-            else
+            else        
             {
+                this.Controls.AddAt(0, new LiteralControl("<div id='NBright_Content'>")); // create wrapper for content
 
-            this.Controls.AddAt(0, new LiteralControl("<div id='NBright_Content'>")); // create wrapper for content
+                base.OnInit(e);
 
-            base.OnInit(e);
+                if (String.IsNullOrEmpty(ControlAdminIncludePath)) ControlAdminIncludePath = ControlAdminPath;
 
-			if (String.IsNullOrEmpty(ControlAdminIncludePath)) ControlAdminIncludePath = ControlAdminPath;
+                char[] charsToTrim = {'/', '\\', '.', ' '};
+                if (System.IO.File.Exists(MapPath(ControlAdminIncludePath + "ui/admin.css")))
+                {
+                    NBrightCore.common.PageIncludes.IncludeCssFile(Page, "GenCSSadmin.css", ControlAdminIncludePath.TrimEnd(charsToTrim) + "/ui/admin.css");
+                }
+                if (System.IO.File.Exists(MapPath(ControlAdminIncludePath + "ui/admin.js")))
+                {
+                    NBrightCore.common.PageIncludes.IncludeJsFile(Page, "GenCSSadmin.js", ControlAdminIncludePath.TrimEnd(charsToTrim) + "/ui/admin.js");
+                }
 
-            char[] charsToTrim = { '/', '\\', '.', ' ' };
-			if (System.IO.File.Exists(MapPath(ControlAdminIncludePath + "ui/admin.css")))
-            {
-				NBrightCore.common.PageIncludes.IncludeCssFile(Page, "GenCSSadmin.css", ControlAdminIncludePath.TrimEnd(charsToTrim) + "/ui/admin.css");
-            }
-			if (System.IO.File.Exists(MapPath(ControlAdminIncludePath + "ui/admin.js")))
-            {
-				NBrightCore.common.PageIncludes.IncludeJsFile(Page, "GenCSSadmin.js", ControlAdminIncludePath.TrimEnd(charsToTrim) + "/ui/admin.js");
-            }
-
-
-            // *** Menu ***
-            CtrlTabMenu = new ControlTabMenu();
-            CtrlTabMenu.ControlAdminPath = ControlAdminPath;
-            //CtrlTabMenu.DebugMode = true;
-            this.Controls.AddAt(0, CtrlTabMenu);
+                // *** Menu ***
+                CtrlTabMenu = new ControlTabMenu();
+                CtrlTabMenu.ControlAdminPath = ControlAdminIncludePath;
+                //CtrlTabMenu.DebugMode = true;
+                this.Controls.AddAt(0, CtrlTabMenu);
 
 
-            //*** Banner ***
-            this.Controls.AddAt(0, new LiteralControl("</div>")); // end banner
-            var strItemTemplate = TemplCtrl.GetTemplateData("Banner.txt", Utils.GetCurrentCulture());
-            if (!strItemTemplate.StartsWith("NO TEMPLATE FOUND"))
-            {
-                CtrlBanner = new Repeater();
-                this.Controls.AddAt(0, CtrlBanner);
-                CtrlBanner.ItemTemplate = new GenXmlTemplate(strItemTemplate);
-                var obj = new object();
-                var l = new List<object> { obj };
-                CtrlBanner.DataSource = l;
-                CtrlBanner.DataBind();
-            }
-            this.Controls.AddAt(0, new LiteralControl("<div id='NBright_Banner'>")); // create banner.
+                //*** Banner ***
+                var strItemTemplate = TemplCtrl.GetTemplateData("Banner.txt", Utils.GetCurrentCulture());
+                if (strItemTemplate != "" && !strItemTemplate.StartsWith("NO TEMPLATE FOUND"))
+                {
+                    CtrlBanner = new Repeater();
+                    this.Controls.AddAt(0, CtrlBanner);
+                    CtrlBanner.ItemTemplate = new GenXmlTemplate(strItemTemplate);
+                    var obj = new object();
+                    var l = new List<object> {obj};
+                    CtrlBanner.DataSource = l;
+                    CtrlBanner.DataBind();
+                }
 
 
-            this.Controls.AddAt(0, new LiteralControl("<div id='NBright_Container'>")); // create full wrapper for content.
+
             }
         }
 
         protected override void OnLoad(EventArgs e)
         {
+
             this.Controls.Add(new LiteralControl("</div>")); // end wrapper for content
-            this.Controls.Add(new LiteralControl("</div>")); // end wrapper
 
             base.OnLoad(e);
 

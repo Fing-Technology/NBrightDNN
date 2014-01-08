@@ -1,21 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Web;
-using System.Xml;
-using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Modules;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Security;
-using DotNetNuke.Services.Exceptions;
 using DotNetNuke.Services.Localization;
 using DotNetNuke.Services.FileSystem;
-using ICSharpCode.SharpZipLib;
 using ICSharpCode.SharpZipLib.Zip;
 using NBrightCore.common;
 
@@ -38,20 +29,23 @@ namespace NBrightDNN
         {
             DirectoryInfo di = new DirectoryInfo(FolderMapPath);
             List<System.IO.FileInfo> files = new List<System.IO.FileInfo>();
-            foreach (System.IO.FileInfo file in di.GetFiles())
+            if (di.Exists)
             {
+                foreach (System.IO.FileInfo file in di.GetFiles())
+                {
                     files.Add(file);
+                }                
             }
             return files;
         }
 
-        public static List<string> GetCultureCodeList()
+        public static List<string> GetCultureCodeList(int portalId = -1)
         {
 			var rtnList = new List<string>();
-			if (DotNetNuke.Entities.Portals.PortalSettings.Current != null)
+            if (portalId == -1 && PortalSettings.Current != null) portalId = PortalSettings.Current.PortalId;
+            if (portalId != -1)
 			{
-				var objPortalSettings = DotNetNuke.Entities.Portals.PortalSettings.Current;
-				var enabledLanguages = LocaleController.Instance.GetLocales(objPortalSettings.PortalId);
+				var enabledLanguages = LocaleController.Instance.GetLocales(portalId);
 				foreach (KeyValuePair<string, Locale> kvp in enabledLanguages)
 				{
 					rtnList.Add(kvp.Value.Code);
@@ -295,6 +289,33 @@ namespace NBrightDNN
             return (DotNetNuke.Entities.Portals.PortalSettings) System.Web.HttpContext.Current.Items["PortalSettings"];
         }
 
+        #region "encryption"
+
+        public static String Encrypt(String value, String passkey = "")
+        {
+            var objSec = new PortalSecurity();
+            if (value == null) return "";
+            if (passkey == "")
+            {
+                var ps = GetCurrentPortalSettings();
+                passkey = ps.GUID.ToString();
+            }
+            return objSec.Encrypt(passkey, value);
+        }
+
+        public static String Decrypt(String value, String passkey = "")
+        {
+            var objSec = new PortalSecurity();
+            if (value == null) return "";
+            if (passkey == "")
+            {
+                var ps = GetCurrentPortalSettings();
+                passkey = ps.GUID.ToString();
+            }
+            return objSec.Decrypt(passkey, value);
+        }
+
+        #endregion
 
     }
 }

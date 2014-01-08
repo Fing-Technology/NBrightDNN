@@ -54,7 +54,8 @@ namespace NBrightDNN.controls
         public String ControlAdminPath { get; set; }
 		public String ControlAdminIncludePath { get; set; }
 		public List<NBrightInfo> OverRideInfoList { get; set; }
-
+        public String OverRideWebserviceUrl { get; set; }  //used to pass webserice to parent, so we use the webservice on a OnLoad event.
+        
 		//// Debug code for cache improvement timing: REMOVE FOR BUILD
 		//public String NBrightLogTrace = "";
 		//public long NBrightLogStartTick;
@@ -86,8 +87,8 @@ namespace NBrightDNN.controls
 
             EntityLangauge = Utils.RequestQueryStringParam(Context, "lang");
             if (EntityLangauge == "") EntityLangauge = Utils.GetCurrentCulture();
-            //make sure we have a valid culture code in upper and lower case. (url re-writers can make all url lowercase)
-            EntityLangauge = EntityLangauge.Substring(0, 2).ToLower() + "-" + EntityLangauge.Substring(3, 2).ToUpper();
+            //make sure we have a valid culture code in upper and lower case. (url re-writers can make all url lowercase) (none is the default editing langauge for templates/admin content)
+            if (EntityLangauge != "none") EntityLangauge = EntityLangauge.Substring(0, 2).ToLower() + "-" + EntityLangauge.Substring(3, 2).ToUpper();
 
             //get the ItemId
             ItemId = Utils.RequestQueryStringParam(Context, "itemid");
@@ -176,11 +177,19 @@ namespace NBrightDNN.controls
         {
             if (seluserId != "")
             {
+                //[TODO: I'm not sure this seciton of code for users data is valid anymore, what if we have data without a langauge for a user? 25/07/2013 ]
                 var strFilter = " and userid = '" + seluserId + "' ";
                 var l = GetList(PortalId, ModuleId, EntityTypeCode, strFilter, "", 1, 0, 0, 0, entityTypeCodeLang, lang);
                 return l.Count >= 1 ? l[0] : null;
             }
-            return (NBrightInfo)((DataCtrlInterface)ObjCtrl).Get(itemId, entityTypeCodeLang, lang);                
+
+            var obj =  (NBrightInfo)((DataCtrlInterface)ObjCtrl).Get(itemId, entityTypeCodeLang, lang);
+            if (obj== null)
+            {
+                //there is no langauge record, but there may be a non-langauge record, so get that.
+                obj = (NBrightInfo)((DataCtrlInterface)ObjCtrl).Get(itemId);
+            }
+            return obj;
         }
 
         /// <summary>
@@ -205,13 +214,39 @@ namespace NBrightDNN.controls
         public NBrightInfo GetDataLang(int parentItemId, string lang = "", string seluserId = "")
         {
             if (lang == "") lang = EntityLangauge;
-            var strFilter = " and parentitemid = '" + parentItemId + "' and lang = '" + lang + "' ";
+            var strFilter = " and NB1.parentitemid = '" + parentItemId + "' and ISNULL(NB2.[Lang],ISNULL(NB1.[Lang],'''')) =  '" + lang + "' ";
             if (seluserId != "")
             {
                 strFilter += " and userid = '" + seluserId + "' ";
             }
-            var l = GetList(PortalId, ModuleId, EntityTypeCodeLang, strFilter, "", 1);
-            return l.Count >= 1 ? l[0] : null;
+            var l = GetList(PortalId, ModuleId, EntityTypeCodeLang, strFilter, "", 0);
+
+            // START: FIX DATA ISSUES
+            // In some cases we have a mismatch between the itemid of the record and the itemid in the XML data
+            // I'm not sure how this happens (maybe import/export), but here we just make sure it's OK.
+            NBrightInfo rtnObj = null;
+            if (l.Count >= 1)
+            {
+                rtnObj = l[0];                
+                var i = rtnObj.GetXmlProperty("genxml/hidden/itemid");
+                if (i != "" && i != rtnObj.ItemID.ToString("")) // record might not have a hidden itemid field.
+                {
+                    rtnObj.SetXmlProperty("genxml/hidden/itemid", rtnObj.ItemID.ToString(""));
+                    ObjCtrl.Update(rtnObj); // fix record.
+                }
+            }
+            // I think!! because of the above issue we might have multiple lang record, remove the invalid ones.
+            if (l.Count >= 2)
+            {
+                for (int i = 1; i < l.Count; i++)
+                {
+                    NBrightInfo obj = l[i];
+                    ObjCtrl.Delete(obj.ItemID);
+                }
+            }
+            // END: FIX.
+
+            return rtnObj;
         }
 
 
@@ -265,6 +300,11 @@ namespace NBrightDNN.controls
 
         #region "Delete Methods"
 
+        /// <summary>
+        /// Delete all records linked to the typecode for a module.
+        /// </summary>
+        /// <param name="entityTypeCode"></param>
+        /// <param name="uploadFolder"></param>
 		public void DeleteAllEntityData(string entityTypeCode, string uploadFolder)
 		{
 			DeleteAllEntityData(base.PortalId, base.ModuleId, entityTypeCode, uploadFolder);
@@ -275,8 +315,8 @@ namespace NBrightDNN.controls
             var l = GetList(portalId, moduleId, entityTypeCode);
             foreach (var obj in l)
             {
-                DeleteLinkedFiles(obj.ItemID, uploadFolder);
-                ((DataCtrlInterface)ObjCtrl).Delete(obj.ItemID);
+                // NOTE: If we select a empty type code, the return list will include all "-1" moduleid records, so test we only delet the correct module data.
+                if (obj.ModuleId == moduleId) DeleteData(obj.ItemID, uploadFolder);
             }
         }
 
@@ -296,34 +336,43 @@ namespace NBrightDNN.controls
             }
         }
 
-        public void DeleteData(int itemID, string uploadFolder)
+        public void DeleteData(int itemID, string uploadFolder,string folderMapPath = "")
         {
             var objInfo = ((DataCtrlInterface)ObjCtrl).Get(itemID);
             if (objInfo != null)
             {
 
-                var strFilter = " and parentitemid = '" + itemID.ToString("") + "' ";
-
                 // delete any child records linked to parent.
+                var strFilter = " and NB1.parentitemid = '" + itemID.ToString("") + "' ";
                 var l = GetList(objInfo.PortalId,-1,"",strFilter);
                 foreach (var o in l)
                 {
                     DeleteData(o.ItemID,uploadFolder);
                 }
 
-                DeleteLinkedFiles(itemID, uploadFolder);
+                // delete any xref records linked to parent.
+                strFilter = " and NB1.XrefItemId = '" + itemID.ToString("") + "' ";
+                l = GetList(objInfo.PortalId, -1, "", strFilter);
+                foreach (var o in l)
+                {
+                    DeleteData(o.ItemID, uploadFolder);
+                }
+
+                DeleteLinkedFiles(itemID, uploadFolder, folderMapPath);
                 ((DataCtrlInterface)ObjCtrl).Delete(itemID);
 
             }
 
         }
 
-        public void DeleteLinkedFiles(int itemId, string uploadFolder)
+        public void DeleteLinkedFiles(int itemId, string uploadFolder, string folderMapPath = "")
         {
             var obj = ObjCtrl.Get(itemId);
-            if (uploadFolder != "" & obj != null)
+            if ((uploadFolder != "" | folderMapPath !="") & obj != null)
             {
-                obj.XMLData = GenXmlFunctions.DeleteFile(obj.XMLData, PortalSettings.HomeDirectoryMapPath + uploadFolder);
+                var fldr = PortalSettings.HomeDirectoryMapPath + uploadFolder;
+                if (folderMapPath != "") fldr = folderMapPath;
+                obj.XMLData = GenXmlFunctions.DeleteFile(obj.XMLData, fldr);
                 ObjCtrl.Update(obj);
             }
         }
@@ -469,7 +518,7 @@ namespace NBrightDNN.controls
 
             if (GenXmlFunctions.GetHiddenField(CtrlSearch, "lang") != "")
             {
-                strFilters += " and ([xmlData].value('(genxml/hidden/lang)[1]', 'nvarchar(10)') = '" + Utils.GetCurrentCulture() + "' or ISNULL([xmlData].value('(genxml/hidden/lang)[1]', 'nvarchar(10)'),'') = '') ";
+                strFilters += " and ISNULL(NB2.[Lang],ISNULL(NB1.[Lang],'''')) = '" + Utils.GetCurrentCulture() + "' or ISNULL(Lang,'') = '') ";
             }
 
             UInfo.SearchFilters = strFilters;
@@ -566,10 +615,11 @@ namespace NBrightDNN.controls
         public void DoDetail(Repeater rp1,bool forceDisplay = true)
         {
             NBrightInfo obj = null;
-            if (Utils.IsNumeric(ItemId)) obj = GetData(Convert.ToInt32(ItemId), EntityTypeCodeLang, EntityLangauge);            
+            if (Utils.IsNumeric(ItemId) && ItemId != "0") obj = GetData(Convert.ToInt32(ItemId), EntityTypeCodeLang, EntityLangauge);            
             if (obj == null && forceDisplay) obj = new NBrightInfo { ModuleId = ModuleId, PortalId = PortalId, XMLData = "<genxml></genxml>" };
             if (obj != null)
             {
+                var cahceKey = "NBrightRepeater_" + ItemId + "*" + EntityTypeCodeLang + "*" + EntityLangauge;
                 var l = new List<object> { obj };
                 rp1.DataSource = l;
                 rp1.DataBind();
@@ -582,8 +632,11 @@ namespace NBrightDNN.controls
             {
                 var weblist = new List<NBrightInfo>();
                 var recordCount = 0;
+                
+                // in some ascx we want to run a wesvice on the OnLoad event, the base.OnLoad doesn;t allow us to pass the webservice url, so we can use this to override the normal function and force a webservice to be used.
+                if (!string.IsNullOrEmpty(OverRideWebserviceUrl)) webserviceurl = OverRideWebserviceUrl;
 
-                if (EntityTypeCode == "" & webserviceurl != "")
+                if (EntityTypeCode == "" && !string.IsNullOrEmpty(webserviceurl))
                 {
                     // No EntityType, therefore data must be selected from WebService.
                     var l = new List<NBrightInfo>();
@@ -686,7 +739,8 @@ namespace NBrightDNN.controls
 				}
 				else
 				{
-                    return GetList(UInfo.SearchPortalId, UInfo.SearchModuleId, EntityTypeCode, UInfo.SearchFilters, UInfo.SearchOrderby, Convert.ToInt32(UInfo.SearchReturnLimit), Convert.ToInt32(UInfo.SearchPageNumber), Convert.ToInt32(UInfo.SearchPageSize), recordCount, EntityTypeCodeLang,Utils.GetCurrentCulture());
+                    var l = GetList(UInfo.SearchPortalId, UInfo.SearchModuleId, EntityTypeCode, UInfo.SearchFilters, UInfo.SearchOrderby, Convert.ToInt32(UInfo.SearchReturnLimit), Convert.ToInt32(UInfo.SearchPageNumber), Convert.ToInt32(UInfo.SearchPageSize), recordCount, EntityTypeCodeLang, EntityLangauge);
+				    return l;
 				}
             }
             catch (Exception)
@@ -757,7 +811,6 @@ namespace NBrightDNN.controls
             if (withSearch)
             {
                 strListSearch = TemplCtrl.GetTemplateData(CtrlTypeCode + "_Search.html", Utils.GetCurrentCulture());
-                strListSearch = ReplaceBasicTokens(strListSearch);
             }
 
             _activatePaging = withPaging;

@@ -92,6 +92,40 @@ namespace NBrightDNN
             XMLData = XMLDoc.OuterXml;
         }
 
+        /// <summary>
+        /// Add single node to XML 
+        /// </summary>
+        /// <param name="nodeName">Node Name</param>
+        /// <param name="nodeValue">Value of Node</param>
+        /// <param name="xPathRootDestination">xpath of parent location to enter the node</param>
+        public void AddSingleNode(string nodeName, string nodeValue, string xPathRootDestination)
+        {
+            var cdataStart = "<![CDATA[";
+            var cdataEnd = "]]>";
+            if (!nodeValue.Contains(cdataEnd))
+            { // if we already have a cdata in the node we can't wrap it into another and keep the XML strucutre.
+                cdataEnd = "";
+                cdataStart = "";
+            }
+            var strXml = "<root><" + nodeName + ">" + cdataStart + nodeValue + cdataEnd + "</" + nodeName + "></root>";
+            try
+            {
+                AddXmlNode(strXml, "root/" + nodeName, xPathRootDestination);
+            }
+            catch (Exception)
+            {// log a message, but don't stop processing.  Should never add XML using this method, if we're going to use it.  
+                strXml = "<root><" + nodeName + ">ERROR - Unable to load node, possibly due to XML CDATA clash.</" + nodeName + "></root>";
+                AddXmlNode(strXml, "root/" + nodeName, xPathRootDestination);
+            }
+
+        }
+
+        /// <summary>
+        /// Add a XML node to a parent destination 
+        /// </summary>
+        /// <param name="strXml">source XML</param>
+        /// <param name="xPathSource">source xpath</param>
+        /// <param name="xPathRootDestination">parent xpath in destination</param>
         public void AddXmlNode(string strXml, string xPathSource, string xPathRootDestination)
         {
             var xmlDocNew = new XmlDataDocument();
@@ -132,13 +166,12 @@ namespace NBrightDNN
             }
             else
             {
-                AddXmlNode(strXml,xPathSource,xPathRootDestination);
+                if (addNode) AddXmlNode(strXml, xPathSource, xPathRootDestination);
             }
         }
 
         public string GetXmlProperty(string xpath)
         {
-            var xmlDoc = new XmlDataDocument();
             if (!string.IsNullOrEmpty(XMLData))
             {
                 try
@@ -266,6 +299,43 @@ namespace NBrightDNN
         }
 
 
+        public Dictionary<String, String> ToDictionary()
+        {
+            var rtnDictionary = new Dictionary<string, string>();
+            if (XMLDoc != null)
+            {
+
+                rtnDictionary = AddToDictionary(rtnDictionary, "genxml/hidden/*");
+                rtnDictionary = AddToDictionary(rtnDictionary, "genxml/textbox/*");
+                rtnDictionary = AddToDictionary(rtnDictionary, "genxml/checkbox/*");
+                rtnDictionary = AddToDictionary(rtnDictionary, "genxml/dropdownlist/*");
+                rtnDictionary = AddToDictionary(rtnDictionary, "genxml/radiobuttonlist/*");
+            }
+            return rtnDictionary;
+        }
+
+        private Dictionary<string, string> AddToDictionary(Dictionary<string, string> inpDictionary, string xpath)
+        {
+            if (XMLDoc != null)
+            {
+                var nods = XMLDoc.SelectNodes(xpath);
+                if (nods != null)
+                {
+                    foreach (XmlNode nod in nods)
+                    {
+                        if (inpDictionary.ContainsKey(nod.Name))
+                        {
+                            inpDictionary[nod.Name] = nod.InnerText; // overwrite same name node
+                        }
+                        else
+                        {
+                            inpDictionary.Add(nod.Name, nod.InnerText);
+                        }
+                    }
+                }
+            }
+            return inpDictionary;
+        }
 
         #region "Xref"
 
