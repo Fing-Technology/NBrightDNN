@@ -170,6 +170,75 @@ namespace NBrightDNN
             }
         }
 
+        /// <summary>
+        /// return int data type from XML
+        /// </summary>
+        /// <param name="xpath"></param>
+        /// <returns></returns>
+        public int GetXmlPropertyInt(string xpath)
+        {
+            if (!string.IsNullOrEmpty(XMLData))
+            {
+                try
+                {
+                    var x =  GenXmlFunctions.GetGenXmlValue(XMLData, xpath);
+                    if (Utils.IsNumeric(x)) return Convert.ToInt32(x);                    
+                }
+                catch (Exception ex)
+                {
+                    return 0;
+                }
+            }
+            return 0;
+        }
+
+        /// <summary>
+        /// return double data type from XML
+        /// </summary>
+        /// <param name="xpath"></param>
+        /// <returns></returns>
+        public double GetXmlPropertyDouble(string xpath)
+        {
+            if (!string.IsNullOrEmpty(XMLData))
+            {
+                try
+                {
+                    var x = GenXmlFunctions.GetGenXmlValue(XMLData, xpath);
+                    if (Utils.IsNumeric(x)) return Convert.ToDouble(x);
+                }
+                catch (Exception ex)
+                {
+                    return 0;
+                }
+            }
+            return 0;
+        }
+
+        /// <summary>
+        /// return Bool data type from XML
+        /// </summary>
+        /// <param name="xpath"></param>
+        /// <returns></returns>
+        public bool GetXmlPropertyBool(string xpath)
+        {
+            if (!string.IsNullOrEmpty(XMLData))
+            {
+                try
+                {
+                    var x = GenXmlFunctions.GetGenXmlValue(XMLData, xpath);
+                    // bool usually stored as "True" "False"
+                    if (x.ToLower() == "true") return true;
+                    // Test for 1 as true also.
+                    if (x.ToLower() == "1") return true;
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+            }
+            return false;
+        }
+
         public string GetXmlProperty(string xpath)
         {
             if (!string.IsNullOrEmpty(XMLData))
@@ -192,7 +261,7 @@ namespace NBrightDNN
             if (!string.IsNullOrEmpty(XMLData))
             {
                 var strData = GenXmlFunctions.GetGenXmlValue(XMLData, xpath) + Value;
-                XMLData = GenXmlFunctions.SetGenXmLvalue(XMLData, xpath, strData, cdata);
+                XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath, strData, cdata);
             }
         }
 
@@ -200,7 +269,7 @@ namespace NBrightDNN
         {
             if (!string.IsNullOrEmpty(XMLData))
             {
-                XMLData = GenXmlFunctions.SetGenXmLvalue(XMLData, xpath, Value, cdata);
+                XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath, Value, cdata);
             }
         }
 

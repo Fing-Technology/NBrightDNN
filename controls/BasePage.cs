@@ -46,6 +46,7 @@ namespace NBrightDNN.controls
             }
         }
 
+        public string TemplateThemeFolder { get; set; }
         public string EntityLangauge { get; set; }
         public string CtrlTypeCode { get; set; }
         public string EntityTypeCodeLang { get; set; }
@@ -86,7 +87,7 @@ namespace NBrightDNN.controls
             UInfo = new UserDataInfo(PortalId, ModuleId, ObjCtrl,CtrlTypeCode);
 
             EntityLangauge = Utils.RequestQueryStringParam(Context, "lang");
-            if (EntityLangauge == "") EntityLangauge = Utils.GetCurrentCulture();
+            if (EntityLangauge.Length != 5) EntityLangauge = Utils.GetCurrentCulture();
             //make sure we have a valid culture code in upper and lower case. (url re-writers can make all url lowercase) (none is the default editing langauge for templates/admin content)
             if (EntityLangauge != "none") EntityLangauge = EntityLangauge.Substring(0, 2).ToLower() + "-" + EntityLangauge.Substring(3, 2).ToUpper();
 
@@ -119,7 +120,8 @@ namespace NBrightDNN.controls
             CtrlSearch.ItemCommand += new RepeaterCommandEventHandler(CtrlSearchItemCommand);
             CtrlPaging.PageChanged += new RepeaterCommandEventHandler(PagingClick);
 
-            TemplCtrl = new NBrightCore.TemplateEngine.TemplateGetter(MapPath("/DesktopModules/" + base.ModuleConfiguration.DesktopModule.FolderName), MapPath(ControlAdminPath));
+            if (TemplateThemeFolder == null) TemplateThemeFolder = ""; // we need a valid value, even if empty
+            TemplCtrl = new NBrightCore.TemplateEngine.TemplateGetter(MapPath("/DesktopModules/" + base.ModuleConfiguration.DesktopModule.FolderName), MapPath(ControlAdminPath), "NBrightTemplates", TemplateThemeFolder);
         }
 
         protected override void OnLoad(System.EventArgs e)
@@ -526,7 +528,8 @@ namespace NBrightDNN.controls
             UInfo.SearchReturnLimit = GenXmlFunctions.GetHiddenField(CtrlSearch, "searchreturnlimit");
             if (UInfo.SearchPageNumber == "") UInfo.SearchPageNumber = "1";
             UInfo.SearchPageSize = GenXmlFunctions.GetHiddenField(CtrlSearch, "searchpagesize");
-            var strSearchModuleId  = GenXmlFunctions.GetHiddenField(CtrlSearch, "searchmoduleid");
+            if (UInfo.SearchPageSize == "") UInfo.SearchPageSize = GenXmlFunctions.GetHiddenField(CtrlSearch, "pagesize");
+            var strSearchModuleId = GenXmlFunctions.GetHiddenField(CtrlSearch, "searchmoduleid");
             if (Utils.IsNumeric(strSearchModuleId)) UInfo.SearchModuleId = Convert.ToInt32(strSearchModuleId);
             UInfo.SearchClearAfter = "0";
 
@@ -698,6 +701,7 @@ namespace NBrightDNN.controls
 
                 if (!Utils.IsNumeric(UInfo.SearchPageNumber)) UInfo.SearchPageNumber = "1";
                 UInfo.SearchPageSize = GenXmlFunctions.GetHiddenField(CtrlSearch, "searchpagesize");
+                if (UInfo.SearchPageSize == "") UInfo.SearchPageSize = GenXmlFunctions.GetHiddenField(CtrlSearch, "pagesize");
                 UInfo.SearchReturnLimit = GenXmlFunctions.GetHiddenField(CtrlSearch, "searchreturnlimit");
                 if (!Utils.IsNumeric(UInfo.SearchPageSize)) UInfo.SearchPageSize = "25";
                 if (!Utils.IsNumeric(UInfo.SearchReturnLimit)) UInfo.SearchReturnLimit = "0";
