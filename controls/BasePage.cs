@@ -46,6 +46,8 @@ namespace NBrightDNN.controls
             }
         }
 
+        public string PrimaryTemplateMapPath { get; set; }
+        public string SecondaryTemplateMapPath { get; set; }
         public string TemplateThemeFolder { get; set; }
         public string EntityLangauge { get; set; }
         public string CtrlTypeCode { get; set; }
@@ -120,8 +122,11 @@ namespace NBrightDNN.controls
             CtrlSearch.ItemCommand += new RepeaterCommandEventHandler(CtrlSearchItemCommand);
             CtrlPaging.PageChanged += new RepeaterCommandEventHandler(PagingClick);
 
-            if (TemplateThemeFolder == null) TemplateThemeFolder = ""; // we need a valid value, even if empty
-            TemplCtrl = new NBrightCore.TemplateEngine.TemplateGetter(MapPath("/DesktopModules/" + base.ModuleConfiguration.DesktopModule.FolderName), MapPath(ControlAdminPath), "NBrightTemplates", TemplateThemeFolder);
+
+            if (String.IsNullOrEmpty(PrimaryTemplateMapPath)) PrimaryTemplateMapPath = PortalSettings.HomeDirectoryMapPath;
+            if (String.IsNullOrEmpty(SecondaryTemplateMapPath)) SecondaryTemplateMapPath = MapPath(ControlAdminPath);
+            if (String.IsNullOrEmpty(TemplateThemeFolder)) TemplateThemeFolder = ""; // we need a valid value, even if empty
+            TemplCtrl = new NBrightCore.TemplateEngine.TemplateGetter(PrimaryTemplateMapPath, SecondaryTemplateMapPath, "NBrightTemplates", TemplateThemeFolder);
         }
 
         protected override void OnLoad(System.EventArgs e)

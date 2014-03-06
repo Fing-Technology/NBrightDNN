@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -204,7 +205,7 @@ namespace NBrightDNN
                 try
                 {
                     var x = GenXmlFunctions.GetGenXmlValue(XMLData, xpath);
-                    if (Utils.IsNumeric(x)) return Convert.ToDouble(x);
+                    if (Utils.IsNumeric(x)) return Convert.ToDouble(x,CultureInfo.GetCultureInfo("en-US")); // double should always be saved as en-US
                 }
                 catch (Exception ex)
                 {
@@ -269,6 +270,15 @@ namespace NBrightDNN
         {
             if (!string.IsNullOrEmpty(XMLData))
             {
+                if (DataTyp == System.TypeCode.Double)
+                {
+                    // always save double in en-US format
+                    if (Utils.IsNumeric(Value, Utils.GetCurrentCulture()))
+                    {
+                        var dbl = Convert.ToDouble(Value, CultureInfo.GetCultureInfo(Utils.GetCurrentCulture()));
+                        Value = dbl.ToString(CultureInfo.GetCultureInfo("en-US"));
+                    }
+                }
                 XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath, Value, cdata);
             }
         }
