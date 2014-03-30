@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Web.Caching;
 using System.Xml;
 using System.Web.UI.WebControls;
+using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Tabs;
 using DotNetNuke.Entities.Users;
+using DotNetNuke.Services.Cache;
 using DotNetNuke.Services.Localization;
 using NBrightCore.providers;
 
@@ -39,24 +42,24 @@ namespace NBrightDNN
             return DotNetNuke.Entities.Portals.PortalSettings.Current.HomeDirectoryMapPath;
         }
 
-        public override void SetCache(string CacheKey, object objObject, DateTime AbsoluteExpiration)
+        public override void SetCache(string cacheKey, object objObject, DateTime absoluteExpiration)
         {
-            DotNetNuke.Common.Utilities.DataCache.SetCache(CacheKey, objObject, AbsoluteExpiration);
+            DataCache.SetCache(cacheKey, objObject, absoluteExpiration);
         }
 
-        public override object GetCache(string CacheKey)
+        public override object GetCache(string cacheKey)
         {
-            return DotNetNuke.Common.Utilities.DataCache.GetCache(CacheKey);
+            return DataCache.GetCache(cacheKey);
         }
 
-        public override void RemoveCache(string CacheKey)
+        public override void RemoveCache(string cacheKey)
         {
-            DotNetNuke.Common.Utilities.DataCache.RemoveCache(CacheKey);
+            DataCache.RemoveCache(cacheKey);
         }
 
-        public override Dictionary<int, string> GetTabList(string CultureCode)
+        public override Dictionary<int, string> GetTabList(string cultureCode)
         {
-            var tabList = DotNetNuke.Entities.Tabs.TabController.GetTabsBySortOrder(DotNetNuke.Entities.Portals.PortalSettings.Current.PortalId, CultureCode, true);
+            var tabList = DotNetNuke.Entities.Tabs.TabController.GetTabsBySortOrder(DotNetNuke.Entities.Portals.PortalSettings.Current.PortalId, cultureCode, true);
             var rtnList = new Dictionary<int, string>();
             return GetTreeTabList(rtnList,tabList,0,0);
         }
@@ -66,20 +69,20 @@ namespace NBrightDNN
             return DnnUtils.GetCultureCodeList();
         }
 
-		public override Dictionary<String, String> GetResourceData(String ResourcePath, String ResourceKey)
+		public override Dictionary<String, String> GetResourceData(String resourcePath, String resourceKey)
 		{
-            var ckey = ResourcePath + ResourceKey + DnnUtils.GetCurrentValidCultureCode();
+            var ckey = resourcePath + resourceKey + DnnUtils.GetCurrentValidCultureCode();
 			var obj  = GetCache(ckey);
 			if (obj != null) return (Dictionary<String, String>)obj;
 
 			var rtnList = new Dictionary<String, String>();
-			var s = ResourceKey.Split('.');
-            if (s.Length == 2 && ResourcePath != "")
+			var s = resourceKey.Split('.');
+            if (s.Length == 2 && resourcePath != "")
             {
                 var fName = s[0];
                 var rKey = s[1];
 
-                var fullFileName = System.Web.Hosting.HostingEnvironment.MapPath(ResourcePath.TrimEnd('/') + "/" + fName + ".ascx.resx");
+                var fullFileName = System.Web.Hosting.HostingEnvironment.MapPath(resourcePath.TrimEnd('/') + "/" + fName + ".ascx.resx");
                 if (!String.IsNullOrEmpty(fullFileName) && System.IO.File.Exists(fullFileName))
                 {
                     var xmlDoc = new XmlDataDocument();
@@ -105,7 +108,7 @@ namespace NBrightDNN
                 // overwrite the resx value with lanaguge ones, this ensures english (default) are always there, but overwritten by langauge values. (lanaguge resx might not be uptodate!)
                 if (DnnUtils.GetCurrentValidCultureCode().Substring(0, 2).ToLower() != "en")
                 {
-                    var tmpfullFileName = System.Web.Hosting.HostingEnvironment.MapPath(ResourcePath.TrimEnd('/') + "/" + fName + ".ascx." + DnnUtils.GetCurrentValidCultureCode() + ".resx");
+                    var tmpfullFileName = System.Web.Hosting.HostingEnvironment.MapPath(resourcePath.TrimEnd('/') + "/" + fName + ".ascx." + DnnUtils.GetCurrentValidCultureCode() + ".resx");
                     if (System.IO.File.Exists(tmpfullFileName))
                     {
                         fullFileName = tmpfullFileName;
