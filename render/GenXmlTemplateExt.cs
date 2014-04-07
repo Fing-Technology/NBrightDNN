@@ -338,10 +338,26 @@ namespace NBrightDNN.render
                     lblc.Attributes.Add("databind", xmlNod.Attributes["databind"].InnerXml);
                 }
 
+                lblc.DataBinding += LabelControlBinding;
+
                 // no event triggered for dnn label control, so we can;t remove it with visible = false, so dnnlabels need to be hidden by css.
                 container.Controls.Add(lblc);
             }
         }
+
+        private void LabelControlBinding(object sender, EventArgs e)
+        {
+            var lbl = (GenLabelControl)sender;
+            try
+            {
+                lbl.Visible = NBrightGlobal.IsVisible;
+            }
+            catch (Exception)
+            {
+                //do nothing
+            }
+        }
+
 
         #endregion
 
