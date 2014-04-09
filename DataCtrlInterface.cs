@@ -266,6 +266,16 @@ namespace NBrightDNN
             }
         }
 
+        public void SetXmlPropertyDouble(string xpath, Double value, int precision = 2)
+        {
+            SetXmlPropertyDouble(xpath, Math.Round(value, precision).ToString(""));
+        }
+
+        public void SetXmlPropertyDouble(string xpath, string value)
+        {
+            SetXmlProperty(xpath, value, System.TypeCode.Double,false);
+        }
+
         public void SetXmlProperty(string xpath, string Value, System.TypeCode DataTyp = System.TypeCode.String, bool cdata = true)
         {
             if (!string.IsNullOrEmpty(XMLData))
