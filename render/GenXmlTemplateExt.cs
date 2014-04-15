@@ -44,6 +44,9 @@ namespace NBrightDNN.render
                 case "dnnhomedirectory":
                     CreatePortalHomeDirectory(container);
                     return true;
+                case "websiteurl":
+                    CreateWebsiteUrl(container);
+                    return true;
                 default:
                     return false;
 
@@ -363,6 +366,23 @@ namespace NBrightDNN.render
 
         #region "Portal Settings value"
 
+        /// <summary title="WebsiteUrl" >
+        /// <para class="text">
+        /// Output current WebsiteUrl
+        /// </para>
+        /// <para class="example">
+        /// [<tag type="websiteurl" />]
+        /// </para>
+        /// </summary>
+        private void CreateWebsiteUrl(Control container)
+        {
+            var lc = new Literal();
+            var ps = DnnUtils.GetCurrentPortalSettings();
+            lc.Text = ps.PortalAlias.HTTPAlias;
+            lc.DataBinding += LiteralDataBinding;
+            container.Controls.Add(lc);
+        }
+
         /// <summary title="DNN Portal Home Diirectory" >
         /// <para class="text">
         /// Output current DNN Portal Home Directory
@@ -374,13 +394,11 @@ namespace NBrightDNN.render
         private void CreatePortalHomeDirectory(Control container)
         {
             var lc = new Literal();
-            var PS = DnnUtils.GetCurrentPortalSettings();
-            lc.Text = PS.HomeDirectory;
+            var ps = DnnUtils.GetCurrentPortalSettings();
+            lc.Text = ps.HomeDirectory;
             lc.DataBinding += LiteralDataBinding;
             container.Controls.Add(lc);
         }
-
-        #endregion
 
         private void LiteralDataBinding(object sender, EventArgs e)
         {
@@ -422,6 +440,8 @@ namespace NBrightDNN.render
             var objUser = UserController.GetCurrentUserInfo();
             return objUser.IsInRole(genprop);
         }
+
+        #endregion
 
         #endregion
     }
