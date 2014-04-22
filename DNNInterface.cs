@@ -59,9 +59,7 @@ namespace NBrightDNN
 
         public override Dictionary<int, string> GetTabList(string cultureCode)
         {
-            var tabList = DotNetNuke.Entities.Tabs.TabController.GetTabsBySortOrder(DotNetNuke.Entities.Portals.PortalSettings.Current.PortalId, cultureCode, true);
-            var rtnList = new Dictionary<int, string>();
-            return GetTreeTabList(rtnList,tabList,0,0);
+            return DnnUtils.GetTreeTabList();
         }
 
         public override List<string> GetCultureCodeList()
@@ -145,29 +143,7 @@ namespace NBrightDNN
 		}
 
 
-        private Dictionary<int, string> GetTreeTabList(Dictionary<int, string> rtnList, List<TabInfo> tabList, int level, int parentid, string prefix = "")
-        {
-            if (level > 20) // stop infinate loop
-            {
-                return rtnList;
-            }
-            if (parentid > 0) prefix += "..";
-            foreach (TabInfo tInfo in tabList)
-            {
-                var parenttestid = tInfo.ParentId;
-                if (parenttestid < 0) parenttestid = 0;
-                if (parentid == parenttestid)
-                {
-                    if (!tInfo.IsDeleted && tInfo.TabPermissions.Count > 2)
-                    {
-                        rtnList.Add(tInfo.TabID, prefix + "" + tInfo.TabName);
-                        GetTreeTabList(rtnList, tabList, level + 1, tInfo.TabID, prefix);
-                    }
-                }
-            }
 
-            return rtnList;
-        }
 
 
     }
