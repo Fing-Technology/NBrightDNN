@@ -58,6 +58,7 @@ namespace NBrightDNN.controls
 		public String ControlAdminIncludePath { get; set; }
 		public List<NBrightInfo> OverRideInfoList { get; set; }
         public String OverRideWebserviceUrl { get; set; }  //used to pass webserice to parent, so we use the webservice on a OnLoad event.
+        public Boolean DisablePaging { get; set; } // disable the paging control
         
 		//// Debug code for cache improvement timing: REMOVE FOR BUILD
 		//public String NBrightLogTrace = "";
@@ -115,12 +116,15 @@ namespace NBrightDNN.controls
             CtrlList = new Repeater();
             this.Controls.Add(CtrlList);
 
-            CtrlPaging = new NBrightCore.controls.PagingCtrl();
-            this.Controls.Add(CtrlPaging);
+            if (!DisablePaging)
+            {
+                CtrlPaging = new NBrightCore.controls.PagingCtrl();
+                this.Controls.Add(CtrlPaging);
 
-            CtrlList.ItemCommand += new RepeaterCommandEventHandler(CtrlListItemCommand);
-            CtrlSearch.ItemCommand += new RepeaterCommandEventHandler(CtrlSearchItemCommand);
-            CtrlPaging.PageChanged += new RepeaterCommandEventHandler(PagingClick);
+                CtrlList.ItemCommand += new RepeaterCommandEventHandler(CtrlListItemCommand);
+                CtrlSearch.ItemCommand += new RepeaterCommandEventHandler(CtrlSearchItemCommand);
+                CtrlPaging.PageChanged += new RepeaterCommandEventHandler(PagingClick);                
+            }
 
 
             if (String.IsNullOrEmpty(PrimaryTemplateMapPath)) PrimaryTemplateMapPath = PortalSettings.HomeDirectoryMapPath;
