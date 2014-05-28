@@ -20,10 +20,78 @@ namespace NBrightDNN
         {
             var zipStream = new FileStream(zipFileMapPath, FileMode.Open, FileAccess.Read);
             var zStream = new ZipInputStream(zipStream);
-            DotNetNuke.Common.Utilities.FileSystemUtils.UnzipResources(zStream, outputFolder);
+            UnzipResources(zStream, outputFolder);
             zipStream.Close();
             zStream.Close();
         }
+
+        public static void UnzipResources(ZipInputStream zipStream, string destPath)
+        {
+            try
+            {
+                ZipEntry objZipEntry;
+                string LocalFileName;
+                string RelativeDir;
+                string FileNamePath;
+                objZipEntry = zipStream.GetNextEntry();
+                while (objZipEntry != null)
+                {
+                    LocalFileName = objZipEntry.Name;
+                    RelativeDir = Path.GetDirectoryName(objZipEntry.Name);
+                    if ((RelativeDir != string.Empty) && (!Directory.Exists(Path.Combine(destPath, RelativeDir))))
+                    {
+                        Directory.CreateDirectory(Path.Combine(destPath, RelativeDir));
+                    }
+                    if ((!objZipEntry.IsDirectory) && (!String.IsNullOrEmpty(LocalFileName)))
+                    {
+                        FileNamePath = Path.Combine(destPath, LocalFileName).Replace("/", "\\");
+                        try
+                        {
+                            if (File.Exists(FileNamePath))
+                            {
+                                File.SetAttributes(FileNamePath, FileAttributes.Normal);
+                                File.Delete(FileNamePath);
+                            }
+                            FileStream objFileStream = null;
+                            try
+                            {
+                                objFileStream = File.Create(FileNamePath);
+                                int intSize = 2048;
+                                var arrData = new byte[2048];
+                                intSize = zipStream.Read(arrData, 0, arrData.Length);
+                                while (intSize > 0)
+                                {
+                                    objFileStream.Write(arrData, 0, intSize);
+                                    intSize = zipStream.Read(arrData, 0, arrData.Length);
+                                }
+                            }
+                            finally
+                            {
+                                if (objFileStream != null)
+                                {
+                                    objFileStream.Close();
+                                    objFileStream.Dispose();
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                         //   DnnLog.Error(ex);
+                        }
+                    }
+                    objZipEntry = zipStream.GetNextEntry();
+                }
+            }
+            finally
+            {
+                if (zipStream != null)
+                {
+                    zipStream.Close();
+                    zipStream.Dispose();
+                }
+            }
+        }
+
 
 
         public static List<System.IO.FileInfo> GetFiles(string FolderMapPath)

@@ -35,9 +35,8 @@
     <Reference Include="DotNetNuke">
       <HintPath>..\DNN6x\bin610\DotNetNuke.dll</HintPath>
     </Reference>
-    <Reference Include="SharpZipLib, Version=0.81.0.1407, Culture=neutral">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\DNN6x\bin\SharpZipLib.dll</HintPath>
+    <Reference Include="SharpZipLib">
+      <HintPath>..\DNN6x\bin610\SharpZipLib.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
