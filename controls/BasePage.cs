@@ -59,6 +59,7 @@ namespace NBrightDNN.controls
 		public List<NBrightInfo> OverRideInfoList { get; set; }
         public String OverRideWebserviceUrl { get; set; }  //used to pass webserice to parent, so we use the webservice on a OnLoad event.
         public Boolean DisablePaging { get; set; } // disable the paging control
+        public Boolean DisableUserInfo { get; set; } // disable Saving of UserInfoData to DB
         
 		//// Debug code for cache improvement timing: REMOVE FOR BUILD
 		//public String NBrightLogTrace = "";
@@ -548,7 +549,7 @@ namespace NBrightDNN.controls
 
         public void UpdateUserData()
         {
-            if (UserInfo.UserID >= 0) // only save this to DB if it's a registered user.  We don;t want robots creating records in DB.
+            if (UserInfo.UserID >= 0 && !DisableUserInfo) // only save this to DB if it's a registered user.  We don;t want robots creating records in DB.
             {
                 UInfo.UserId = UserInfo.UserID;
                 UInfo.TabId = TabId;
