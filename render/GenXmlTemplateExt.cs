@@ -24,24 +24,41 @@ namespace NBrightDNN.render
 
         public override bool CreateGenControl(string ctrltype, Control container, XmlNode xmlNod, string rootname = "genxml", string databindColum = "XMLData", string cultureCode = "", Dictionary<string, string> settings = null)
         {
+            //remove namespace of token.
+            // If the NBrigthCore template system is being used across mutliple modules in the portal (that use a provider interface for tokens),
+            // then a namespace should be added to the front of the type attribute, this stops clashes in the tokening system. NOTE: the "tokennamespace" tag is now supported as well
+            if (ctrltype.StartsWith("dnn:")) ctrltype = ctrltype.Substring(4);
+
             _rootname = rootname;
             _databindColumn = databindColum;
 
             switch (ctrltype)
             {
-                case "dnntexteditor":
+                case "dnntexteditor": //legacy before namespace
                     CreateTextEditor(container, xmlNod);
                     return true;
-                case "dnnlabelcontrol":
+                case "dnnlabelcontrol": //legacy before namespace
                     CreateLabelControl(container, xmlNod);
                     return true;
-                case "dnndatecontrol":
+                case "dnndatecontrol": //legacy before namespace
                     CreateDateControl(container, xmlNod);
                     return true;
                 case "dateeditcontrol": // Legacy name for "dnndatecontrol"
                     CreateDateControl(container, xmlNod);
                     return true;
-                case "dnnhomedirectory":
+                case "dnnhomedirectory": //legacy before namespace
+                    CreatePortalHomeDirectory(container);
+                    return true;
+                case "texteditor":
+                    CreateTextEditor(container, xmlNod);
+                    return true;
+                case "labelcontrol":
+                    CreateLabelControl(container, xmlNod);
+                    return true;
+                case "datecontrol":
+                    CreateDateControl(container, xmlNod);
+                    return true;
+                case "homedirectory":
                     CreatePortalHomeDirectory(container);
                     return true;
                 case "websiteurl":
