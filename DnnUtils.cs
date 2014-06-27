@@ -5,6 +5,7 @@ using System.Net;
 using DotNetNuke.Entities.Modules;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Entities.Tabs;
+using DotNetNuke.Entities.Users;
 using DotNetNuke.Security;
 using DotNetNuke.Services.Localization;
 using DotNetNuke.Services.FileSystem;
@@ -388,6 +389,27 @@ namespace NBrightDNN
             }
 
             return rtnList;
+        }
+
+        public static Dictionary<string, string> GetCurrentUserProfileProperties()
+        {
+            var userInfo = UserController.GetCurrentUserInfo();
+            var prop = new Dictionary<string, string>();
+            foreach (DotNetNuke.Entities.Profile.ProfilePropertyDefinition p in userInfo.Profile.ProfileProperties)
+            {
+                prop.Add(p.PropertyName,p.PropertyValue);
+            }
+            return prop;
+        }
+
+        public static void SetCurrentUserProfileProperties(Dictionary<string, string> properties)
+        {
+            var userInfo = UserController.GetCurrentUserInfo();
+            foreach (var p in properties)
+            {
+                userInfo.Profile.SetProfileProperty(p.Key,p.Value);
+                UserController.UpdateUser(PortalSettings.Current.PortalId, userInfo);
+            }
         }
 
 

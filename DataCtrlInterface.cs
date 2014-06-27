@@ -43,6 +43,21 @@ namespace NBrightDNN
 
         private string _xmlData;
 
+        public NBrightInfo()
+        {
+        }
+
+        /// <summary>
+        /// Create new NBrightInfo class for generic XML data in NBright
+        /// </summary>
+        /// <param name="populate">Craete the basiuc XML strucutre</param>
+        public NBrightInfo(Boolean populate)
+        {
+            if (populate)
+            {
+                XMLData = GenXmlFunctions.GetGenXml(new RepeaterItem(0, ListItemType.Item));
+            }            
+        }
         public string XMLData
         {
             get { return _xmlData; } 
