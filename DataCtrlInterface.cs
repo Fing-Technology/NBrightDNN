@@ -22,8 +22,6 @@ namespace NBrightDNN
         public abstract int Update(NBrightInfo objInfo);
         public abstract void Delete(int itemId);
         public abstract void CleanData();
-        public abstract List<NBrightInfo> GetDnnUsers(int portalId, string sqlSearchFilter = "", int returnLimit = 0, int pageNumber = 0, int pageSize = 0, int recordCount = 0);
-
     }
 
     public class NBrightInfo
