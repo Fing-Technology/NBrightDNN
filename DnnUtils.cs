@@ -391,24 +391,37 @@ namespace NBrightDNN
             return rtnList;
         }
 
-        public static Dictionary<string, string> GetCurrentUserProfileProperties()
+        public static Dictionary<string, string> GetUserProfileProperties(UserInfo userInfo)
         {
-            var userInfo = UserController.GetCurrentUserInfo();
             var prop = new Dictionary<string, string>();
             foreach (DotNetNuke.Entities.Profile.ProfilePropertyDefinition p in userInfo.Profile.ProfileProperties)
             {
-                prop.Add(p.PropertyName,p.PropertyValue);
+                prop.Add(p.PropertyName, p.PropertyValue);
             }
             return prop;
         }
 
-        public static void SetCurrentUserProfileProperties(Dictionary<string, string> properties)
+        public static Dictionary<string, string> GetUserProfileProperties(String userId)
         {
-            var userInfo = UserController.GetCurrentUserInfo();
+            if (!Utils.IsNumeric(userId)) return null;
+            var userInfo = UserController.GetUserById(PortalSettings.Current.PortalId,Convert.ToInt32(userId));
+            return GetUserProfileProperties(userInfo);
+        }
+
+        public static void SetUserProfileProperties(UserInfo userInfo,Dictionary<string, string> properties)
+        {
             foreach (var p in properties)
             {
                 userInfo.Profile.SetProfileProperty(p.Key,p.Value);
                 UserController.UpdateUser(PortalSettings.Current.PortalId, userInfo);
+            }
+        }
+        public static void SetUserProfileProperties(String userId,Dictionary<string, string> properties)
+        {
+            if (Utils.IsNumeric(userId))
+            {
+                var userInfo = UserController.GetUserById(PortalSettings.Current.PortalId, Convert.ToInt32(userId));
+                SetUserProfileProperties(userInfo, properties);                
             }
         }
 
