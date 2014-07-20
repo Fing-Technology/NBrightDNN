@@ -303,6 +303,11 @@ namespace NBrightDNN
                         Value = dbl.ToString(CultureInfo.GetCultureInfo("en-US"));
                     }
                 }
+                if (DataTyp == System.TypeCode.DateTime)
+                {
+                    if (Utils.IsDate(Value, Utils.GetCurrentCulture())) Value = Utils.FormatToSave(Value, System.TypeCode.DateTime);
+                    XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath + "/@datatype", "date", cdata);
+                }
                 XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath, Value, cdata);
             }
         }
