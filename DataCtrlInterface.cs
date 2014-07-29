@@ -22,7 +22,6 @@ namespace NBrightDNN
         public abstract int Update(NBrightInfo objInfo);
         public abstract void Delete(int itemId);
         public abstract void CleanData();
-
     }
 
     public class NBrightInfo
@@ -303,6 +302,11 @@ namespace NBrightDNN
                         var dbl = Convert.ToDouble(Value, CultureInfo.GetCultureInfo(Utils.GetCurrentCulture()));
                         Value = dbl.ToString(CultureInfo.GetCultureInfo("en-US"));
                     }
+                }
+                if (DataTyp == System.TypeCode.DateTime)
+                {
+                    if (Utils.IsDate(Value, Utils.GetCurrentCulture())) Value = Utils.FormatToSave(Value, System.TypeCode.DateTime);
+                    XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath + "/@datatype", "date", cdata);
                 }
                 XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath, Value, cdata);
             }

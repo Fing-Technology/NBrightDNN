@@ -15,6 +15,12 @@ using NBrightCore.render;
 
 namespace NBrightDNN.controls
 {
+    /// <summary>
+    /// This class is kept for backward compatiblity with the NBrightEspace and NBrightGen projects.
+    /// THIS CLASS SHOULD NOT BE USED FOR NEW PROJECT.  It's trying to do too much to be used across multiple projects,
+    /// better practise would be to create a local basepage class in the your project and not use this. 
+    /// </summary>
+    [System.Obsolete("Kept for backward compatiblity and will be removed in future.")]
     public class BasePage : DotNetNuke.Entities.Modules.PortalModuleBase
     {
         public DataCtrlInterface ObjCtrl { get; set; }
