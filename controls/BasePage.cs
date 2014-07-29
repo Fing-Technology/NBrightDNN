@@ -81,8 +81,10 @@ namespace NBrightDNN.controls
 
             base.OnInit(e);
 
+            
             // Attach events
-            GenXmlFunctions.FileHasBeenUploaded += new UploadFileCompleted(OnFileUploaded);
+            //NOTE: this event has been removed to stop memory leak (hold on memory) DO NOT PUT IT BACK!!!!
+            //GenXmlFunctions.FileHasBeenUploaded += new UploadFileCompleted(OnFileUploaded);
 
             OverRideInfoList = null;
 
@@ -958,10 +960,12 @@ namespace NBrightDNN.controls
 
         }
 
-        public void OnFileUploaded()
-        {
-            FileHasBeenUploaded = true;
-        }
+
+        //NOTE: This event cause memory leak
+        //public void OnFileUploaded()
+        //{
+        //    FileHasBeenUploaded = true;
+        //}
 
         #endregion
 
