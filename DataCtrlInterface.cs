@@ -159,6 +159,13 @@ namespace NBrightDNN
             }
         }
 
+        /// <summary>
+        /// Replace xml node in NBrightInfo structure
+        /// </summary>
+        /// <param name="strXml">New XML, must be in NBright Strucutre (genxml/...)</param>
+        /// <param name="xPathSource">Source path of the xml, this is for the new node and the old existing node</param>
+        /// <param name="xPathRootDestination">parent node to place the new node onto</param>
+        /// <param name="addNode">add if the node doesn;t already exists.</param>
         public void ReplaceXmlNode(string strXml, string xPathSource, string xPathRootDestination, bool addNode = true)
         {
             var xmlDocNew = new XmlDataDocument();
