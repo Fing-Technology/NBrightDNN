@@ -109,6 +109,17 @@ namespace NBrightDNN
             return files;
         }
 
+        public static List<string> GetCountryCodeList(int portalId = -1)
+        {
+            var rtnList = new List<string>();
+            if (portalId == -1 && PortalSettings.Current != null) portalId = PortalSettings.Current.PortalId;
+            if (portalId != -1)
+            {
+                var objLCtrl = new DotNetNuke.Common.Lists.ListController();
+            }
+            return rtnList;
+        }
+
         public static List<string> GetCultureCodeList(int portalId = -1)
         {
 			var rtnList = new List<string>();
