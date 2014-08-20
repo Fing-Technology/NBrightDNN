@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
+using DotNetNuke.Common.Lists;
 using DotNetNuke.Entities.Modules;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Entities.Tabs;
@@ -109,15 +111,20 @@ namespace NBrightDNN
             return files;
         }
 
-        public static List<string> GetCountryCodeList(int portalId = -1)
+        public static Dictionary<String,String> GetCountryCodeList(int portalId = -1)
         {
-            var rtnList = new List<string>();
+            var rtnDic = new Dictionary<String, String>();
             if (portalId == -1 && PortalSettings.Current != null) portalId = PortalSettings.Current.PortalId;
             if (portalId != -1)
             {
-                var objLCtrl = new DotNetNuke.Common.Lists.ListController();
+                var objLCtrl = new ListController();
+                var l = objLCtrl.GetListEntryInfoItems("Country").ToList();
+                foreach (var i in l)
+                {
+                    rtnDic.Add(i.Value,i.Text);
+                }
             }
-            return rtnList;
+            return rtnDic;
         }
 
         public static List<string> GetCultureCodeList(int portalId = -1)
