@@ -24,7 +24,7 @@ namespace NBrightDNN
         public abstract void CleanData();
     }
 
-    public class NBrightInfo
+    public class NBrightInfo : ICloneable
     {
         public int ItemID { get; set; }
         public int PortalId { get; set; }
@@ -494,6 +494,12 @@ namespace NBrightDNN
 
         #endregion
 
+        public object Clone()
+        {
+            var obj = (NBrightInfo)this.MemberwiseClone();
+            obj.XMLData = this.XMLData;
+            return obj;
+        }
     }
 
 
