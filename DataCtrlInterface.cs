@@ -483,6 +483,14 @@ namespace NBrightDNN
             return strList;
         }
 
+        public void ValidateXmlFormat()
+        {
+            if (XMLDoc.SelectSingleNode("genxml/hidden") == null) SetXmlProperty("genxml/hidden", "");
+            if (XMLDoc.SelectSingleNode("genxml/textbox") == null) SetXmlProperty("genxml/textbox", "");
+            if (XMLDoc.SelectSingleNode("genxml/checkbox") == null) SetXmlProperty("genxml/checkbox", "");
+            if (XMLDoc.SelectSingleNode("genxml/dropdownlist") == null) SetXmlProperty("genxml/dropdownlist", "");
+            if (XMLDoc.SelectSingleNode("genxml/radiobuttonlist") == null) SetXmlProperty("genxml/radiobuttonlist", "");
+        }
 
         #endregion
 
