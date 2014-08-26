@@ -19,6 +19,44 @@ namespace NBrightDNN
     public class DnnUtils
     {
 
+        public static void Zip(string zipFileMapPath, List<String> fileMapPathList )
+        {
+            // Zip up the files - From SharpZipLib Demo Code
+            using (var s = new ZipOutputStream(File.Create(zipFileMapPath)))
+            {
+                s.SetLevel(9); // 0-9, 9 being the highest compression
+
+                byte[] buffer = new byte[4096];
+
+                foreach (string file in fileMapPathList)
+                {
+
+                    ZipEntry entry = new
+                    ZipEntry(Path.GetFileName(file));
+
+                    entry.DateTime = DateTime.Now;
+                    s.PutNextEntry(entry);
+
+                    using (FileStream fs = File.OpenRead(file))
+                    {
+                        int sourceBytes;
+                        do
+                        {
+                            sourceBytes = fs.Read(buffer, 0,
+                            buffer.Length);
+
+                            s.Write(buffer, 0, sourceBytes);
+
+                        } while (sourceBytes > 0);
+                    }
+                }
+                s.Finish();
+                s.Close();
+            }
+ 
+
+        }
+
         public static void UnZip(string zipFileMapPath, string outputFolder)
         {
             var zipStream = new FileStream(zipFileMapPath, FileMode.Open, FileAccess.Read);

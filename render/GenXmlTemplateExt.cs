@@ -64,6 +64,9 @@ namespace NBrightDNN.render
                 case "websiteurl":
                     CreateWebsiteUrl(container);
                     return true;
+                case "countrycheckboxlist":
+                    CreateCountryCheckBoxList(container, xmlNod);
+                    return true;
                 default:
                     return false;
 
@@ -288,6 +291,82 @@ namespace NBrightDNN.render
             }
         }
         
+        #endregion
+
+        #region "Country code checkbox list"
+
+        private void CreateCountryCheckBoxList(Control container, XmlNode xmlNod)
+        {
+            try
+            {
+
+                var cbl = new CheckBoxList();
+                cbl = (CheckBoxList)GenXmlFunctions.AssignByReflection(cbl, xmlNod);
+                var selected = false;
+                if (xmlNod.Attributes != null && (xmlNod.Attributes["selected"] != null))
+                {
+                    if (xmlNod.Attributes["selected"].InnerText.ToLower() == "true") selected = true;
+                }
+
+                var objCtrl = new DotNetNuke.Common.Lists.ListController();
+                var tList = objCtrl.GetListEntryInfoDictionary("Country");
+                foreach (var tItem in tList)
+                {
+                    var li = new ListItem();
+                    li.Text = tItem.Value.Text;
+                    li.Value = tItem.Key;
+                    li.Selected = selected;
+                    cbl.Items.Add(li);
+                }
+
+                cbl.DataBinding += CbListDataBinding;
+                container.Controls.Add(cbl);
+            }
+            catch (Exception e)
+            {
+                var lc = new Literal();
+                lc.Text = e.ToString();
+                container.Controls.Add(lc);
+            }
+
+        }
+
+        private void CbListDataBinding(object sender, EventArgs e)
+        {
+            var chk = (CheckBoxList)sender;
+            var container = (IDataItemContainer)chk.NamingContainer;
+            try
+            {
+                chk.Visible = NBrightGlobal.IsVisible;
+                var xmlNod = GenXmlFunctions.GetGenXmLnode(chk.ID, "checkboxlist", (string)DataBinder.Eval(container.DataItem, _databindColumn));
+                var xmlNodeList = xmlNod.SelectNodes("./chk");
+                if (xmlNodeList != null)
+                {
+                    foreach (XmlNode xmlNoda in xmlNodeList)
+                    {
+                        if (xmlNoda.Attributes != null)
+                        {
+                            if (xmlNoda.Attributes.GetNamedItem("data") != null)
+                            {
+                                var datavalue = xmlNoda.Attributes["data"].Value;
+                                //use the data attribute if there
+                                if ((chk.Items.FindByValue(datavalue).Value != null))
+                                {
+                                    chk.Items.FindByValue(datavalue).Selected = Convert.ToBoolean(xmlNoda.Attributes["value"].Value);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                //do nothing
+            }
+
+        }
+
+
         #endregion
 
         #region "Date Control"
