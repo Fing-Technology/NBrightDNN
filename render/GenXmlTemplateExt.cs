@@ -67,6 +67,9 @@ namespace NBrightDNN.render
                 case "countrycheckboxlist":
                     CreateCountryCheckBoxList(container, xmlNod);
                     return true;
+                case "captcha":
+                    CreateCaptcha(container, xmlNod);
+                    return true;
                 default:
                     return false;
 
@@ -535,6 +538,24 @@ namespace NBrightDNN.render
             }
             var objUser = UserController.GetCurrentUserInfo();
             return objUser.IsInRole(genprop);
+        }
+
+        #endregion
+
+        #region "recaptcha"
+
+        private void CreateCaptcha(Control container, XmlNode xmlNod)
+        {
+            var rcap = new DotNetNuke.UI.WebControls.CaptchaControl();
+            rcap = (DotNetNuke.UI.WebControls.CaptchaControl)GenXmlFunctions.AssignByReflection(rcap, xmlNod);
+            rcap.DataBinding += CaptchaControlDataBinding;
+            container.Controls.Add(rcap);
+        }
+
+        private void CaptchaControlDataBinding(object sender, EventArgs e)
+        {
+            var rcap = (DotNetNuke.UI.WebControls.CaptchaControl)sender;
+            rcap.Visible = NBrightGlobal.IsVisible;
         }
 
         #endregion
