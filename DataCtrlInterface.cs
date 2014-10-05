@@ -414,17 +414,17 @@ namespace NBrightDNN
         }
 
 
-        public Dictionary<String, String> ToDictionary()
+        public Dictionary<String, String> ToDictionary(String xpathroot = "")
         {
             var rtnDictionary = new Dictionary<string, string>();
             if (XMLDoc != null)
             {
 
-                rtnDictionary = AddToDictionary(rtnDictionary, "genxml/hidden/*");
-                rtnDictionary = AddToDictionary(rtnDictionary, "genxml/textbox/*");
-                rtnDictionary = AddToDictionary(rtnDictionary, "genxml/checkbox/*");
-                rtnDictionary = AddToDictionary(rtnDictionary, "genxml/dropdownlist/*");
-                rtnDictionary = AddToDictionary(rtnDictionary, "genxml/radiobuttonlist/*");
+                rtnDictionary = AddToDictionary(rtnDictionary, xpathroot + "genxml/hidden/*");
+                rtnDictionary = AddToDictionary(rtnDictionary, xpathroot + "genxml/textbox/*");
+                rtnDictionary = AddToDictionary(rtnDictionary, xpathroot + "genxml/checkbox/*");
+                rtnDictionary = AddToDictionary(rtnDictionary, xpathroot + "genxml/dropdownlist/*");
+                rtnDictionary = AddToDictionary(rtnDictionary, xpathroot + "genxml/radiobuttonlist/*");
             }
             return rtnDictionary;
         }
@@ -445,6 +445,18 @@ namespace NBrightDNN
                         else
                         {
                             inpDictionary.Add(nod.Name, nod.InnerText);
+                        }
+                        if (nod.Attributes != null && nod.Attributes["selectedtext"] != null)
+                        {
+                            var textname = nod.Name + "text";
+                            if (inpDictionary.ContainsKey(textname))
+                            {
+                                inpDictionary[textname] = nod.Attributes["selectedtext"].Value; // overwrite same name node
+                            }
+                            else
+                            {
+                                inpDictionary.Add(textname, nod.Attributes["selectedtext"].Value);
+                            }
                         }
                     }
                 }
