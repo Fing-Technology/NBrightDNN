@@ -67,9 +67,10 @@ namespace NBrightDNN
             return DnnUtils.GetCultureCodeList();
         }
 
-		public override Dictionary<String, String> GetResourceData(String resourcePath, String resourceKey)
+		public override Dictionary<String, String> GetResourceData(String resourcePath, String resourceKey,String lang = "")
 		{
-            var ckey = resourcePath + resourceKey + DnnUtils.GetCurrentValidCultureCode();
+		    if (lang == "") lang = DnnUtils.GetCurrentValidCultureCode();
+            var ckey = resourcePath + resourceKey + lang;
 			var obj  = GetCache(ckey);
 			if (obj != null) return (Dictionary<String, String>)obj;
 
@@ -104,9 +105,9 @@ namespace NBrightDNN
                 }
 
                 // overwrite the resx value with lanaguge ones, this ensures english (default) are always there, but overwritten by langauge values. (lanaguge resx might not be uptodate!)
-                if (DnnUtils.GetCurrentValidCultureCode().Substring(0, 2).ToLower() != "en")
+                if (lang.Substring(0, 2).ToLower() != "en-US")
                 {
-                    var tmpfullFileName = System.Web.Hosting.HostingEnvironment.MapPath(resourcePath.TrimEnd('/') + "/" + fName + ".ascx." + DnnUtils.GetCurrentValidCultureCode() + ".resx");
+                    var tmpfullFileName = System.Web.Hosting.HostingEnvironment.MapPath(resourcePath.TrimEnd('/') + "/" + fName + ".ascx." + lang + ".resx");
                     if (System.IO.File.Exists(tmpfullFileName))
                     {
                         fullFileName = tmpfullFileName;
