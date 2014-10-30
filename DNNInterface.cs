@@ -7,10 +7,12 @@ using System.Web.Caching;
 using System.Xml;
 using System.Web.UI.WebControls;
 using DotNetNuke.Common.Utilities;
+using DotNetNuke.Entities.Portals;
 using DotNetNuke.Entities.Tabs;
 using DotNetNuke.Entities.Users;
 using DotNetNuke.Services.Cache;
 using DotNetNuke.Services.Localization;
+using NBrightCore.common;
 using NBrightCore.providers;
 
 namespace NBrightDNN
@@ -94,50 +96,16 @@ namespace NBrightDNN
                             if (nod.Attributes != null && nod.Attributes["name"] != null)
                             {
                                 var n = nod.Attributes["name"].Value;
-                                var v = nod.SelectSingleNode("value");
                                 if (n.StartsWith(rKey + "."))
                                 {
-                                    rtnList.Add(n.Replace(rKey + ".", ""), v.InnerText);
+                                    var rtnValue = Localization.GetString(rKey, fullFileName, PortalSettings.Current, Utils.GetCurrentCulture());
+                                    rtnList.Add(n.Replace(rKey + ".", ""), rtnValue);
                                 }
                             }
                         }
                     }
                 }
 
-                // overwrite the resx value with lanaguge ones, this ensures english (default) are always there, but overwritten by langauge values. (lanaguge resx might not be uptodate!)
-                if (lang.Substring(0, 2).ToLower() != "en-US")
-                {
-                    var tmpfullFileName = System.Web.Hosting.HostingEnvironment.MapPath(resourcePath.TrimEnd('/') + "/" + fName + ".ascx." + lang + ".resx");
-                    if (System.IO.File.Exists(tmpfullFileName))
-                    {
-                        fullFileName = tmpfullFileName;
-                    }
-
-                    if (!String.IsNullOrEmpty(fullFileName) && System.IO.File.Exists(fullFileName))
-                    {
-                        var xmlDoc = new XmlDataDocument();
-                        xmlDoc.Load(fullFileName);
-                        var xmlNodList = xmlDoc.SelectNodes("root/data");
-                        if (xmlNodList != null)
-                        {
-                            foreach (XmlNode nod in xmlNodList)
-                            {
-                                if (nod.Attributes != null && nod.Attributes["name"] != null)
-                                {
-                                    var n = nod.Attributes["name"].Value;
-                                    var v = nod.SelectSingleNode("value");
-                                    if (n.StartsWith(rKey + "."))
-                                    {
-                                        if (rtnList.ContainsKey(n.Replace(rKey + ".", "")))
-                                            rtnList[n.Replace(rKey + ".", "")] = v.InnerText;
-                                        else
-                                            rtnList.Add(n.Replace(rKey + ".", ""), v.InnerText);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
 				SetCache(ckey, rtnList, DateTime.Now.AddMinutes(20));
             }
 		    return rtnList;
