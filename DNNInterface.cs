@@ -88,20 +88,14 @@ namespace NBrightDNN
                 {
                     var xmlDoc = new XmlDataDocument();
                     xmlDoc.Load(fullFileName);
-                    var xmlNodList = xmlDoc.SelectNodes("root/data");
+                    var xmlNodList = xmlDoc.SelectNodes("root/data[starts-with(./@name,'" + rKey + ".')]");
                     if (xmlNodList != null)
                     {
                         foreach (XmlNode nod in xmlNodList)
                         {
-                            if (nod.Attributes != null && nod.Attributes["name"] != null)
-                            {
                                 var n = nod.Attributes["name"].Value;
-                                if (n.StartsWith(rKey + "."))
-                                {
-                                    var rtnValue = Localization.GetString(rKey, fullFileName, PortalSettings.Current, Utils.GetCurrentCulture());
-                                    rtnList.Add(n.Replace(rKey + ".", ""), rtnValue);
-                                }
-                            }
+                                var rtnValue = Localization.GetString(n, fullFileName, PortalSettings.Current, Utils.GetCurrentCulture());
+                                rtnList.Add(n.Replace(rKey + ".", ""), rtnValue);
                         }
                     }
                 }
