@@ -93,9 +93,10 @@ namespace NBrightDNN
                     {
                         foreach (XmlNode nod in xmlNodList)
                         {
-                                var n = nod.Attributes["name"].Value;
-                                var rtnValue = Localization.GetString(n, fullFileName, PortalSettings.Current, Utils.GetCurrentCulture());
-                                rtnList.Add(n.Replace(rKey + ".", ""), rtnValue);
+                            var n = nod.Attributes["name"].Value;
+                            // WARNIG!!!:  This call causes an erorr on reading resx file.  [TODO: NEEDS TO BE FIXED ASAP]
+                            var rtnValue = Localization.GetString(n, fullFileName, PortalSettings.Current, Utils.GetCurrentCulture(),true);
+                            rtnList.Add(n.Replace(rKey + ".", ""), rtnValue);
                         }
                     }
                 }
