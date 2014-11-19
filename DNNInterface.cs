@@ -82,8 +82,8 @@ namespace NBrightDNN
             {
                 var fName = s[0];
                 var rKey = s[1];
-
-                var fullFileName = System.Web.Hosting.HostingEnvironment.MapPath(resourcePath.TrimEnd('/') + "/" + fName + ".ascx.resx");
+                var relativefilename = resourcePath.TrimEnd('/') + "/" + fName + ".ascx.resx";
+                var fullFileName = System.Web.Hosting.HostingEnvironment.MapPath(relativefilename);
                 if (!String.IsNullOrEmpty(fullFileName) && System.IO.File.Exists(fullFileName))
                 {
                     var xmlDoc = new XmlDataDocument();
@@ -94,8 +94,7 @@ namespace NBrightDNN
                         foreach (XmlNode nod in xmlNodList)
                         {
                             var n = nod.Attributes["name"].Value;
-                            // WARNIG!!!:  This call causes an erorr on reading resx file.  [TODO: NEEDS TO BE FIXED ASAP]
-                            var rtnValue = Localization.GetString(n, fullFileName, PortalSettings.Current, Utils.GetCurrentCulture(),true);
+                            var rtnValue = Localization.GetString(n, relativefilename, PortalSettings.Current, Utils.GetCurrentCulture(), true);
                             rtnList.Add(n.Replace(rKey + ".", ""), rtnValue);
                         }
                     }
