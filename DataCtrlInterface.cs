@@ -277,6 +277,27 @@ namespace NBrightDNN
             return "";
         }
 
+        /// <summary>
+        /// get the data fromthe XML wothout reformatting for numbers or dates. (ISO YYYY-MM-DD for dates , en-US for numbers)
+        /// </summary>
+        /// <param name="xpath"></param>
+        /// <returns></returns>
+        public string GetXmlPropertyRaw(string xpath)
+        {
+            if (!string.IsNullOrEmpty(XMLData))
+            {
+                try
+                {
+                    return GenXmlFunctions.GetGenXmlValueRawFormat(XMLData, xpath);
+                }
+                catch (Exception ex)
+                {
+                    return "XML READ ERROR";
+                }
+            }
+            return "";
+        }
+
 
         public void AppendToXmlProperty(string xpath, string Value, System.TypeCode DataTyp = System.TypeCode.String, bool cdata = true)
         {
