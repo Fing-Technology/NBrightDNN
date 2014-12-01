@@ -93,9 +93,13 @@ namespace NBrightDNN
                     {
                         foreach (XmlNode nod in xmlNodList)
                         {
-                            var n = nod.Attributes["name"].Value;
-                            var rtnValue = Localization.GetString(n, relativefilename, PortalSettings.Current, Utils.GetCurrentCulture(), true);
-                            rtnList.Add(n.Replace(rKey + ".", ""), rtnValue);
+                            if (nod.Attributes != null)
+                            {
+                                var n = nod.Attributes["name"].Value;
+                                if (lang == "") lang = Utils.GetCurrentCulture();
+                                var rtnValue = Localization.GetString(n, relativefilename, PortalSettings.Current, lang, true);
+                                rtnList.Add(n.Replace(rKey + ".", ""), rtnValue);
+                            }
                         }
                     }
                 }
