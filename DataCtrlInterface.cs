@@ -337,6 +337,7 @@ namespace NBrightDNN
                     XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath + "/@datatype", "date", cdata);
                 }
                 XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath, Value, cdata);
+                if (DataTyp == System.TypeCode.DateTime) XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath + "/@datatype", "date", cdata);
             }
         }
 
