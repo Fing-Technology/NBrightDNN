@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Xml;
@@ -470,14 +471,15 @@ namespace NBrightDNN.render
         /// Output current WebsiteUrl
         /// </para>
         /// <para class="example">
-        /// [<tag type="websiteurl" />]
+        /// [<tag type="dnn:websiteurl" />]
         /// </para>
         /// </summary>
         private void CreateWebsiteUrl(Control container)
         {
             var lc = new Literal();
             var ps = DnnUtils.GetCurrentPortalSettings();
-            lc.Text = ps.PortalAlias.HTTPAlias;
+            var strAry = ps.PortalAlias.HTTPAlias.Split('/');
+            if (strAry.Count() >= 1) lc.Text = strAry[0]; // Only display base domain, without lanaguge
             lc.DataBinding += LiteralDataBinding;
             container.Controls.Add(lc);
         }

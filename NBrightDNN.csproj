@@ -60,6 +60,9 @@
     <Compile Include="DataCtrlInterface.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="render\GenDateControl.cs" />
+    <Compile Include="render\GenFileUpload.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="render\GenLabelControl.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
