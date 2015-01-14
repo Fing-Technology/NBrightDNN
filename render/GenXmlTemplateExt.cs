@@ -17,6 +17,7 @@ namespace NBrightDNN.render
 
         private string _rootname = "genxml";
         private string _databindColumn = "XMLData";
+        private Control _container;
 
 
         #region "Override methods"
@@ -25,6 +26,8 @@ namespace NBrightDNN.render
 
         public override bool CreateGenControl(string ctrltype, Control container, XmlNode xmlNod, string rootname = "genxml", string databindColum = "XMLData", string cultureCode = "", Dictionary<string, string> settings = null)
         {
+            _container = container;
+
             //remove namespace of token.
             // If the NBrigthCore template system is being used across mutliple modules in the portal (that use a provider interface for tokens),
             // then a namespace should be added to the front of the type attribute, this stops clashes in the tokening system. NOTE: the "tokennamespace" tag is now supported as well
@@ -275,7 +278,7 @@ namespace NBrightDNN.render
             var container = (IDataItemContainer)gte.NamingContainer;
             try
             {
-                gte.Visible = NBrightGlobal.IsVisible;
+                gte.Visible = Utils.GetVisibleState(_container);
 
                 if ((gte.Attributes["databind"] != null))
                 {
@@ -341,7 +344,7 @@ namespace NBrightDNN.render
             var container = (IDataItemContainer)chk.NamingContainer;
             try
             {
-                chk.Visible = NBrightGlobal.IsVisible;
+                chk.Visible = Utils.GetVisibleState(_container);
                 var xmlNod = GenXmlFunctions.GetGenXmLnode(chk.ID, "checkboxlist", (string)DataBinder.Eval(container.DataItem, _databindColumn));
                 var xmlNodeList = xmlNod.SelectNodes("./chk");
                 if (xmlNodeList != null)
@@ -397,7 +400,7 @@ namespace NBrightDNN.render
             var container = (IDataItemContainer)dte.NamingContainer;
             try
             {
-                dte.Visible = NBrightGlobal.IsVisible;
+                dte.Visible = Utils.GetVisibleState(_container);
 
                 if ((dte.Attributes["databind"] != null))
                 {
@@ -453,7 +456,7 @@ namespace NBrightDNN.render
             var lbl = (GenLabelControl)sender;
             try
             {
-                lbl.Visible = NBrightGlobal.IsVisible;
+                lbl.Visible = Utils.GetVisibleState(_container);
             }
             catch (Exception)
             {
@@ -506,7 +509,7 @@ namespace NBrightDNN.render
             try
             {
                 var lc = (Literal)sender;
-                lc.Visible = NBrightGlobal.IsVisible;
+                lc.Visible = Utils.GetVisibleState(_container);
             }
             catch (Exception)
             {
@@ -557,7 +560,7 @@ namespace NBrightDNN.render
         private void CaptchaControlDataBinding(object sender, EventArgs e)
         {
             var rcap = (DotNetNuke.UI.WebControls.CaptchaControl)sender;
-            rcap.Visible = NBrightGlobal.IsVisible;
+            rcap.Visible = Utils.GetVisibleState(_container);
         }
 
         #endregion
