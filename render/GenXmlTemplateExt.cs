@@ -17,16 +17,15 @@ namespace NBrightDNN.render
 
         private string _rootname = "genxml";
         private string _databindColumn = "XMLData";
-        private Control _container;
-
+        private List<Boolean> visibleStatus;
 
         #region "Override methods"
         // This section overrides the interface methods for the GenX provider.
         // It allows providers to create controls/Literals in the NBright template system.
 
-        public override bool CreateGenControl(string ctrltype, Control container, XmlNode xmlNod, string rootname = "genxml", string databindColum = "XMLData", string cultureCode = "", Dictionary<string, string> settings = null)
+        public override bool CreateGenControl(string ctrltype, Control container, XmlNode xmlNod, string rootname = "genxml", string databindColum = "XMLData", string cultureCode = "", Dictionary<string, string> settings = null, List<Boolean> visibleStatusIn = null)
         {
-            _container = container;
+            visibleStatus = visibleStatusIn;
 
             //remove namespace of token.
             // If the NBrigthCore template system is being used across mutliple modules in the portal (that use a provider interface for tokens),
@@ -278,7 +277,7 @@ namespace NBrightDNN.render
             var container = (IDataItemContainer)gte.NamingContainer;
             try
             {
-                gte.Visible = Utils.GetVisibleState(_container);
+                gte.Visible = visibleStatus.Last();
 
                 if ((gte.Attributes["databind"] != null))
                 {
@@ -344,7 +343,7 @@ namespace NBrightDNN.render
             var container = (IDataItemContainer)chk.NamingContainer;
             try
             {
-                chk.Visible = Utils.GetVisibleState(_container);
+                chk.Visible = visibleStatus.Last();
                 var xmlNod = GenXmlFunctions.GetGenXmLnode(chk.ID, "checkboxlist", (string)DataBinder.Eval(container.DataItem, _databindColumn));
                 var xmlNodeList = xmlNod.SelectNodes("./chk");
                 if (xmlNodeList != null)
@@ -400,7 +399,7 @@ namespace NBrightDNN.render
             var container = (IDataItemContainer)dte.NamingContainer;
             try
             {
-                dte.Visible = Utils.GetVisibleState(_container);
+                dte.Visible = visibleStatus.Last();
 
                 if ((dte.Attributes["databind"] != null))
                 {
@@ -456,7 +455,7 @@ namespace NBrightDNN.render
             var lbl = (GenLabelControl)sender;
             try
             {
-                lbl.Visible = Utils.GetVisibleState(_container);
+                lbl.Visible = visibleStatus.Last();
             }
             catch (Exception)
             {
@@ -509,7 +508,7 @@ namespace NBrightDNN.render
             try
             {
                 var lc = (Literal)sender;
-                lc.Visible = Utils.GetVisibleState(_container);
+                lc.Visible = visibleStatus.Last();
             }
             catch (Exception)
             {
@@ -560,7 +559,7 @@ namespace NBrightDNN.render
         private void CaptchaControlDataBinding(object sender, EventArgs e)
         {
             var rcap = (DotNetNuke.UI.WebControls.CaptchaControl)sender;
-            rcap.Visible = Utils.GetVisibleState(_container);
+            rcap.Visible = visibleStatus.Last();
         }
 
         #endregion
