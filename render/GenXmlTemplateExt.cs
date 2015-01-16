@@ -243,6 +243,12 @@ namespace NBrightDNN.render
             return obj;
         }
 
+
+        public override String TestOfDataBinding(object sender, EventArgs e, Boolean currentVisibleStatus)
+        {
+            return "";
+        }
+
         #endregion
 
         #endregion
