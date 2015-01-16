@@ -244,7 +244,7 @@ namespace NBrightDNN.render
         }
 
 
-        public override String TestOfDataBinding(object sender, EventArgs e, Boolean currentVisibleStatus)
+        public override String TestOfDataBinding(object sender, EventArgs e)
         {
             return "";
         }
