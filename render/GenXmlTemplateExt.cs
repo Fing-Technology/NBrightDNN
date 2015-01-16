@@ -249,6 +249,10 @@ namespace NBrightDNN.render
             return "";
         }
 
+        public override void CtrlItemCommand(object source, RepeaterCommandEventArgs e)
+        {
+        }
+
         #endregion
 
         #endregion
