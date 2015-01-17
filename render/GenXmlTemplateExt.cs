@@ -244,9 +244,11 @@ namespace NBrightDNN.render
         }
 
 
-        public override String TestOfDataBinding(object sender, EventArgs e)
+        public override TestOfData TestOfDataBinding(object sender, EventArgs e)
         {
-            return "";
+            var rtn = new TestOfData();
+            rtn.DataValue = null;
+            return rtn;
         }
 
         public override void CtrlItemCommand(object source, RepeaterCommandEventArgs e)
