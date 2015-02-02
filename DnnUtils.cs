@@ -481,6 +481,12 @@ namespace NBrightDNN
             }
         }
 
+        public static PortalSettings GetPortalSettings(int portalId)
+        {
+            var controller = new PortalController();
+            var portal = controller.GetPortal(portalId);
+            return new PortalSettings(portal);
+        }
 
         #region "encryption"
 
