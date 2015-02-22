@@ -14,6 +14,17 @@ using NBrightDNN.controls;
 
 namespace NBrightDNN
 {
+    public abstract class NBrightDataCtrlInterface
+    {
+        public abstract List<NBrightInfo> GetList(int portalId, int moduleId, string typeCode, string sqlSearchFilter = "", string sqlOrderBy = "", int returnLimit = 0, int pageNumber = 0, int pageSize = 0, int recordCount = 0, string lang = "");
+        public abstract int GetListCount(int portalId, int moduleId, string typeCode, string sqlSearchFilter = "", string lang = "");
+        public abstract NBrightInfo Get(int itemId, string lang = "");
+        public abstract NBrightInfo GetData(int itemId);
+        public abstract int Update(NBrightInfo objInfo);
+        public abstract void Delete(int itemId);
+        public abstract void CleanData();
+    }
+
     public abstract class DataCtrlInterface
     {
         public abstract List<NBrightInfo> GetList(int portalId, int moduleId, string typeCode, string sqlSearchFilter = "", string sqlOrderBy = "", int returnLimit = 0, int pageNumber = 0, int pageSize = 0, int recordCount = 0, string typeCodeLang = "", string lang = "");
