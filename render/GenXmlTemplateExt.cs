@@ -492,8 +492,11 @@ namespace NBrightDNN.render
         {
             var lc = new Literal();
             var ps = DnnUtils.GetCurrentPortalSettings();
-            var strAry = ps.PortalAlias.HTTPAlias.Split('/');
-            if (strAry.Count() >= 1) lc.Text = strAry[0]; // Only display base domain, without lanaguge
+            var strAry = ps.DefaultPortalAlias.Split('/');
+            if (strAry.Count() >= 1)
+                lc.Text = strAry[0]; // Only display base domain, without lanaguge
+            else
+                lc.Text = ps.DefaultPortalAlias;
             lc.DataBinding += LiteralDataBinding;
             container.Controls.Add(lc);
         }
