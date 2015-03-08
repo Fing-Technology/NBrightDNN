@@ -107,7 +107,7 @@ namespace NBrightDNN.render
             }
         }
 
-        public override string GetGenXml(List<Control> genCtrls, XmlDataDocument xmlDoc, string originalXml, string folderMapPath, string xmlRootName = "genxml")
+        public override string GetGenXml(List<Control> genCtrls, XmlDocument xmlDoc, string originalXml, string folderMapPath, string xmlRootName = "genxml")
         {
 
             //check row exists (0 based)
@@ -160,7 +160,7 @@ namespace NBrightDNN.render
             return strXml;
         }
 
-        public override string GetGenXmlTextBox(List<Control> genCtrls, XmlDataDocument xmlDoc, string originalXml, string folderMapPath, string xmlRootName = "genxml")
+        public override string GetGenXmlTextBox(List<Control> genCtrls, XmlDocument xmlDoc, string originalXml, string folderMapPath, string xmlRootName = "genxml")
         {
 
             //check row exists (0 based)

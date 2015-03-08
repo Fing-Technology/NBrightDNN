@@ -86,7 +86,7 @@ namespace NBrightDNN
                 var fullFileName = System.Web.Hosting.HostingEnvironment.MapPath(relativefilename);
                 if (!String.IsNullOrEmpty(fullFileName) && System.IO.File.Exists(fullFileName))
                 {
-                    var xmlDoc = new XmlDataDocument();
+                    var xmlDoc = new XmlDocument();
                     xmlDoc.Load(fullFileName);
                     var xmlNodList = xmlDoc.SelectNodes("root/data[starts-with(./@name,'" + rKey + ".')]");
                     if (xmlNodList != null)
