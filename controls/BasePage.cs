@@ -661,7 +661,7 @@ namespace NBrightDNN.controls
                 {
                     // No EntityType, therefore data must be selected from WebService.
                     var l = new List<NBrightInfo>();
-                    var xmlDoc = new XmlDataDocument();
+                    var xmlDoc = new XmlDocument();
                     
                     // pass the userdatainfo into the header request (saves using or creating a post field or adding to url)
                     var objInfo = ObjCtrl.Get(UInfo.ItemId);

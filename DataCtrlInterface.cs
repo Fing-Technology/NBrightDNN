@@ -46,7 +46,7 @@ namespace NBrightDNN
         public string TextData { get; set; }
         public int XrefItemId { get; set; }
         public int ParentItemId { get; set; }
-        public XmlDataDocument XMLDoc { get; set; }
+        public XmlDocument XMLDoc { get; set; }
         public string Lang { get; set; }
         public int UserId { get; set; }
         public int RowCount { get; set; }
@@ -79,7 +79,7 @@ namespace NBrightDNN
                 {
                     if (!String.IsNullOrEmpty(_xmlData))
                     {
-                        XMLDoc = new XmlDataDocument();
+                        XMLDoc = new XmlDocument();
                         XMLDoc.LoadXml(_xmlData);                        
                     }
                 }
@@ -154,7 +154,7 @@ namespace NBrightDNN
         /// <param name="xPathRootDestination">parent xpath in destination</param>
         public void AddXmlNode(string strXml, string xPathSource, string xPathRootDestination)
         {
-            var xmlDocNew = new XmlDataDocument();
+            var xmlDocNew = new XmlDocument();
             xmlDocNew.LoadXml(strXml);
 
             var xmlTarget = XMLDoc.SelectSingleNode(xPathRootDestination);
@@ -179,7 +179,7 @@ namespace NBrightDNN
         /// <param name="addNode">add if the node doesn;t already exists.</param>
         public void ReplaceXmlNode(string strXml, string xPathSource, string xPathRootDestination, bool addNode = true)
         {
-            var xmlDocNew = new XmlDataDocument();
+            var xmlDocNew = new XmlDocument();
             xmlDocNew.LoadXml(strXml);
 
             var xmlNod = XMLDoc.SelectSingleNode(xPathSource);
@@ -397,7 +397,7 @@ namespace NBrightDNN
 
         public void FromXmlItem(string xmlItem)
         {
-            var xmlDoc = new XmlDataDocument();
+            var xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(xmlItem);
 
             //itemid

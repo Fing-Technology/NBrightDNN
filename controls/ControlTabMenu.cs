@@ -40,7 +40,7 @@ namespace NBrightDNN.controls
         private void PageLoad()
         {
 
-            var xmlDoc = new System.Xml.XmlDataDocument();
+            var xmlDoc = new System.Xml.XmlDocument();
             var strXslPath = Server.MapPath(ControlAdminPath) + "menu\\ControlTabMenu.xsl";
 
             try
@@ -49,7 +49,7 @@ namespace NBrightDNN.controls
 
                 if (DebugMode)
                 {
-                    var xmlDocData = new System.Xml.XmlDataDocument();
+                    var xmlDocData = new System.Xml.XmlDocument();
                     xmlDocData.LoadXml(GetActionXml().Trim());
                     xmlDocData.Save(Server.MapPath(ControlAdminPath) + "menu\\menu.xml");                    
                 }

@@ -103,7 +103,7 @@ namespace NBrightDNN
                 }
             }
 
-            var d = new XmlDataDocument();
+            var d = new XmlDocument();
             s = GenXmlFunctions.GetGenXmlValue(_obj.XMLData, "root/extraxml");
             if (s != "") d.LoadXml(s);
             ExtraXml = d;
@@ -139,7 +139,7 @@ namespace NBrightDNN
         public string GUIDKey { set; get; }
         public string SortItemId { set; get; }
 
-        public XmlDataDocument ExtraXml { set; get; }
+        public XmlDocument ExtraXml { set; get; }
 
         #endregion
 
