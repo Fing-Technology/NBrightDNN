@@ -36,7 +36,7 @@
       <HintPath>..\DNN6x\bin\DotNetNuke.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.ApplicationBlocks.Data">
-      <HintPath>..\DNN6x\bin610\Microsoft.ApplicationBlocks.Data.dll</HintPath>
+      <HintPath>..\DNN6x\bin\Microsoft.ApplicationBlocks.Data.dll</HintPath>
     </Reference>
     <Reference Include="SharpZipLib">
       <HintPath>..\DNN6x\bin\SharpZipLib.dll</HintPath>
