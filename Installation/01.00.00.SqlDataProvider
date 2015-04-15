@@ -290,6 +290,34 @@ begin
 end
 GO
 
+if exists (select * from {databaseOwner}sysobjects where id = object_id(N'{databaseOwner}[{objectQualifier}NBrightData_GetDataLang]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+drop procedure {databaseOwner}[{objectQualifier}NBrightData_GetDataLang]
+GO
+
+CREATE     PROCEDURE {databaseOwner}[{objectQualifier}NBrightData_GetDataLang]
+@ParentItemId int,
+@Lang nvarchar(10)
+AS
+begin
+	select
+	[ItemId]
+	,[PortalId]
+	,[ModuleId]
+	,[TypeCode]
+	,[XMLData]
+	,[GUIDKey]
+	,[ModifiedDate]
+	,[TextData]
+	,[XrefItemId]
+	,[ParentItemId]
+	,[Lang] 
+	,[UserId]
+	from {databaseOwner}[{objectQualifier}NBrightData] as NB1
+	where NB1.ParentItemId = @ParentItemId and NB1.Lang = @Lang
+end
+GO
+
+
 
 if exists (select * from dbo.sysobjects where id = object_id(N'{databaseOwner}[{objectQualifier}NBrightData_GetList]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
 drop procedure {databaseOwner}[{objectQualifier}NBrightData_GetList]

@@ -70,6 +70,7 @@ namespace NBrightDNN.SqlDataProvider
         public abstract void Delete(int itemId);
         public abstract void CleanData();
         public abstract IDataReader GetData(int itemId);
+        public abstract IDataReader GetDataLang(int parentitemId,String lang);
         
 		#endregion
 

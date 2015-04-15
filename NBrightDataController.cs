@@ -174,6 +174,26 @@ namespace NBrightDNN
             return rtnInfo;
         }
 
+        public NBrightInfo GetDataLang(int parentitemId, string lang = "", bool debugMode = false)
+        {
+            if (lang == "") lang = Utils.GetCurrentCulture();
+            // get cache data
+            var strCacheKey = "datalang*" + parentitemId.ToString("") + "*" + lang;
+            NBrightInfo rtnInfo = null;
+            if (debugMode == false)
+            {
+                var obj = Utils.GetCache(strCacheKey);
+                if (obj != null) rtnInfo = (NBrightInfo)obj;
+            }
+
+            if (rtnInfo == null)
+            {
+                rtnInfo = CBO.FillObject<NBrightInfo>(DataProvider.Instance().GetDataLang(parentitemId, lang));
+                if (debugMode == false) Utils.SetCache(strCacheKey, rtnInfo);
+            }
+            return rtnInfo;
+        }
+
 
         /* *********************  list Data Gets ********************** */
 

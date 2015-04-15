@@ -152,6 +152,10 @@ namespace NBrightDNN.SqlDataProvider
             return SqlHelper.ExecuteReader(ConnectionString, DatabaseOwner + ObjectQualifier + "NBrightData_GetData", itemId);
         }
 
+        public override IDataReader GetDataLang(int parentitemId, String lang)
+        {
+            return SqlHelper.ExecuteReader(ConnectionString, DatabaseOwner + ObjectQualifier + "NBrightData_GetDataLang", parentitemId, lang);
+        }
 
         #endregion
 

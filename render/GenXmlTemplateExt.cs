@@ -276,6 +276,11 @@ namespace NBrightDNN.render
                     te.Attributes.Add("databind", xmlNod.Attributes["databind"].InnerXml);
                 }
 
+                if (xmlNod.Attributes != null && (xmlNod.Attributes["update"] != null))
+                {
+                    te.Attributes.Add("update", xmlNod.Attributes["update"].InnerXml);
+                }
+
                 te.Visible = GetRoleVisible(xmlNod.OuterXml);
 
                 te.DataBinding += TextEditorDataBinding;
