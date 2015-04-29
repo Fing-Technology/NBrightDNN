@@ -66,12 +66,13 @@ namespace NBrightDNN
             if (populate)
             {
                 XMLData = GenXmlFunctions.GetGenXml(new RepeaterItem(0, ListItemType.Item));
-            }            
+            }
         }
+
         public string XMLData
         {
-            get { return _xmlData; } 
-            set 
+            get { return _xmlData; }
+            set
             {
                 XMLDoc = null;
                 _xmlData = value;
@@ -80,7 +81,7 @@ namespace NBrightDNN
                     if (!String.IsNullOrEmpty(_xmlData))
                     {
                         XMLDoc = new XmlDocument();
-                        XMLDoc.LoadXml(_xmlData);                        
+                        XMLDoc.LoadXml(_xmlData);
                     }
                 }
                 catch (Exception)
@@ -88,7 +89,7 @@ namespace NBrightDNN
                     //trap erorr and don't report. (The XML might be invalid, but we don;t want to stop processing here.)
                     XMLDoc = null;
                 }
-            } 
+            }
         }
 
         public string GetXmlNode(string xpath)
@@ -129,7 +130,8 @@ namespace NBrightDNN
             var cdataStart = "<![CDATA[";
             var cdataEnd = "]]>";
             if (!nodeValue.Contains(cdataEnd))
-            { // if we already have a cdata in the node we can't wrap it into another and keep the XML strucutre.
+            {
+                // if we already have a cdata in the node we can't wrap it into another and keep the XML strucutre.
                 cdataEnd = "";
                 cdataStart = "";
             }
@@ -139,8 +141,10 @@ namespace NBrightDNN
                 AddXmlNode(strXml, "root/" + nodeName, xPathRootDestination);
             }
             catch (Exception)
-            {// log a message, but don't stop processing.  Should never add XML using this method, if we're going to use it.  
-                strXml = "<root><" + nodeName + ">ERROR - Unable to load node, possibly due to XML CDATA clash.</" + nodeName + "></root>";
+            {
+// log a message, but don't stop processing.  Should never add XML using this method, if we're going to use it.  
+                strXml = "<root><" + nodeName + ">ERROR - Unable to load node, possibly due to XML CDATA clash.</" +
+                         nodeName + "></root>";
                 AddXmlNode(strXml, "root/" + nodeName, xPathRootDestination);
             }
 
@@ -214,8 +218,8 @@ namespace NBrightDNN
             {
                 try
                 {
-                    var x =  GenXmlFunctions.GetGenXmlValue(XMLData, xpath);
-                    if (Utils.IsNumeric(x)) return Convert.ToInt32(x);                    
+                    var x = GenXmlFunctions.GetGenXmlValue(XMLData, xpath);
+                    if (Utils.IsNumeric(x)) return Convert.ToInt32(x);
                 }
                 catch (Exception ex)
                 {
@@ -237,7 +241,9 @@ namespace NBrightDNN
                 try
                 {
                     var x = GenXmlFunctions.GetGenXmlValue(XMLData, xpath);
-                    if (Utils.IsNumeric(x)) return Convert.ToDouble(x,CultureInfo.GetCultureInfo("en-US")); // double should always be saved as en-US
+                    if (Utils.IsNumeric(x))
+                        return Convert.ToDouble(x, CultureInfo.GetCultureInfo("en-US"));
+                            // double should always be saved as en-US
                 }
                 catch (Exception ex)
                 {
@@ -310,7 +316,8 @@ namespace NBrightDNN
         }
 
 
-        public void AppendToXmlProperty(string xpath, string Value, System.TypeCode DataTyp = System.TypeCode.String, bool cdata = true)
+        public void AppendToXmlProperty(string xpath, string Value, System.TypeCode DataTyp = System.TypeCode.String,
+            bool cdata = true)
         {
             if (!string.IsNullOrEmpty(XMLData))
             {
@@ -326,10 +333,11 @@ namespace NBrightDNN
 
         public void SetXmlPropertyDouble(string xpath, string value)
         {
-            SetXmlProperty(xpath, value, System.TypeCode.Double,false);
+            SetXmlProperty(xpath, value, System.TypeCode.Double, false);
         }
 
-        public void SetXmlProperty(string xpath, string Value, System.TypeCode DataTyp = System.TypeCode.String, bool cdata = true)
+        public void SetXmlProperty(string xpath, string Value, System.TypeCode DataTyp = System.TypeCode.String,
+            bool cdata = true)
         {
             if (!string.IsNullOrEmpty(XMLData))
             {
@@ -344,11 +352,13 @@ namespace NBrightDNN
                 }
                 if (DataTyp == System.TypeCode.DateTime)
                 {
-                    if (Utils.IsDate(Value, Utils.GetCurrentCulture())) Value = Utils.FormatToSave(Value, System.TypeCode.DateTime);
+                    if (Utils.IsDate(Value, Utils.GetCurrentCulture()))
+                        Value = Utils.FormatToSave(Value, System.TypeCode.DateTime);
                     XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath + "/@datatype", "date", cdata);
                 }
                 XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath, Value, cdata);
-                if (DataTyp == System.TypeCode.DateTime) XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath + "/@datatype", "date", cdata);
+                if (DataTyp == System.TypeCode.DateTime)
+                    XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath + "/@datatype", "date", cdata);
             }
         }
 
@@ -388,7 +398,7 @@ namespace NBrightDNN
             {
                 xmlOut += "<data><![CDATA[";
                 xmlOut += TextData.Replace("<![CDATA[", "***CDATASTART***").Replace("]]>", "***CDATAEND***");
-                xmlOut += "]]></data>";                
+                xmlOut += "]]></data>";
             }
             xmlOut += "</item>";
 
@@ -434,7 +444,9 @@ namespace NBrightDNN
 
             //TextData
             selectSingleNode = xmlDoc.SelectSingleNode("item/data");
-            if (selectSingleNode != null) TextData = selectSingleNode.InnerText.Replace("***CDATASTART***", "<![CDATA[").Replace("***CDATAEND***", "]]>");
+            if (selectSingleNode != null)
+                TextData = selectSingleNode.InnerText.Replace("***CDATASTART***", "<![CDATA[")
+                    .Replace("***CDATAEND***", "]]>");
 
             //lang
             selectSingleNode = xmlDoc.SelectSingleNode("item/lang");
@@ -442,7 +454,8 @@ namespace NBrightDNN
 
             //userid
             selectSingleNode = xmlDoc.SelectSingleNode("item/userid");
-            if ((selectSingleNode != null) && (Utils.IsNumeric(selectSingleNode.InnerText))) UserId = Convert.ToInt32(selectSingleNode.InnerText);
+            if ((selectSingleNode != null) && (Utils.IsNumeric(selectSingleNode.InnerText)))
+                UserId = Convert.ToInt32(selectSingleNode.InnerText);
 
         }
 
@@ -484,7 +497,8 @@ namespace NBrightDNN
                             var textname = nod.Name + "text";
                             if (inpDictionary.ContainsKey(textname))
                             {
-                                inpDictionary[textname] = nod.Attributes["selectedtext"].Value; // overwrite same name node
+                                inpDictionary[textname] = nod.Attributes["selectedtext"].Value;
+                                    // overwrite same name node
                             }
                             else
                             {
@@ -497,6 +511,52 @@ namespace NBrightDNN
             return inpDictionary;
         }
 
+        public void UpdateAjax(String ajaxStrData)
+        {
+            var updateType = "save";
+            if (!String.IsNullOrEmpty(Lang)) updateType = "lang";
+            var ajaxInfo = new NBrightInfo();
+            var xmlData = GenXmlFunctions.GetGenXmlByAjax(ajaxStrData, "");
+            ajaxInfo.XMLData = xmlData;
+            var nodList2 = ajaxInfo.XMLDoc.SelectNodes("genxml/*");
+            if (nodList2 != null)
+            {
+                foreach (XmlNode nod1 in nodList2)
+                {
+                    var nodList = ajaxInfo.XMLDoc.SelectNodes("genxml/" + nod1.Name.ToLower() + "/*");
+                    if (nodList != null)
+                    {
+                        foreach (XmlNode nod in nodList)
+                        {
+                            if (nod.Attributes != null && nod.Attributes["update"] != null)
+                            {
+                                if (nod1.Name.ToLower() == "checkboxlist")
+                                {
+                                    if (nod.Attributes["update"].InnerText.ToLower() == updateType)
+                                    {
+                                        RemoveXmlNode("genxml/checkboxlist/" + nod.Name.ToLower());
+                                        AddXmlNode(nod.OuterXml, nod.Name.ToLower(), "genxml/checkboxlist");
+                                    }
+                                }
+                                else
+                                {
+                                    if (nod.Attributes["update"].InnerText.ToLower() == updateType)
+                                    {
+                                        SetXmlProperty("genxml/" + nod1.Name.ToLower() + "/" + nod.Name.ToLower(),
+                                            nod.InnerText);
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                }
+
+            }
+
+        }
+
+
         #region "Xref"
 
         public void AddXref(string nodeName, string value)
@@ -506,7 +566,8 @@ namespace NBrightDNN
                 AddXmlNode("<genxml><" + nodeName + "></" + nodeName + "></genxml>", "genxml/" + nodeName, "genxml");
             //Add new xref node, if not there.
             if (XMLDoc.SelectSingleNode("genxml/" + nodeName + "/id[.='" + value + "']") == null)
-                AddXmlNode("<genxml><" + nodeName + "><id>" + value + "</id></" + nodeName + "></genxml>", "genxml/" + nodeName + "/id", "genxml/" + nodeName);
+                AddXmlNode("<genxml><" + nodeName + "><id>" + value + "</id></" + nodeName + "></genxml>",
+                    "genxml/" + nodeName + "/id", "genxml/" + nodeName);
         }
 
         public void RemoveXref(string nodeName, string value)
@@ -541,11 +602,10 @@ namespace NBrightDNN
 
         public object Clone()
         {
-            var obj = (NBrightInfo)this.MemberwiseClone();
+            var obj = (NBrightInfo) this.MemberwiseClone();
             obj.XMLData = this.XMLData;
             return obj;
         }
     }
-
 
 }
