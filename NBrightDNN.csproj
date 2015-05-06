@@ -36,7 +36,7 @@
       <HintPath>..\DNN6x\bin\DotNetNuke.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.ApplicationBlocks.Data">
-      <HintPath>..\DNN6x\bin\Microsoft.ApplicationBlocks.Data.dll</HintPath>
+      <HintPath>..\..\Websites\www.luminaires-coudert.fr\htdocs\bin\Microsoft.ApplicationBlocks.Data.dll</HintPath>
     </Reference>
     <Reference Include="SharpZipLib">
       <HintPath>..\DNN6x\bin\SharpZipLib.dll</HintPath>
