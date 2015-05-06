@@ -81,12 +81,11 @@
     <Compile Include="UserDataInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NBrightCore\NBrightCore.csproj">
-      <Project>{7B338113-6A9A-484D-A6C6-4D63FD5E58C6}</Project>
+    <ProjectReference Include="..\nbrightcore\NBrightCore.csproj">
+      <Project>{7b338113-6a9a-484d-a6c6-4d63fd5e58c6}</Project>
       <Name>NBrightCore</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
