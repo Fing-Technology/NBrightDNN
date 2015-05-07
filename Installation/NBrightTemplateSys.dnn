@@ -1,6 +1,6 @@
 ﻿<dotnetnuke type="Package" version="5.0">
 	<packages>
-		<package name="NBrightTemplateSys" type="Module" version="3.1.1">
+		<package name="NBrightTemplateSys" type="Module" version="3.2.0">
 			<friendlyName>NBrightTemplateSys</friendlyName>
 			<description>NBrightTemplateSys is the core support module for projects using the NBright Template System.  It only installs core dlls required by other projects.</description>
 			<iconFile />
@@ -40,6 +40,27 @@ GIT Branch:  https://nbrightdnn.codeplex.com/SourceControl/latest
 
 			</releaseNotes>
 			<components>
+        <component type="Script">
+          <scripts>
+            <basePath>DesktopModules\NBright\NBrightData</basePath>
+            <script type="Install">
+              <name>03.02.00.SqlDataProvider</name>
+              <version>03.02.00</version>
+            </script>
+            <script type="UnInstall">
+              <name>Uninstall.SqlDataProvider</name>
+              <version>03.02.00</version>
+            </script>
+          </scripts>
+        </component>
+				<component type="ResourceFile">
+					<resourceFiles>
+						<basePath>DesktopModules\NBright\NBrightData</basePath>
+						<resourceFile>
+							<name>NBrightDNN_Resource.zip</name>
+						</resourceFile>
+					</resourceFiles>
+				</component>
 				<component type="Assembly">
 					<assemblies>
 						<assembly>
