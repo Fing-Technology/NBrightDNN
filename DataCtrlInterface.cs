@@ -143,8 +143,7 @@ namespace NBrightDNN
             catch (Exception)
             {
 // log a message, but don't stop processing.  Should never add XML using this method, if we're going to use it.  
-                strXml = "<root><" + nodeName + ">ERROR - Unable to load node, possibly due to XML CDATA clash.</" +
-                         nodeName + "></root>";
+                strXml = "<root><" + nodeName + ">ERROR - Unable to load node, possibly due to XML CDATA clash.</" + nodeName + "></root>";
                 AddXmlNode(strXml, "root/" + nodeName, xPathRootDestination);
             }
 
@@ -365,44 +364,14 @@ namespace NBrightDNN
         public string ToXmlItem(bool withTextData = true)
         {
             // don't use serlization, becuase depending what is in the TextData field could make it fail.
-            var xmlOut = "<item>";
-            xmlOut += "<itemid>";
-            xmlOut += ItemID.ToString("");
-            xmlOut += "</itemid>";
-            xmlOut += "<portalid>";
-            xmlOut += PortalId.ToString("");
-            xmlOut += "</portalid>";
-            xmlOut += "<moduleid>";
-            xmlOut += ModuleId.ToString("");
-            xmlOut += "</moduleid>";
-            xmlOut += "<xrefitemid>";
-            xmlOut += XrefItemId.ToString("");
-            xmlOut += "</xrefitemid>";
-            xmlOut += "<parentitemid>";
-            xmlOut += ParentItemId.ToString("");
-            xmlOut += "</parentitemid>";
-            xmlOut += "<typecode>";
-            xmlOut += TypeCode;
-            xmlOut += "</typecode>";
-            xmlOut += "<guidkey>";
-            xmlOut += GUIDKey;
-            xmlOut += "</guidkey>";
-            xmlOut += "<lang>";
-            xmlOut += Lang;
-            xmlOut += "</lang>";
-            xmlOut += "<userid>";
-            xmlOut += UserId.ToString("");
-            xmlOut += "</userid>";
-            xmlOut += XMLData;
+            var xmlOut = new StringBuilder("<item><itemid>" + ItemID.ToString("") + "</itemid><portalid>" + PortalId.ToString("") + "</portalid><moduleid>" + ModuleId.ToString("") + "</moduleid><xrefitemid>" + XrefItemId.ToString("") + "</xrefitemid><parentitemid>" + ParentItemId.ToString("") + "</parentitemid><typecode>" + TypeCode + "</typecode><guidkey>" + GUIDKey + "</guidkey><lang>" + Lang + "</lang><userid>" + UserId.ToString("") + "</userid>" + XMLData);
             if (withTextData)
             {
-                xmlOut += "<data><![CDATA[";
-                xmlOut += TextData.Replace("<![CDATA[", "***CDATASTART***").Replace("]]>", "***CDATAEND***");
-                xmlOut += "]]></data>";
+                xmlOut.Append("<data><![CDATA[" + TextData.Replace("<![CDATA[", "***CDATASTART***").Replace("]]>", "***CDATAEND***") + "]]></data>");
             }
-            xmlOut += "</item>";
+            xmlOut.Append("</item>");
 
-            return xmlOut;
+            return xmlOut.ToString();
         }
 
         public void FromXmlItem(string xmlItem)
