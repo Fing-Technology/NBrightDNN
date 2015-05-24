@@ -148,9 +148,26 @@ namespace NBrightDNN
             }
             catch (Exception)
             {
-// log a message, but don't stop processing.  Should never add XML using this method, if we're going to use it.  
-                strXml = "<root><" + nodeName + ">ERROR - Unable to load node, possibly due to XML CDATA clash.</" + nodeName + "></root>";
-                AddXmlNode(strXml, "root/" + nodeName, xPathRootDestination);
+                // could have fail for bad chars, so try cdata. messy but we're trying to keep backward compatiblity. and the IsValidXmlString function returns true for char that won't add in as a node string.
+                cdataStart = "<![CDATA[";
+                cdataEnd = "]]>";
+                try
+                {
+                    if (nodeValue.Contains(cdataEnd))
+                    {
+                        // if we already have a cdata in the node we can't wrap it into another and keep the XML strucutre.
+                        cdataEnd = "";
+                        cdataStart = "";
+                    }
+                    strXml = "<root><" + nodeName + ">" + cdataStart + nodeValue + cdataEnd + "</" + nodeName + "></root>";
+                    AddXmlNode(strXml, "root/" + nodeName, xPathRootDestination);
+                }
+                catch (Exception)
+                {
+                    // log a message, but don't stop processing.  Should never add XML using this method, if we're going to use it.  
+                    strXml = "<root><" + nodeName + ">ERROR - Unable to load node, possibly due to XML CDATA clash.</" + nodeName + "></root>";
+                    AddXmlNode(strXml, "root/" + nodeName, xPathRootDestination);
+                }
             }
 
         }
