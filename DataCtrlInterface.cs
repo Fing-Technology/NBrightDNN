@@ -129,7 +129,13 @@ namespace NBrightDNN
         {
             var cdataStart = "<![CDATA[";
             var cdataEnd = "]]>";
-            if (!nodeValue.Contains(cdataEnd))
+            if (IsValidXmlString(nodeValue))
+            {
+                // don't need cdata
+                cdataEnd = "";
+                cdataStart = "";                
+            }
+            if (nodeValue.Contains(cdataEnd))
             {
                 // if we already have a cdata in the node we can't wrap it into another and keep the XML strucutre.
                 cdataEnd = "";
@@ -147,6 +153,19 @@ namespace NBrightDNN
                 AddXmlNode(strXml, "root/" + nodeName, xPathRootDestination);
             }
 
+        }
+
+        public static bool IsValidXmlString(string text)
+        {
+            try
+            {
+                System.Xml.XmlConvert.VerifyXmlChars(text);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         /// <summary>
