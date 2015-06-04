@@ -34,11 +34,10 @@ namespace NBrightDNN
         }
 
         /// <summary>
-        /// override for Database Function
+        /// override for Database Function.  Gets record, if lang is specified then lang xml in injected into the  base genxml node.
         /// </summary>
-        /// <param name="itemId"></param>
-        /// <param name="typeCodeLang"></param>
-        /// <param name="lang"></param>
+        /// <param name="itemId">itmeid of base genxml</param>
+        /// <param name="lang">Culturecode of data to be injected into base genxml</param>
         /// <returns></returns>
         public override NBrightInfo Get(int itemId, string lang = "")
         {
