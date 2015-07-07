@@ -64,7 +64,7 @@ GO
 SET ANSI_NULLS ON 
 GO
 
-if exists (select * from {databaseOwner}sysobjects where id = object_id(N'{databaseOwner}[{objectQualifier}NBrightDataLangMerge]') and OBJECTPROPERTY(id, N'IsScalarFunction') = 1)
+if exists (select * from dbo.sysobjects where id = object_id(N'{databaseOwner}[{objectQualifier}NBrightDataLangMerge]') and OBJECTPROPERTY(id, N'IsScalarFunction') = 1)
 drop function {databaseOwner}[{objectQualifier}NBrightDataLangMerge]
 GO
 
@@ -112,7 +112,7 @@ SET ANSI_NULLS ON
 GO
 
 
-if exists (select * from {databaseOwner}sysobjects where id = object_id(N'{databaseOwner}[{objectQualifier}NBrightData_CleanData]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+if exists (select * from dbo.sysobjects where id = object_id(N'{databaseOwner}[{objectQualifier}NBrightData_CleanData]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
 drop procedure {databaseOwner}[{objectQualifier}NBrightData_CleanData]
 GO
 
@@ -127,7 +127,7 @@ end
 
 GO
 
-if exists (select * from {databaseOwner}sysobjects where id = object_id(N'{databaseOwner}[{objectQualifier}NBrightData_Delete]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+if exists (select * from dbo.sysobjects where id = object_id(N'{databaseOwner}[{objectQualifier}NBrightData_Delete]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
 drop procedure {databaseOwner}[{objectQualifier}NBrightData_Delete]
 GO
 
@@ -147,7 +147,7 @@ end
 GO
 
 
-if exists (select * from {databaseOwner}sysobjects where id = object_id(N'{databaseOwner}[{objectQualifier}NBrightData_Update]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+if exists (select * from dbo.sysobjects where id = object_id(N'{databaseOwner}[{objectQualifier}NBrightData_Update]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
 drop procedure {databaseOwner}[{objectQualifier}NBrightData_Update]
 GO
 
@@ -231,7 +231,7 @@ END
 GO
 
 
-if exists (select * from {databaseOwner}sysobjects where id = object_id(N'{databaseOwner}[{objectQualifier}NBrightData_Get]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+if exists (select * from dbo.sysobjects where id = object_id(N'{databaseOwner}[{objectQualifier}NBrightData_Get]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
 drop procedure {databaseOwner}[{objectQualifier}NBrightData_Get]
 GO
 
@@ -264,7 +264,7 @@ GO
 
 
 
-if exists (select * from {databaseOwner}sysobjects where id = object_id(N'{databaseOwner}[{objectQualifier}NBrightData_GetData]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+if exists (select * from dbo.sysobjects where id = object_id(N'{databaseOwner}[{objectQualifier}NBrightData_GetData]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
 drop procedure {databaseOwner}[{objectQualifier}NBrightData_GetData]
 GO
 
@@ -290,7 +290,7 @@ begin
 end
 GO
 
-if exists (select * from {databaseOwner}sysobjects where id = object_id(N'{databaseOwner}[{objectQualifier}NBrightData_GetDataLang]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
+if exists (select * from dbo.sysobjects where id = object_id(N'{databaseOwner}[{objectQualifier}NBrightData_GetDataLang]') and OBJECTPROPERTY(id, N'IsProcedure') = 1)
 drop procedure {databaseOwner}[{objectQualifier}NBrightData_GetDataLang]
 GO
 
