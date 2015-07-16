@@ -38,6 +38,9 @@
     <Reference Include="Microsoft.ApplicationBlocks.Data">
       <HintPath>..\DNN6x\bin\Microsoft.ApplicationBlocks.Data.dll</HintPath>
     </Reference>
+    <Reference Include="RazorEngine">
+      <HintPath>..\DNN7x\bin\RazorEngine.dll</HintPath>
+    </Reference>
     <Reference Include="SharpZipLib">
       <HintPath>..\DNN6x\bin\SharpZipLib.dll</HintPath>
     </Reference>
@@ -76,6 +79,8 @@
     <Compile Include="render\GenXmlTemplateExt.cs" />
     <Compile Include="DNNInterface.cs" />
     <Compile Include="DnnUtils.cs" />
+    <Compile Include="render\RazorUtils.cs" />
+    <Compile Include="render\RazorEngineTokens.cs" />
     <Compile Include="SqlDataProvider\DataProvider.cs" />
     <Compile Include="SqlDataProvider\SqlDataProvider.cs" />
     <Compile Include="UserDataInfo.cs" />

@@ -8,6 +8,8 @@ using System.Web.UI.WebControls;
 using System.Xml;
 using System.Xml.Serialization;
 using DotNetNuke.Common;
+using DotNetNuke.Entities.Portals;
+using DotNetNuke.Entities.Tabs;
 using NBrightCore.common;
 using NBrightCore.render;
 using NBrightDNN.controls;
@@ -547,8 +549,7 @@ namespace NBrightDNN
                                 {
                                     if (nod.Attributes["update"].InnerText.ToLower() == updateType)
                                     {
-                                        SetXmlProperty("genxml/" + nod1.Name.ToLower() + "/" + nod.Name.ToLower(),
-                                            nod.InnerText);
+                                        SetXmlProperty("genxml/" + nod1.Name.ToLower() + "/" + nod.Name.ToLower(),nod.InnerText);
                                     }
                                 }
                             }
