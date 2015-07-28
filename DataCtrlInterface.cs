@@ -385,6 +385,7 @@ namespace NBrightDNN
                     {
                         var dbl = Convert.ToDouble(Value, CultureInfo.GetCultureInfo(Utils.GetCurrentCulture()));
                         Value = dbl.ToString(CultureInfo.GetCultureInfo("en-US"));
+                        XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath + "/@datatype", "double", cdata);
                     }
                 }
                 if (DataTyp == System.TypeCode.DateTime)
@@ -549,7 +550,13 @@ namespace NBrightDNN
                                 {
                                     if (nod.Attributes["update"].InnerText.ToLower() == updateType)
                                     {
-                                        SetXmlProperty("genxml/" + nod1.Name.ToLower() + "/" + nod.Name.ToLower(),nod.InnerText);
+                                        var xpath = "genxml/" + nod1.Name.ToLower() + "/" + nod.Name.ToLower();
+                                        if (nod.Attributes["datatype"] != null)
+                                        {
+                                            // just need to update the attr on the XML, the Formatting has been done by the GetGenXmlByAjax function.
+                                            XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath + "/@datatype", nod.Attributes["datatype"].InnerText.ToLower());
+                                        }
+                                        SetXmlProperty(xpath, nod.InnerText);
                                     }
                                 }
                             }
