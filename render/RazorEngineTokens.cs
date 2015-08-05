@@ -13,7 +13,7 @@ namespace NBrightDNN.render
 
         public IEncodedString TextBox(NBrightInfo info, String xpath, String attributes = "", String defaultValue = "")
         {
-            var upd = getUpdateAttr(xpath);
+            var upd = getUpdateAttr(xpath, attributes);
             var id = xpath.Split('/').Last();
             var value = info.GetXmlProperty(xpath);
             if (value == "") value = defaultValue;
@@ -24,7 +24,7 @@ namespace NBrightDNN.render
 
         public IEncodedString RichTextBox(NBrightInfo info, String xpath, String attributes = "")
         {
-            var upd = getUpdateAttr(xpath);
+            var upd = getUpdateAttr(xpath, attributes);
             var id = xpath.Split('/').Last();
             var strOut = " <textarea id='" + id + "' type='text' name='editor" + id + "' " + attributes + " " + upd + " >" + info.GetXmlProperty(xpath) + "</textarea>";
             strOut += "<script> var editorvar" + id + " = CKEDITOR.replace('editor" + id + "'); $('#savedata').click(function () { var value = editorvar" + id + ".getData(); $('#" + id + "').val(value);});</script>";
@@ -33,7 +33,7 @@ namespace NBrightDNN.render
 
         public IEncodedString CheckBox(NBrightInfo info, String xpath,String text, String attributes = "", Boolean defaultValue = false)
         {
-            var upd = getUpdateAttr(xpath);
+            var upd = getUpdateAttr(xpath, attributes);
             var id = xpath.Split('/').Last();
             var strOut = "    <input id='" + id + "' type='checkbox' " + getChecked(info, xpath, defaultValue) + "' " + attributes + " " + upd + " /><label>" + text + "</label>";
             return new RawString(strOut);
@@ -46,7 +46,7 @@ namespace NBrightDNN.render
             var datat = datatext.Split(',');
             if (datav.Count() == datat.Count())
             {
-                var upd = getUpdateAttr(xpath);
+                var upd = getUpdateAttr(xpath, attributes);
                 var id = xpath.Split('/').Last();
                 strOut = "<div id='" + id + "' " + upd + " " + attributes + ">";
                 var c = 0;
@@ -67,7 +67,7 @@ namespace NBrightDNN.render
             var datat = datatext.Split(',');
             if (datav.Count() == datat.Count())
             {
-                var upd = getUpdateAttr(xpath);
+                var upd = getUpdateAttr(xpath, attributes);
                 var id = xpath.Split('/').Last();
                 strOut = "<div " + attributes + ">";
                 var c = 0;
@@ -95,7 +95,7 @@ namespace NBrightDNN.render
             var datat = datatext.Split(',');
             if (datav.Count() == datat.Count())
             {
-                var upd = getUpdateAttr(xpath);
+                var upd = getUpdateAttr(xpath,attributes);
                 var id = xpath.Split('/').Last();
                 strOut = "<select id='" + id + "' " + upd + " " + attributes + ">";
                 var c = 0;
@@ -126,7 +126,7 @@ namespace NBrightDNN.render
             var tList = DnnUtils.GetTreeTabListOnUniqueId();
             var strOut = "";
 
-            var upd = getUpdateAttr(xpath);
+            var upd = getUpdateAttr(xpath, attributes);
             var id = xpath.Split('/').Last();
             strOut = "<select id='" + id + "' " + upd + " guidkey='tab' " + attributes + ">";
             var c = 0;
@@ -150,10 +150,11 @@ namespace NBrightDNN.render
 
         #region functions
 
-        private String getUpdateAttr(String xpath)
+        private String getUpdateAttr(String xpath,String attributes)
         {
             var upd = "update='save'";
             if (xpath.StartsWith("genxml/lang/")) upd = "update='lang'";
+            if (attributes.Contains("update=")) upd = "";
             return upd;
         }
 
