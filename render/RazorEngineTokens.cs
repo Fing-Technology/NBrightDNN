@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Web;
 using RazorEngine.Templating;
 using RazorEngine.Text;
 
@@ -144,6 +145,32 @@ namespace NBrightDNN.render
 
             return new RawString(strOut);
         }
+
+        public IEncodedString HtmlOf(NBrightInfo info, String xpath)
+        {
+            var strOut = info.GetXmlProperty(xpath);
+            strOut = System.Web.HttpUtility.HtmlDecode(strOut);
+            return new RawString(strOut);
+        }
+
+        public IEncodedString BreakOf(NBrightInfo info, String xpath)
+        {
+            var strOut = info.GetXmlProperty(xpath);
+            strOut = System.Web.HttpUtility.HtmlEncode(strOut);
+            strOut = strOut.Replace(Environment.NewLine, "<br/>");
+            strOut = strOut.Replace("\t", "&nbsp;&nbsp;&nbsp;");
+            strOut = strOut.Replace("'", "&apos;");
+            return new RawString(strOut);
+        }
+
+        public IEncodedString HeadingOf(String text,String headerstyle)
+        {
+            var headingstylestart = "<" + headerstyle + ">";
+            var headingstyleend = "</" + headerstyle + ">";
+            var strOut = headingstylestart + text + headingstyleend;
+            return new RawString(strOut);
+        }
+
 
         #endregion
 
