@@ -1,7 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Text;
 using System.Web;
+using System.Web.Routing;
+using System.Web.UI.WebControls;
+using DotNetNuke.Entities.Portals;
+using DotNetNuke.Services.Localization;
 using RazorEngine.Templating;
 using RazorEngine.Text;
 
@@ -9,8 +15,32 @@ namespace NBrightDNN.render
 {
     public class RazorEngineTokens<T> : TemplateBase<T>
     {
+        private Dictionary<String,List<String>> _metadata;
 
-        #region general html control tokens
+        public RazorEngineTokens()
+        {
+            _metadata = new Dictionary<String, List<String>>();
+        }
+
+        #region "token to add meta data for tokens"
+
+        public IEncodedString AddMetaData(String metaType, String metaValue)
+        {
+            var l = new List<String>();
+            if (_metadata.ContainsKey(metaType)) l = _metadata[metaValue];                
+            l.Add(metaValue);
+
+            if (_metadata.ContainsKey(metaType))
+                _metadata[metaType] = l;
+            else
+                _metadata.Add(metaType,l);
+
+            return new RawString(""); //return nothing
+        }
+
+        #endregion
+
+        #region "general html control tokens"
 
         public IEncodedString TextBox(NBrightInfo info, String xpath, String attributes = "", String defaultValue = "")
         {
@@ -171,6 +201,53 @@ namespace NBrightDNN.render
             return new RawString(strOut);
         }
 
+
+        #endregion
+
+        #region "extra tokens"
+
+        public IEncodedString EditCultureSelect(String cssclass, String cssclassli)
+        {
+            var enabledlanguages = LocaleController.Instance.GetLocales(PortalSettings.Current.PortalId);
+            var strOut = new StringBuilder("<ul class='" + cssclass + "'>");
+            foreach (var l in enabledlanguages)
+            {
+                strOut.Append("<li>");
+                strOut.Append("<a href='javascript:void(0)' lang='" + l.Value.Code + "' class='" + cssclassli + "'><img src='/Images/Flags/" + l.Value.Code + ".gif' alt='" + l.Value.NativeName + "' /></a>");
+                strOut.Append("</li>");
+            }
+            strOut.Append("</ul>");
+            return new RawString(strOut.ToString());
+        }
+
+
+        public IEncodedString WebsiteUrl(String parameters = "")
+        {
+            var strOut = "";
+            var ps = DnnUtils.GetCurrentPortalSettings();
+            var strAry = ps.DefaultPortalAlias.Split('/');
+            if (strAry.Any())
+                strOut = strAry[0]; // Only display base domain, without lanaguge
+            else
+                strOut = ps.DefaultPortalAlias;
+            if (parameters != "") strOut += "?" + parameters;
+            return new RawString(strOut);
+        }
+
+        public IEncodedString ResourceKey(String resourceFileKey,String lang = "")
+        {
+            var strOut = "";
+            if (_metadata.ContainsKey("resourcepath"))
+            {
+                var l = _metadata["resourcepath"];
+                foreach (var r in l)
+                {
+                    strOut = DnnUtils.GetResourceString(r, resourceFileKey,"Text", lang);
+                    if (strOut != "") break;
+                }
+            }
+            return new RawString(strOut);
+        }
 
         #endregion
 

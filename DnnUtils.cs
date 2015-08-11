@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Xml;
 using DotNetNuke.Common.Lists;
 using DotNetNuke.Entities.Modules;
 using DotNetNuke.Entities.Portals;
@@ -521,6 +522,58 @@ namespace NBrightDNN
             var portal = controller.GetPortal(portalId);
             return new PortalSettings(portal);
         }
+
+        public static String GetResourceString(String resourcePath, String resourceKey,String resourceExt = "Text", String lang = "")
+        {
+            var resDic = GetResourceData(resourcePath, resourceKey, lang);
+            if (resDic != null && resDic.ContainsKey(resourceExt))
+            {
+                return resDic[resourceExt];
+            }
+            return "";
+        }
+
+        public static Dictionary<String, String> GetResourceData(String resourcePath, String resourceKey, String lang = "")
+        {
+            if (lang == "") lang = DnnUtils.GetCurrentValidCultureCode();
+            var ckey = resourcePath + resourceKey + lang;
+            var obj = Utils.GetCache(ckey);
+            if (obj != null) return (Dictionary<String, String>)obj;
+
+            var rtnList = new Dictionary<String, String>();
+            var s = resourceKey.Split('.');
+            if (s.Length == 2 && resourcePath != "")
+            {
+                var fName = s[0];
+                var rKey = s[1];
+                var relativefilename = resourcePath.TrimEnd('/') + "/" + fName + ".ascx.resx";
+                var fullFileName = System.Web.Hosting.HostingEnvironment.MapPath(relativefilename);
+                if (!String.IsNullOrEmpty(fullFileName) && System.IO.File.Exists(fullFileName))
+                {
+                    var xmlDoc = new XmlDocument();
+                    xmlDoc.Load(fullFileName);
+                    var xmlNodList = xmlDoc.SelectNodes("root/data[starts-with(./@name,'" + rKey + ".')]");
+                    if (xmlNodList != null)
+                    {
+                        foreach (XmlNode nod in xmlNodList)
+                        {
+                            if (nod.Attributes != null)
+                            {
+                                var n = nod.Attributes["name"].Value;
+                                if (lang == "") lang = Utils.GetCurrentCulture();
+                                var rtnValue = Localization.GetString(n, relativefilename, PortalSettings.Current, lang, true);
+                                rtnList.Add(n.Replace(rKey + ".", ""), rtnValue);
+                            }
+                        }
+                    }
+                }
+
+                Utils.SetCache(ckey, rtnList, DateTime.Now.AddMinutes(20));
+            }
+            return rtnList;
+        }
+
+
 
         #region "encryption"
 

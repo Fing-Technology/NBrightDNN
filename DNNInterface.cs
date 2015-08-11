@@ -71,42 +71,7 @@ namespace NBrightDNN
 
 		public override Dictionary<String, String> GetResourceData(String resourcePath, String resourceKey,String lang = "")
 		{
-		    if (lang == "") lang = DnnUtils.GetCurrentValidCultureCode();
-            var ckey = resourcePath + resourceKey + lang;
-			var obj  = GetCache(ckey);
-			if (obj != null) return (Dictionary<String, String>)obj;
-
-			var rtnList = new Dictionary<String, String>();
-			var s = resourceKey.Split('.');
-            if (s.Length == 2 && resourcePath != "")
-            {
-                var fName = s[0];
-                var rKey = s[1];
-                var relativefilename = resourcePath.TrimEnd('/') + "/" + fName + ".ascx.resx";
-                var fullFileName = System.Web.Hosting.HostingEnvironment.MapPath(relativefilename);
-                if (!String.IsNullOrEmpty(fullFileName) && System.IO.File.Exists(fullFileName))
-                {
-                    var xmlDoc = new XmlDocument();
-                    xmlDoc.Load(fullFileName);
-                    var xmlNodList = xmlDoc.SelectNodes("root/data[starts-with(./@name,'" + rKey + ".')]");
-                    if (xmlNodList != null)
-                    {
-                        foreach (XmlNode nod in xmlNodList)
-                        {
-                            if (nod.Attributes != null)
-                            {
-                                var n = nod.Attributes["name"].Value;
-                                if (lang == "") lang = Utils.GetCurrentCulture();
-                                var rtnValue = Localization.GetString(n, relativefilename, PortalSettings.Current, lang, true);
-                                rtnList.Add(n.Replace(rKey + ".", ""), rtnValue);
-                            }
-                        }
-                    }
-                }
-
-				SetCache(ckey, rtnList, DateTime.Now.AddMinutes(20));
-            }
-		    return rtnList;
+		    return DnnUtils.GetResourceData(resourcePath, resourceKey, lang);
 		}
 
 
