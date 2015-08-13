@@ -6,8 +6,11 @@ using System.Text;
 using System.Web;
 using System.Web.Routing;
 using System.Web.UI.WebControls;
+using DotNetNuke.Common;
 using DotNetNuke.Entities.Portals;
+using DotNetNuke.Entities.Tabs;
 using DotNetNuke.Services.Localization;
+using NBrightCore.providers;
 using RazorEngine.Templating;
 using RazorEngine.Text;
 
@@ -44,6 +47,9 @@ namespace NBrightDNN.render
 
         public IEncodedString TextBox(NBrightInfo info, String xpath, String attributes = "", String defaultValue = "")
         {
+            if (attributes.StartsWith("ResourceKey:")) attributes = ResourceKey(attributes.Replace("ResourceKey:", "")).ToString();
+            if (defaultValue.StartsWith("ResourceKey:")) defaultValue = ResourceKey(defaultValue.Replace("ResourceKey:", "")).ToString();
+
             var upd = getUpdateAttr(xpath, attributes);
             var id = xpath.Split('/').Last();
             var value = info.GetXmlProperty(xpath);
@@ -55,6 +61,8 @@ namespace NBrightDNN.render
 
         public IEncodedString RichTextBox(NBrightInfo info, String xpath, String attributes = "")
         {
+            if (attributes.StartsWith("ResourceKey:")) attributes = ResourceKey(attributes.Replace("ResourceKey:", "")).ToString();
+
             var upd = getUpdateAttr(xpath, attributes);
             var id = xpath.Split('/').Last();
             var strOut = " <textarea id='" + id + "' type='text' name='editor" + id + "' " + attributes + " " + upd + " >" + info.GetXmlProperty(xpath) + "</textarea>";
@@ -64,6 +72,9 @@ namespace NBrightDNN.render
 
         public IEncodedString CheckBox(NBrightInfo info, String xpath,String text, String attributes = "", Boolean defaultValue = false)
         {
+            if (text.StartsWith("ResourceKey:")) text = ResourceKey(text.Replace("ResourceKey:", "")).ToString();
+            if (attributes.StartsWith("ResourceKey:")) attributes = ResourceKey(attributes.Replace("ResourceKey:", "")).ToString();
+
             var upd = getUpdateAttr(xpath, attributes);
             var id = xpath.Split('/').Last();
             var strOut = "    <input id='" + id + "' type='checkbox' " + getChecked(info, xpath, defaultValue) + "' " + attributes + " " + upd + " /><label>" + text + "</label>";
@@ -72,6 +83,10 @@ namespace NBrightDNN.render
 
         public IEncodedString CheckBoxList(NBrightInfo info, String xpath, String datavalue, String datatext, String attributes = "", Boolean defaultValue = false)
         {
+            if (datavalue.StartsWith("ResourceKey:")) datavalue = ResourceKey(datavalue.Replace("ResourceKey:", "")).ToString();
+            if (datatext.StartsWith("ResourceKey:")) datatext = ResourceKey(datatext.Replace("ResourceKey:", "")).ToString();
+            if (attributes.StartsWith("ResourceKey:")) attributes = ResourceKey(attributes.Replace("ResourceKey:", "")).ToString();
+
             var strOut = "";
             var datav = datavalue.Split(',');
             var datat = datatext.Split(',');
@@ -93,6 +108,11 @@ namespace NBrightDNN.render
 
         public IEncodedString RadioButtonList(NBrightInfo info, String xpath, String datavalue, String datatext, String attributes = "", String defaultValue = "")
         {
+            if (datavalue.StartsWith("ResourceKey:")) datavalue = ResourceKey(datavalue.Replace("ResourceKey:", "")).ToString();
+            if (datatext.StartsWith("ResourceKey:")) datatext = ResourceKey(datatext.Replace("ResourceKey:", "")).ToString();
+            if (attributes.StartsWith("ResourceKey:")) attributes = ResourceKey(attributes.Replace("ResourceKey:", "")).ToString();
+            if (defaultValue.StartsWith("ResourceKey:")) defaultValue = ResourceKey(defaultValue.Replace("ResourceKey:", "")).ToString();
+
             var strOut = "";
             var datav = datavalue.Split(',');
             var datat = datatext.Split(',');
@@ -121,6 +141,11 @@ namespace NBrightDNN.render
 
         public IEncodedString DropDownList(NBrightInfo info, String xpath, String datavalue, String datatext, String attributes = "", String defaultValue = "")
         {
+            if (datavalue.StartsWith("ResourceKey:")) datavalue = ResourceKey(datavalue.Replace("ResourceKey:", "")).ToString();
+            if (datatext.StartsWith("ResourceKey:")) datatext = ResourceKey(datatext.Replace("ResourceKey:", "")).ToString();
+            if (attributes.StartsWith("ResourceKey:")) attributes = ResourceKey(attributes.Replace("ResourceKey:", "")).ToString();
+            if (defaultValue.StartsWith("ResourceKey:")) defaultValue = ResourceKey(defaultValue.Replace("ResourceKey:", "")).ToString();
+
             var strOut = "";
             var datav = datavalue.Split(',');
             var datat = datatext.Split(',');
@@ -154,6 +179,8 @@ namespace NBrightDNN.render
 
         public IEncodedString TabSelectList(NBrightInfo info, String xpath, String attributes = "",Boolean allowEmpty = true)
         {
+            if (attributes.StartsWith("ResourceKey:")) attributes = ResourceKey(attributes.Replace("ResourceKey:", "")).ToString();
+
             var tList = DnnUtils.GetTreeTabListOnUniqueId();
             var strOut = "";
 
@@ -176,28 +203,51 @@ namespace NBrightDNN.render
             return new RawString(strOut);
         }
 
-        public IEncodedString HtmlOf(NBrightInfo info, String xpath)
+        public IEncodedString DnnLabel(String id, String resourceFileKey, String lang = "")
         {
-            var strOut = info.GetXmlProperty(xpath);
-            strOut = System.Web.HttpUtility.HtmlDecode(strOut);
+            var strOut = new StringBuilder("<div class='dnnLabel'>");
+            strOut.Append("<label><span>" + ResourceKey(resourceFileKey, lang) + "</span> </label>");
+            var msg = ResourceKey(resourceFileKey, lang, "Help").ToString();
+            if (msg == "") msg = ResourceKey(resourceFileKey, lang, "HelpText").ToString();
+            if (msg != "")
+            {
+                strOut.Append("<a id='" + id + "_cmdHelp' tabindex='-1' class='dnnFormHelp' href='javascript:void();'></a>");
+                strOut.Append("<div id='" + id + "_pnlHelp' class='dnnTooltip'><div class='dnnFormHelpContent dnnClear'>");
+                strOut.Append("<span id='" + id + "_lblHelp' class='dnnHelpText'>" + msg + "</span>");
+                strOut.Append("<a href='#' class='pinHelp'></a>");
+                strOut.Append("</div></div>");                
+            }
+            strOut.Append("</div>");
+
+            return new RawString(strOut.ToString());
+        }
+
+        public IEncodedString GetTabUrlByGuid(NBrightInfo info, String xpath)
+        {
+            var strOut = "";
+
+            var t = (from kvp in TabController.GetTabsBySortOrder(PortalSettings.Current.PortalId) where kvp.UniqueId.ToString() == info.GetXmlProperty(xpath) select kvp.TabID);
+            if (t.Any())
+            {
+                var tabid = t.First();
+                strOut = Globals.NavigateURL(tabid);
+            }
+
             return new RawString(strOut);
         }
 
-        public IEncodedString BreakOf(NBrightInfo info, String xpath)
+        public IEncodedString ResourceKey(String resourceFileKey, String lang = "",String resourceExtension = "Text")
         {
-            var strOut = info.GetXmlProperty(xpath);
-            strOut = System.Web.HttpUtility.HtmlEncode(strOut);
-            strOut = strOut.Replace(Environment.NewLine, "<br/>");
-            strOut = strOut.Replace("\t", "&nbsp;&nbsp;&nbsp;");
-            strOut = strOut.Replace("'", "&apos;");
-            return new RawString(strOut);
-        }
-
-        public IEncodedString HeadingOf(String text,String headerstyle)
-        {
-            var headingstylestart = "<" + headerstyle + ">";
-            var headingstyleend = "</" + headerstyle + ">";
-            var strOut = headingstylestart + text + headingstyleend;
+            var strOut = "";
+            if (_metadata.ContainsKey("resourcepath"))
+            {
+                var l = _metadata["resourcepath"];
+                foreach (var r in l)
+                {
+                    strOut = DnnUtils.GetResourceString(r, resourceFileKey, resourceExtension, lang);
+                    if (strOut != "") break;
+                }
+            }
             return new RawString(strOut);
         }
 
@@ -234,18 +284,29 @@ namespace NBrightDNN.render
             return new RawString(strOut);
         }
 
-        public IEncodedString ResourceKey(String resourceFileKey,String lang = "")
+
+        public IEncodedString HtmlOf(NBrightInfo info, String xpath)
         {
-            var strOut = "";
-            if (_metadata.ContainsKey("resourcepath"))
-            {
-                var l = _metadata["resourcepath"];
-                foreach (var r in l)
-                {
-                    strOut = DnnUtils.GetResourceString(r, resourceFileKey,"Text", lang);
-                    if (strOut != "") break;
-                }
-            }
+            var strOut = info.GetXmlProperty(xpath);
+            strOut = System.Web.HttpUtility.HtmlDecode(strOut);
+            return new RawString(strOut);
+        }
+
+        public IEncodedString BreakOf(NBrightInfo info, String xpath)
+        {
+            var strOut = info.GetXmlProperty(xpath);
+            strOut = System.Web.HttpUtility.HtmlEncode(strOut);
+            strOut = strOut.Replace(Environment.NewLine, "<br/>");
+            strOut = strOut.Replace("\t", "&nbsp;&nbsp;&nbsp;");
+            strOut = strOut.Replace("'", "&apos;");
+            return new RawString(strOut);
+        }
+
+        public IEncodedString HeadingOf(String text, String headerstyle)
+        {
+            var headingstylestart = "<" + headerstyle + ">";
+            var headingstyleend = "</" + headerstyle + ">";
+            var strOut = headingstylestart + text + headingstyleend;
             return new RawString(strOut);
         }
 

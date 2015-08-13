@@ -73,6 +73,11 @@ GIT Branch:  https://nbrightdnn.codeplex.com/SourceControl/latest
 							<name>NBrightDNN.dll</name>
 							<sourceFileName>NBrightDNN.dll</sourceFileName>
 						</assembly>
+						<assembly>
+							<path>bin</path>
+							<name>RazorEngine.dll</name>
+							<sourceFileName>RazorEngine.dll</sourceFileName>
+						</assembly>
 					</assemblies>
 				</component>
 			</components>
