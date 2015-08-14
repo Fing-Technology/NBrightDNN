@@ -280,6 +280,14 @@ namespace NBrightDNN.render
                 strOut = strAry[0]; // Only display base domain, without lanaguge
             else
                 strOut = ps.DefaultPortalAlias;
+            if (strOut == "")
+            {
+                strAry = ps.PortalAlias.HTTPAlias.Split('/');
+                if (strAry.Any())
+                    strOut = strAry[0]; // Only display base domain, without lanaguge
+                else
+                    strOut = ps.DefaultPortalAlias;
+            }
             if (parameters != "") strOut += "?" + parameters;
             return new RawString(strOut);
         }
