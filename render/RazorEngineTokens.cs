@@ -59,6 +59,20 @@ namespace NBrightDNN.render
             return new RawString(strOut);
         }
 
+        public IEncodedString TextArea(NBrightInfo info, String xpath, String attributes = "", String defaultValue = "")
+        {
+            if (attributes.StartsWith("ResourceKey:")) attributes = ResourceKey(attributes.Replace("ResourceKey:", "")).ToString();
+            if (defaultValue.StartsWith("ResourceKey:")) defaultValue = ResourceKey(defaultValue.Replace("ResourceKey:", "")).ToString();
+
+            var upd = getUpdateAttr(xpath, attributes);
+            var id = xpath.Split('/').Last();
+            var value = info.GetXmlProperty(xpath);
+            if (value == "") value = defaultValue;
+            var strOut = "<textarea id='" + id + "' " + attributes + " " + upd + " type='text'>" + value + "</textarea>";
+
+            return new RawString(strOut);
+        }
+
         public IEncodedString RichTextBox(NBrightInfo info, String xpath, String attributes = "")
         {
             if (attributes.StartsWith("ResourceKey:")) attributes = ResourceKey(attributes.Replace("ResourceKey:", "")).ToString();
