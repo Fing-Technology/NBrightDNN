@@ -255,7 +255,7 @@ namespace NBrightDNN
             {
                 try
                 {
-                    var x = GenXmlFunctions.GetGenXmlValue(XMLData, xpath);
+                    var x = GenXmlFunctions.GetGenXmlValueRawFormat(XMLData, xpath);
                     if (Utils.IsNumeric(x)) return Convert.ToInt32(x);
                 }
                 catch (Exception ex)
@@ -277,18 +277,9 @@ namespace NBrightDNN
             {
                 try
                 {
-                    var x = GenXmlFunctions.GetGenXmlValue(XMLData, xpath);
+                    var x = GenXmlFunctions.GetGenXmlValueRawFormat(XMLData, xpath);
                     if (Utils.IsNumeric(x))
                     {
-                        // if we have a datatype attr of double the return format will already be correct
-                        var xmlNod = GenXmlFunctions.GetGenXmLnode(XMLData, xpath);
-                        if (xmlNod != null)
-                        {
-                            if (xmlNod.Attributes != null && (xmlNod.Attributes["datatype"] != null) && (xmlNod.Attributes["datatype"].InnerText == "double"))
-                            {
-                                return Convert.ToDouble(x);
-                            }
-                        }
                         return Convert.ToDouble(x, CultureInfo.GetCultureInfo("en-US"));
                         // double should always be saved as en-US                        
                     }
@@ -312,7 +303,7 @@ namespace NBrightDNN
             {
                 try
                 {
-                    var x = GenXmlFunctions.GetGenXmlValue(XMLData, xpath);
+                    var x = GenXmlFunctions.GetGenXmlValueRawFormat(XMLData, xpath);
                     // bool usually stored as "True" "False"
                     if (x.ToLower() == "true") return true;
                     // Test for 1 as true also.
