@@ -606,6 +606,8 @@ namespace NBrightDNN
 
         public void ValidateXmlFormat()
         {
+            if (XMLDoc == null) XMLData = GenXmlFunctions.GetGenXml(new RepeaterItem(0, ListItemType.Item)); // if we don;t have anything, create an empty default to stop errors.
+
             if (XMLDoc.SelectSingleNode("genxml/hidden") == null) SetXmlProperty("genxml/hidden", "");
             if (XMLDoc.SelectSingleNode("genxml/textbox") == null) SetXmlProperty("genxml/textbox", "");
             if (XMLDoc.SelectSingleNode("genxml/checkbox") == null) SetXmlProperty("genxml/checkbox", "");
