@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -625,4 +626,47 @@ namespace NBrightDNN
         }
     }
 
+
+    public class NBrightRazor
+    {
+        public Dictionary<String,String> Settings { get; set; }
+        public NameValueCollection UrlParams { get; set; }
+        public List<object> List { get; set; }
+
+        public NBrightRazor(List<object> list, Dictionary<String,String> settings, NameValueCollection urlParams)
+        {
+            Settings = settings;
+            UrlParams = urlParams;
+            List = list;
+        }
+        public NBrightRazor(List<object> list, Dictionary<String, String> settings)
+        {
+            Settings = settings;
+            UrlParams = new NameValueCollection();
+            List = list;
+        }
+        public NBrightRazor(List<object> list, NameValueCollection urlParams)
+        {
+            Settings = new Dictionary<string, string>();
+            UrlParams = urlParams;
+            List = list;
+        }
+
+        public String GetSetting(String key,String defaultValue = "")
+        {
+            if (Settings.ContainsKey(key)) return Settings[key];
+            return defaultValue; 
+        }
+
+        public String GetUrlParam(String key, String defaultValue = "")
+        {
+            var result = defaultValue;
+            if (UrlParams.Count != 0)
+            {
+                result = Convert.ToString(UrlParams[key]);
+            }
+            return (result == null) ? defaultValue : result.Trim(); 
+        }
+
+    }
 }
