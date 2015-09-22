@@ -30,7 +30,7 @@ namespace NBrightDNN.render
         public IEncodedString AddMetaData(String metaType, String metaValue)
         {
             var l = new List<String>();
-            if (_metadata.ContainsKey(metaType)) l = _metadata[metaValue];                
+            if (_metadata.ContainsKey(metaType)) l = _metadata[metaType];                
             l.Add(metaValue);
 
             if (_metadata.ContainsKey(metaType))
@@ -331,6 +331,63 @@ namespace NBrightDNN.render
             var strOut = headingstylestart + text + headingstyleend;
             return new RawString(strOut);
         }
+
+        public IEncodedString CheckBoxListOf(NBrightInfo info, String xpath, String datavalue, String datatext, String attributes = "")
+        {
+            if (datavalue.StartsWith("ResourceKey:")) datavalue = ResourceKey(datavalue.Replace("ResourceKey:", "")).ToString();
+            if (datatext.StartsWith("ResourceKey:")) datatext = ResourceKey(datatext.Replace("ResourceKey:", "")).ToString();
+            if (attributes.StartsWith("ResourceKey:")) attributes = ResourceKey(attributes.Replace("ResourceKey:", "")).ToString();
+
+            var strOut = "";
+            var datav = datavalue.Split(',');
+            var datat = datatext.Split(',');
+            if (datav.Count() == datat.Count())
+            {
+                strOut = "<ul " + attributes + ">";
+                var c = 0;
+                foreach (var v in datav)
+                {
+                    if (info.GetXmlProperty(xpath + "/chk[@data='" + v + "']/@value") == "True") strOut += "    <li>" + datat[c] + "</li>";
+                    c += 1;
+                }
+                strOut += "</ul>";
+            }
+            return new RawString(strOut.ToString());
+        }
+
+        public IEncodedString FolderSelectList(NBrightInfo info, String xpath, String relitiveRootFolder, String attributes = "", Boolean allowEmpty = true)
+        {
+            if (attributes.StartsWith("ResourceKey:")) attributes = ResourceKey(attributes.Replace("ResourceKey:", "")).ToString();
+
+            var mappathRootFolder = System.Web.Hosting.HostingEnvironment.MapPath(relitiveRootFolder);
+            var dirlist = System.IO.Directory.GetDirectories(mappathRootFolder);
+            var tList = new List<String>();
+            foreach (var d in dirlist)
+            {
+                var dr = new System.IO.DirectoryInfo(d);
+                tList.Add(dr.Name);
+            }
+            var strOut = "";
+
+            var upd = getUpdateAttr(xpath, attributes);
+            var id = xpath.Split('/').Last();
+            strOut = "<select id='" + id + "' " + upd + " " + attributes + ">";
+            var c = 0;
+            var s = "";
+            if (allowEmpty) strOut += "    <option value=''></option>";
+            foreach (var tItem in tList)
+            {
+                if (info.GetXmlProperty(xpath) == tItem)
+                    s = "selected";
+                else
+                    s = "";
+                strOut += "    <option value='" + tItem + "' " + s + ">" + tItem + "</option>";
+            }
+            strOut += "</select>";
+
+            return new RawString(strOut);
+        }
+
 
         #endregion
 
