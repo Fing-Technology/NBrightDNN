@@ -10,6 +10,7 @@ using DotNetNuke.Common;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Entities.Tabs;
 using DotNetNuke.Services.Localization;
+using NBrightCore.common;
 using NBrightCore.providers;
 using RazorEngine.Templating;
 using RazorEngine.Text;
@@ -37,6 +38,24 @@ namespace NBrightDNN.render
                 _metadata[metaType] = l;
             else
                 _metadata.Add(metaType,l);
+
+            return new RawString(""); //return nothing
+        }
+
+        public IEncodedString AddPreProcessMetaData(String metaKey, String metaValue,String templateFullName)
+        {
+            var cachedlist = (Dictionary<String, String>)Utils.GetCache("preprocessmetadata" + templateFullName);
+            if (cachedlist == null)
+            {
+                cachedlist = new Dictionary<String, String>();
+            }
+
+            if (cachedlist.ContainsKey(metaKey))
+                cachedlist[metaKey] = metaValue;
+            else
+                cachedlist.Add(metaKey, metaValue);
+
+            Utils.SetCache("preprocessmetadata" + templateFullName, cachedlist);
 
             return new RawString(""); //return nothing
         }
