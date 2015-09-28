@@ -64,6 +64,20 @@ namespace NBrightDNN.render
 
         #region "general html control tokens"
 
+        public IEncodedString @HiddenField(NBrightInfo info, String xpath, String attributes = "", String defaultValue = "")
+        {
+            if (attributes.StartsWith("ResourceKey:")) attributes = ResourceKey(attributes.Replace("ResourceKey:", "")).ToString();
+            if (defaultValue.StartsWith("ResourceKey:")) defaultValue = ResourceKey(defaultValue.Replace("ResourceKey:", "")).ToString();
+
+            var upd = getUpdateAttr(xpath, attributes);
+            var id = xpath.Split('/').Last();
+            var value = info.GetXmlProperty(xpath);
+            if (value == "") value = defaultValue;
+            var strOut = "<input value='" + value + "' id='" + id + "' " + attributes + " " + upd + " type='hidden' />";
+
+            return new RawString(strOut);
+        }
+
         public IEncodedString TextBox(NBrightInfo info, String xpath, String attributes = "", String defaultValue = "")
         {
             if (attributes.StartsWith("ResourceKey:")) attributes = ResourceKey(attributes.Replace("ResourceKey:", "")).ToString();
