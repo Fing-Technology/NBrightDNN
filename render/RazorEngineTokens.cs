@@ -113,7 +113,7 @@ namespace NBrightDNN.render
             var upd = getUpdateAttr(xpath, attributes);
             var id = xpath.Split('/').Last();
             var strOut = " <textarea id='" + id + "' type='text' name='editor" + id + "' " + attributes + " " + upd + " >" + info.GetXmlProperty(xpath) + "</textarea>";
-            strOut += "<script> var editorvar" + id + " = CKEDITOR.replace('editor" + id + "'); $('#savedata').click(function () { var value = editorvar" + id + ".getData(); $('#" + id + "').val(value);});</script>";
+            strOut += "<script> var editorvar" + id + " = CKEDITOR.replace('editor" + id + "'); $('#savedata').click(function () { var value = editorvar" + id + ".getData(); $('#" + id + "').val(value);});  $('.selecteditlanguage').click(function () { var value = editorvar" + id + ".getData(); $('#" + id + "').val(value);});</script>";
             return new RawString(strOut);
         }
 
@@ -310,7 +310,7 @@ namespace NBrightDNN.render
             foreach (var l in enabledlanguages)
             {
                 strOut.Append("<li>");
-                strOut.Append("<a href='javascript:void(0)' lang='" + l.Value.Code + "' class='" + cssclassli + "'><img src='/Images/Flags/" + l.Value.Code + ".gif' alt='" + l.Value.NativeName + "' /></a>");
+                strOut.Append("<a href='javascript:void(0)' lang='" + l.Value.Code + "' class='selecteditlanguage " + cssclassli + "'><img src='/Images/Flags/" + l.Value.Code + ".gif' alt='" + l.Value.NativeName + "' /></a>");
                 strOut.Append("</li>");
             }
             strOut.Append("</ul>");
@@ -427,7 +427,7 @@ namespace NBrightDNN.render
 
         #region functions
 
-        private String getUpdateAttr(String xpath,String attributes)
+        public String getUpdateAttr(String xpath,String attributes)
         {
             var upd = "update='save'";
             if (xpath.StartsWith("genxml/lang/")) upd = "update='lang'";
@@ -435,7 +435,7 @@ namespace NBrightDNN.render
             return upd;
         }
 
-        private String getChecked(NBrightInfo info, String xpath, Boolean defaultValue)
+        public String getChecked(NBrightInfo info, String xpath, Boolean defaultValue)
         {
             if (info.GetXmlProperty(xpath) == "True") return "checked='True'";
             if (info.GetXmlProperty(xpath) == "")

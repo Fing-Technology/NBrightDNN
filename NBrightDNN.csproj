@@ -96,6 +96,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Installation\03.02.00.SqlDataProvider" />
+    <None Include="Installation\03.04.00.SqlDataProvider" />
+    <None Include="Installation\NBrightTemplateSys.dnn" />
+    <None Include="Installation\Uninstall.SqlDataProvider" />
     <None Include="NBrightThumb.ashx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
