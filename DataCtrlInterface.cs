@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Web;
 using System.Web.UI.WebControls;
 using System.Xml;
 using System.Xml.Serialization;
@@ -14,6 +15,7 @@ using DotNetNuke.Entities.Tabs;
 using NBrightCore.common;
 using NBrightCore.render;
 using NBrightDNN.controls;
+using RazorEngine.Text;
 
 namespace NBrightDNN
 {
@@ -388,18 +390,20 @@ namespace NBrightDNN
                     {
                         var dbl = Convert.ToDouble(Value, CultureInfo.GetCultureInfo(Utils.GetCurrentCulture()));
                         Value = dbl.ToString(CultureInfo.GetCultureInfo("en-US"));
-                        XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath + "/@datatype", "double", cdata);
                     }
                 }
                 if (DataTyp == System.TypeCode.DateTime)
                 {
-                    if (Utils.IsDate(Value, Utils.GetCurrentCulture()))
-                        Value = Utils.FormatToSave(Value, System.TypeCode.DateTime);
-                    XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath + "/@datatype", "date", cdata);
+                    if (Utils.IsDate(Value, Utils.GetCurrentCulture())) Value = Utils.FormatToSave(Value, System.TypeCode.DateTime);
                 }
                 XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath, Value, cdata);
+                
+                // do the datatype after the node is created
                 if (DataTyp == System.TypeCode.DateTime)
                     XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath + "/@datatype", "date", cdata);
+
+                if (DataTyp == System.TypeCode.Double)
+                    XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath + "/@datatype", "double", cdata);
             }
         }
 
@@ -524,6 +528,7 @@ namespace NBrightDNN
 
         public void UpdateAjax(String ajaxStrData)
         {
+            ValidateXmlFormat(); // make sure we have correct structure so update works.
             var updateType = "save";
             if (!String.IsNullOrEmpty(Lang)) updateType = "lang";
             var ajaxInfo = new NBrightInfo();
@@ -632,12 +637,20 @@ namespace NBrightDNN
         public Dictionary<String,String> Settings { get; set; }
         public NameValueCollection UrlParams { get; set; }
         public List<object> List { get; set; }
+        public int ModuleId { get; set; }
+        public String ModuleRef { get; set; }
 
         public NBrightRazor(List<object> list, Dictionary<String,String> settings, NameValueCollection urlParams)
         {
             Settings = settings;
             UrlParams = urlParams;
             List = list;
+
+            ModuleRef = "";
+            ModuleId = 0;
+
+            if (settings.ContainsKey("modref")) ModuleRef = settings["modref"];
+
         }
         public NBrightRazor(List<object> list, Dictionary<String, String> settings)
         {
@@ -656,6 +669,12 @@ namespace NBrightDNN
         {
             if (Settings.ContainsKey(key)) return Settings[key];
             return defaultValue; 
+        }
+
+        public IEncodedString GetSettingHtmlOf(String key, String defaultValue = "")
+        {
+            if (Settings.ContainsKey(key)) return new RawString(HttpUtility.HtmlDecode(Settings[key]));
+            return new RawString(defaultValue);
         }
 
         public String GetUrlParam(String key, String defaultValue = "")

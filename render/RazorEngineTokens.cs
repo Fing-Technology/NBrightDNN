@@ -19,11 +19,11 @@ namespace NBrightDNN.render
 {
     public class RazorEngineTokens<T> : TemplateBase<T>
     {
-        private Dictionary<String,List<String>> _metadata;
+        public Dictionary<String,List<String>> Metadata;
 
         public RazorEngineTokens()
         {
-            _metadata = new Dictionary<String, List<String>>();
+            Metadata = new Dictionary<String, List<String>>();
         }
 
         #region "token to add meta data for tokens"
@@ -31,17 +31,31 @@ namespace NBrightDNN.render
         public IEncodedString AddMetaData(String metaType, String metaValue)
         {
             var l = new List<String>();
-            if (_metadata.ContainsKey(metaType)) l = _metadata[metaType];                
+            if (Metadata.ContainsKey(metaType)) l = Metadata[metaType];                
             l.Add(metaValue);
 
-            if (_metadata.ContainsKey(metaType))
-                _metadata[metaType] = l;
+            if (Metadata.ContainsKey(metaType))
+                Metadata[metaType] = l;
             else
-                _metadata.Add(metaType,l);
+                Metadata.Add(metaType,l);
 
             return new RawString(""); //return nothing
         }
 
+        public IEncodedString AddMetaData(String metaKey, String metaValue, String templateFullName)
+        {
+            // if we have a templatename add to preprocess cache meta data.
+            return AddPreProcessMetaData(metaKey, metaValue, templateFullName);
+        }
+
+        /// <summary>
+        /// This method add the meta data to a specific cache list, so the we can use that data in the module code, before the razor template is rendered.
+        /// This allows use to use the metadata token to add data selection information, like search filters and sort before we get the data from the DB.
+        /// </summary>
+        /// <param name="metaKey"></param>
+        /// <param name="metaValue"></param>
+        /// <param name="templateFullName">This is the cache key that is used and MUST be {theme}.{templatename}.{templateExtension}  e.g. Classic.list.cshtml</param>
+        /// <returns></returns>
         public IEncodedString AddPreProcessMetaData(String metaKey, String metaValue,String templateFullName)
         {
             var cachedlist = (Dictionary<String, String>)Utils.GetCache("preprocessmetadata" + templateFullName);
@@ -57,7 +71,8 @@ namespace NBrightDNN.render
 
             Utils.SetCache("preprocessmetadata" + templateFullName, cachedlist);
 
-            return new RawString(""); //return nothing
+            // add to internal metadata, so we can use it in the razor template if needed.
+            return AddMetaData(metaKey, metaValue);
         }
 
         #endregion
@@ -124,7 +139,7 @@ namespace NBrightDNN.render
 
             var upd = getUpdateAttr(xpath, attributes);
             var id = xpath.Split('/').Last();
-            var strOut = "    <input id='" + id + "' type='checkbox' " + getChecked(info, xpath, defaultValue) + "' " + attributes + " " + upd + " /><label>" + text + "</label>";
+            var strOut = "    <input id='" + id + "' type='checkbox' " + getChecked(info, xpath, defaultValue) + " " + attributes + " " + upd + " /><label>" + text + "</label>";
             return new RawString(strOut);
         }
 
@@ -145,7 +160,7 @@ namespace NBrightDNN.render
                 var c = 0;
                 foreach (var v in datav)
                 {
-                    strOut += "    <input id='" + id + "_" + c.ToString("") + "' name='" + id + "$" + c.ToString("") + "' type='checkbox' value='" + v + "' " + getChecked(info, xpath + "/chk[@data='" + v + "']/@value", defaultValue) + "' /><label for='" + id + "_" + c.ToString("") + "'>" + datat[c] + "</label>";
+                    strOut += "    <input id='" + id + "_" + c.ToString("") + "' name='" + id + "$" + c.ToString("") + "' type='checkbox' value='" + v + "' " + getChecked(info, xpath + "/chk[@data='" + v + "']/@value", defaultValue) + " /><label for='" + id + "_" + c.ToString("") + "'>" + datat[c] + "</label>";
                     c += 1;
                 }
                 strOut += "</div>";
@@ -286,9 +301,9 @@ namespace NBrightDNN.render
         public IEncodedString ResourceKey(String resourceFileKey, String lang = "",String resourceExtension = "Text")
         {
             var strOut = "";
-            if (_metadata.ContainsKey("resourcepath"))
+            if (Metadata.ContainsKey("resourcepath"))
             {
-                var l = _metadata["resourcepath"];
+                var l = Metadata["resourcepath"];
                 foreach (var r in l)
                 {
                     strOut = DnnUtils.GetResourceString(r, resourceFileKey, resourceExtension, lang);
