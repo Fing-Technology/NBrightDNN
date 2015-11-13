@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web;
 using System.Web.Routing;
+using System.Web.UI;
 using System.Web.UI.WebControls;
 using DotNetNuke.Common;
 using DotNetNuke.Entities.Portals;
@@ -107,6 +109,47 @@ namespace NBrightDNN.render
             return new RawString(strOut);
         }
 
+        public IEncodedString NBrightTextBox(NBrightInfo info, String xpath, String attributes = "", String defaultValue = "")
+        {
+            attributes = attributes + " class='form-control' ";
+            var strOut = TextBox(info, xpath, attributes, defaultValue).ToString();
+            if (xpath.Contains("genxml/lang/"))
+            {
+                strOut = "<div class='input-group'>" + strOut + "<span class='input-group-addon'><img src='/Images/Flags/" + info.Lang + ".gif' width='24px'/></span></div>";
+            }
+            return new RawString(strOut);
+        }
+
+        public IEncodedString NBrightDate(NBrightInfo info, String xpath, String attributes = "", String defaultValue = "",String extraDatePickerOptions = "")
+        {
+            attributes = attributes + " class='form-control' datatype='date' ";
+            var strOut = TextBox(info, xpath, attributes, defaultValue).ToString();
+            if (xpath.Contains("genxml/lang/"))
+            {
+                strOut = "<div class='input-group'><div class='input-group-addon'><span class='glyphicon glyphicon-th'></span></div>" + strOut + "<span class='input-group-addon'><img src='/Images/Flags/" + info.Lang + ".gif' width='24px'/></span></div>";
+            }
+            else
+            {
+                strOut = "<div class='input-group'><div class='input-group-addon'><span class='glyphicon glyphicon-th'></span></div>" + strOut + "<span class='input-group-addon'></span></div>";
+            }
+            var id = xpath.Split('/').Last();
+            var currentculture = Utils.GetCurrentCulture();
+            var datelang = "en";
+            var localcodelist = "en-GB,fr-CH,it-CH,nl-BE,pt-BR,zh-CN,zh-TW";
+            if (localcodelist.Contains(currentculture))
+            {
+                datelang = currentculture;
+            }
+            else
+            {
+                datelang = currentculture.Substring(0, 2).ToLower();
+            }
+            if (!extraDatePickerOptions.Contains("autoclose: true,")) extraDatePickerOptions = extraDatePickerOptions.Trim(',') + ",autoclose: true";
+            if (!extraDatePickerOptions.StartsWith(",")) extraDatePickerOptions = "," + extraDatePickerOptions;
+            strOut += "<script>$('#" + id + "').datepicker({language: '" + datelang + "'"+ extraDatePickerOptions + "});</script>";
+            return new RawString(strOut);
+        }
+
         public IEncodedString TextArea(NBrightInfo info, String xpath, String attributes = "", String defaultValue = "")
         {
             if (attributes.StartsWith("ResourceKey:")) attributes = ResourceKey(attributes.Replace("ResourceKey:", "")).ToString();
@@ -121,6 +164,17 @@ namespace NBrightDNN.render
             return new RawString(strOut);
         }
 
+        public IEncodedString NBrightTextArea(NBrightInfo info, String xpath, String attributes = "", String defaultValue = "")
+        {
+            attributes = attributes + " class='form-control' ";
+            var strOut = TextArea(info, xpath, attributes, defaultValue).ToString();
+            if (xpath.Contains("genxml/lang/"))
+            {
+                strOut = "<div class='input-group'>" + strOut + "<span class='input-group-addon'><img src='/Images/Flags/" + info.Lang + ".gif' width='24px'/></span></div>";
+            }
+            return new RawString(strOut);
+        }
+
         public IEncodedString RichTextBox(NBrightInfo info, String xpath, String attributes = "")
         {
             if (attributes.StartsWith("ResourceKey:")) attributes = ResourceKey(attributes.Replace("ResourceKey:", "")).ToString();
@@ -128,7 +182,7 @@ namespace NBrightDNN.render
             var upd = getUpdateAttr(xpath, attributes);
             var id = xpath.Split('/').Last();
             var strOut = " <textarea id='" + id + "' datatype='html' type='text' name='editor" + id + "' " + attributes + " " + upd + " >" + info.GetXmlProperty(xpath) + "</textarea>";
-            strOut += "<script> var editorvar" + id + " = CKEDITOR.replace('editor" + id + "'); $('#savedata').click(function () { var value = editorvar" + id + ".getData(); $('#" + id + "').val(value);});  $('.selecteditlanguage').click(function () { var value = editorvar" + id + ".getData(); $('#" + id + "').val(value);});</script>";
+            strOut += "<script> var editorvar" + id + " = CKEDITOR.replace('editor" + id + "', { customConfig: '/DesktopModules/NBright/NBrightData/ckeditor/nbrightconfig.js' } ); $('#savedata').click(function () { var value = editorvar" + id + ".getData(); $('#" + id + "').val(value);});  $('.selecteditlanguage').click(function () { var value = editorvar" + id + ".getData(); $('#" + id + "').val(value);});</script>";
             return new RawString(strOut);
         }
 
@@ -313,7 +367,6 @@ namespace NBrightDNN.render
             return new RawString(strOut);
         }
 
-
         #endregion
 
         #region "extra tokens"
@@ -354,6 +407,12 @@ namespace NBrightDNN.render
             return new RawString(strOut);
         }
 
+        public IEncodedString EmailOf(NBrightInfo info, String xpath)
+        {
+            var strOut = info.GetXmlProperty(xpath);
+            strOut = Utils.FormatAsMailTo(strOut);
+            return new RawString(strOut);
+        }
 
         public IEncodedString HtmlOf(NBrightInfo info, String xpath)
         {

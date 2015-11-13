@@ -487,6 +487,9 @@ namespace NBrightDNN
                 rtnDictionary = AddToDictionary(rtnDictionary, xpathroot + "genxml/dropdownlist/*");
                 rtnDictionary = AddToDictionary(rtnDictionary, xpathroot + "genxml/radiobuttonlist/*");
             }
+            if (!rtnDictionary.ContainsKey("moduleid")) rtnDictionary.Add("moduleid",ModuleId.ToString(""));
+            if (!rtnDictionary.ContainsKey("portalid")) rtnDictionary.Add("portalid", PortalId.ToString(""));
+            if (!rtnDictionary.ContainsKey("itemid")) rtnDictionary.Add("itemid", ItemID.ToString(""));
             return rtnDictionary;
         }
 
@@ -650,7 +653,10 @@ namespace NBrightDNN
             ModuleId = 0;
 
             if (settings.ContainsKey("modref")) ModuleRef = settings["modref"];
-
+            if (settings.ContainsKey("moduleid") && Utils.IsNumeric(settings["moduleid"]))
+            {
+                ModuleId = Convert.ToInt32(settings["moduleid"]);
+            }
         }
         public NBrightRazor(List<object> list, Dictionary<String, String> settings)
         {

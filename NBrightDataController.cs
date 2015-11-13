@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web.UI.WebControls;
+using System.Xml;
 using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Modules;
 using NBrightCore.common;
@@ -299,9 +300,114 @@ namespace NBrightDNN
             return l;
         }
 
+
+        public void FillEmptyLanguageFields(int baseParentItemId, String baseLang)
+        {
+            var baseInfo = GetDataLang(baseParentItemId, baseLang);
+            if (baseInfo != null)
+            {              
+                foreach (var toLang in DnnUtils.GetCultureCodeList(baseInfo.PortalId))
+                {
+                    if (toLang != baseInfo.Lang)
+                    {
+                        var dlang = GetDataLang(baseParentItemId, toLang);
+                        if (dlang != null)
+                        {
+                            var nodList = baseInfo.XMLDoc.SelectNodes("genxml/textbox/*");
+                            if (nodList != null)
+                            {
+                                foreach (XmlNode nod in nodList)
+                                {
+                                    if (nod.InnerText.Trim() != "")
+                                    {
+                                        if (dlang.GetXmlProperty("genxml/textbox/" + nod.Name) == "")
+                                        {
+                                            dlang.SetXmlProperty("genxml/textbox/" + nod.Name, nod.InnerText);
+                                        }
+                                    }
+                                }
+                            }
+
+                            var nodList2i = baseInfo.XMLDoc.SelectNodes("genxml/imgs/genxml");
+                            if (nodList2i != null)
+                            {
+                                for (int i = 1; i <= nodList2i.Count; i++)
+                                {
+                                    var nodList2 = baseInfo.XMLDoc.SelectNodes("genxml/imgs/genxml[" + i + "]/textbox/*");
+                                    if (nodList2 != null)
+                                    {
+                                        foreach (XmlNode nod in nodList2)
+                                        {
+                                            if (nod.InnerText.Trim() != "")
+                                            {
+                                                if (dlang.GetXmlProperty("genxml/imgs/genxml[" + i + "]/textbox/" + nod.Name) == "")
+                                                {
+                                                    if (dlang.XMLDoc.SelectSingleNode("genxml/imgs/genxml[" + i + "]") == null)
+                                                    {
+                                                        var baseXml = baseInfo.XMLDoc.SelectSingleNode("genxml/imgs/genxml[" + i + "]");
+                                                        if (baseXml != null)
+                                                        {
+                                                            if (dlang.XMLDoc.SelectSingleNode("genxml/imgs") == null)
+                                                            {
+                                                                dlang.AddSingleNode("imgs", "", "genxml");
+                                                            }
+                                                            dlang.AddXmlNode(baseXml.OuterXml, "genxml", "genxml/imgs");
+                                                        }
+                                                    }
+                                                    dlang.SetXmlProperty("genxml/imgs/genxml[" + i + "]/textbox/" + nod.Name, nod.InnerText);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+
+                            var nodList3i = baseInfo.XMLDoc.SelectNodes("genxml/docs/genxml");
+                            if (nodList3i != null)
+                            {
+                                for (int i = 1; i <= nodList3i.Count; i++)
+                                {
+                                    var nodList3 = baseInfo.XMLDoc.SelectNodes("genxml/docs/genxml[" + i + "]/textbox/*");
+                                    if (nodList3 != null)
+                                    {
+                                        foreach (XmlNode nod in nodList3)
+                                        {
+                                            if (nod.InnerText.Trim() != "")
+                                            {
+                                                if (dlang.GetXmlProperty("genxml/docs/genxml[" + i + "]/textbox/" + nod.Name) == "")
+                                                {
+                                                    if (dlang.XMLDoc.SelectSingleNode("genxml/docs/genxml[" + i + "]") == null)
+                                                    {
+                                                        var baseXml = baseInfo.XMLDoc.SelectSingleNode("genxml/docs/genxml[" + i + "]");
+                                                        if (baseXml != null)
+                                                        {
+                                                            if (dlang.XMLDoc.SelectSingleNode("genxml/docs") == null)
+                                                            {
+                                                                dlang.AddSingleNode("docs","","genxml");
+                                                            }
+                                                            dlang.AddXmlNode(baseXml.OuterXml, "genxml", "genxml/docs");
+                                                        }
+                                                    }
+
+                                                    dlang.SetXmlProperty("genxml/docs/genxml[" + i + "]/textbox/" + nod.Name, nod.InnerText);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        Update(dlang);
+                    }
+                }
+            }
+        }
+
+
         #endregion
 
 
-	}
+    }
 
 }
