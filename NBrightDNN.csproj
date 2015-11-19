@@ -106,7 +106,12 @@
     <None Include="NBrightThumb.ashx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ckeditor\nbrightconfig.js" />
     <Content Include="js\jquery.genxmlajax.js" />
+    <Content Include="Skins\NBrightModAdmin\logo-nbright.png" />
+    <Content Include="Skins\NBrightModAdmin\normal.ascx" />
+    <Content Include="Skins\NBrightModAdmin\skin.css" />
+    <Content Include="Skins\NBrightModAdmin\skin.doctype.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
