@@ -81,7 +81,7 @@ namespace NBrightDNN.render
 
         #region "general html control tokens"
 
-        public IEncodedString @HiddenField(NBrightInfo info, String xpath, String attributes = "", String defaultValue = "")
+        public IEncodedString HiddenField(NBrightInfo info, String xpath, String attributes = "", String defaultValue = "")
         {
             if (attributes.StartsWith("ResourceKey:")) attributes = ResourceKey(attributes.Replace("ResourceKey:", "")).ToString();
             if (defaultValue.StartsWith("ResourceKey:")) defaultValue = ResourceKey(defaultValue.Replace("ResourceKey:", "")).ToString();
@@ -104,7 +104,11 @@ namespace NBrightDNN.render
             var id = xpath.Split('/').Last();
             var value = info.GetXmlProperty(xpath);
             if (value == "") value = defaultValue;
-            var strOut = "<input value='" + value + "' id='" + id + "' " + attributes + " " + upd + " type='text' />";
+
+            var typeattr = "type='text'";
+            if (attributes.ToLower().Contains(" type=")) typeattr = "";
+
+            var strOut = "<input value='" + value + "' id='" + id + "' " + attributes + " " + upd + " " + typeattr + " />";
 
             return new RawString(strOut);
         }
@@ -130,7 +134,7 @@ namespace NBrightDNN.render
             }
             else
             {
-                strOut = "<div class='input-group'><div class='input-group-addon'><span class='glyphicon glyphicon-th'></span></div>" + strOut + "<span class='input-group-addon'></span></div>";
+                strOut = "<div class='input-group'><div class='input-group-addon'><span class='glyphicon glyphicon-th'></span></div>" + strOut + "</div>";
             }
             var id = xpath.Split('/').Last();
             var currentculture = Utils.GetCurrentCulture();
