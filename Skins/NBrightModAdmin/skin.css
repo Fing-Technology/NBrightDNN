@@ -47,7 +47,7 @@ body {
 }
 .langpane a:hover, a.langsel:link, a.langsel:visited, a.langsel:active, a.langsel:hover {background:rgb(80, 80, 80);/* fallback color */background:rgba(0, 0, 0, 0.4);color:white;text-decoration:none;}
 .logopane {float:left;}
-.logopane img {margin:20px 0;}
+.logopane img {margin:40px 0 20px 0;}
 .toppane {clear:both;}
 .content {background-color:white;padding:0 0 80px 0;}
 .contentpane {padding:40px 0 0 0;}
