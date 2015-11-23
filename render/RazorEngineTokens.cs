@@ -47,7 +47,7 @@ namespace NBrightDNN.render
         public IEncodedString AddMetaData(String metaKey, String metaValue, String templateFullName)
         {
             // if we have a templatename add to preprocess cache meta data.
-            return AddPreProcessMetaData(metaKey, metaValue, templateFullName);
+            return AddPreProcessMetaData(metaKey, metaValue, templateFullName,"");
         }
 
         /// <summary>
@@ -57,10 +57,11 @@ namespace NBrightDNN.render
         /// <param name="metaKey"></param>
         /// <param name="metaValue"></param>
         /// <param name="templateFullName">This is the cache key that is used and MUST be {theme}.{templatename}.{templateExtension}  e.g. Classic.list.cshtml</param>
+        /// <param name="moduleId">moduleid to identify individual modules (required for filters)</param>
         /// <returns></returns>
-        public IEncodedString AddPreProcessMetaData(String metaKey, String metaValue,String templateFullName)
+        public IEncodedString AddPreProcessMetaData(String metaKey, String metaValue,String templateFullName,String moduleId)
         {
-            var cachedlist = (Dictionary<String, String>)Utils.GetCache("preprocessmetadata" + templateFullName);
+            var cachedlist = (Dictionary<String, String>)Utils.GetCache("preprocessmetadata" + templateFullName + moduleId);
             if (cachedlist == null)
             {
                 cachedlist = new Dictionary<String, String>();
@@ -71,7 +72,7 @@ namespace NBrightDNN.render
             else
                 cachedlist.Add(metaKey, metaValue);
 
-            Utils.SetCache("preprocessmetadata" + templateFullName, cachedlist);
+            Utils.SetCache("preprocessmetadata" + templateFullName + moduleId, cachedlist);
 
             // add to internal metadata, so we can use it in the razor template if needed.
             return AddMetaData(metaKey, metaValue);
