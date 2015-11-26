@@ -677,6 +677,16 @@ namespace NBrightDNN
             return defaultValue; 
         }
 
+        public int GetSettingInt(String key, int defaultValue = -1)
+        {
+            if (Settings.ContainsKey(key))
+            {
+                var s = Settings[key];
+                if (Utils.IsNumeric(s)) return Convert.ToInt32(s);
+            }
+            return defaultValue;
+        }
+
         public IEncodedString GetSettingHtmlOf(String key, String defaultValue = "")
         {
             if (Settings.ContainsKey(key)) return new RawString(HttpUtility.HtmlDecode(Settings[key]));

@@ -567,6 +567,38 @@ namespace NBrightDNN
             return rtnList;
         }
 
+        public static Dictionary<int, string> GetTreeTabListOnTabId()
+        {
+            var tabList = DotNetNuke.Entities.Tabs.TabController.GetTabsBySortOrder(DotNetNuke.Entities.Portals.PortalSettings.Current.PortalId, Utils.GetCurrentCulture(), true);
+            var rtnList = new Dictionary<int, string>();
+            return GetTreeTabListOnTabId(rtnList, tabList, 0, 0);
+        }
+
+        private static Dictionary<int, string> GetTreeTabListOnTabId(Dictionary<int, string> rtnList, List<TabInfo> tabList, int level, int parentid, string prefix = "")
+        {
+
+            if (level > 20) // stop infinate loop
+            {
+                return rtnList;
+            }
+            if (parentid > 0) prefix += "..";
+            foreach (TabInfo tInfo in tabList)
+            {
+                var parenttestid = tInfo.ParentId;
+                if (parenttestid < 0) parenttestid = 0;
+                if (parentid == parenttestid)
+                {
+                    if (!tInfo.IsDeleted && tInfo.TabPermissions.Count > 2)
+                    {
+                        rtnList.Add(tInfo.TabID, prefix + "" + tInfo.TabName);
+                        GetTreeTabListOnTabId(rtnList, tabList, level + 1, tInfo.TabID, prefix);
+                    }
+                }
+            }
+
+            return rtnList;
+        }
+
 
         public static Dictionary<string, string> GetUserProfileProperties(UserInfo userInfo)
         {

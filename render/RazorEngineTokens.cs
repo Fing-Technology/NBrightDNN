@@ -324,6 +324,40 @@ namespace NBrightDNN.render
             return new RawString(strOut);
         }
 
+        /// <summary>
+        /// Dropdown list of tabs, using TabId as return value
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="xpath"></param>
+        /// <param name="attributes"></param>
+        /// <param name="allowEmpty"></param>
+        /// <returns></returns>
+        public IEncodedString TabSelectListOnTabId(NBrightInfo info, String xpath, String attributes = "", Boolean allowEmpty = true)
+        {
+            if (attributes.StartsWith("ResourceKey:")) attributes = ResourceKey(attributes.Replace("ResourceKey:", "")).ToString();
+
+            var tList = DnnUtils.GetTreeTabListOnTabId();
+            var strOut = "";
+
+            var upd = getUpdateAttr(xpath, attributes);
+            var id = xpath.Split('/').Last();
+            strOut = "<select id='" + id + "' " + upd + " guidkey='tab' " + attributes + ">";
+            var c = 0;
+            var s = "";
+            if (allowEmpty) strOut += "    <option value=''></option>";
+            foreach (var tItem in tList)
+            {
+                if (info.GetXmlProperty(xpath) == tItem.Key.ToString())
+                    s = "selected";
+                else
+                    s = "";
+                strOut += "    <option value='" + tItem.Key.ToString() + "' " + s + ">" + tItem.Value + "</option>";
+            }
+            strOut += "</select>";
+
+            return new RawString(strOut);
+        }
+
         public IEncodedString DnnLabel(String id, String resourceFileKey, String lang = "")
         {
             var strOut = new StringBuilder("<div class='dnnLabel'>");
