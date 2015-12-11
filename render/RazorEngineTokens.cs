@@ -377,6 +377,20 @@ namespace NBrightDNN.render
             return new RawString(strOut.ToString());
         }
 
+        public IEncodedString GetTabUrlByGuid(String tabguid)
+        {
+            var strOut = "";
+
+            var t = (from kvp in TabController.GetTabsBySortOrder(PortalSettings.Current.PortalId) where kvp.UniqueId.ToString() == tabguid select kvp.TabID);
+            if (t.Any())
+            {
+                var tabid = t.First();
+                strOut = Globals.NavigateURL(tabid);
+            }
+
+            return new RawString(strOut);
+        }
+
         public IEncodedString GetTabUrlByGuid(NBrightInfo info, String xpath)
         {
             var strOut = "";
