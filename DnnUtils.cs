@@ -14,6 +14,7 @@ using DotNetNuke.Services.Localization;
 using DotNetNuke.Services.FileSystem;
 using ICSharpCode.SharpZipLib.Zip;
 using NBrightCore.common;
+using FileInfo = System.IO.FileInfo;
 
 namespace NBrightDNN
 {
@@ -57,6 +58,91 @@ namespace NBrightDNN
  
 
         }
+
+        public static void ZipFolder(string folderName, String zipFileMapPath)
+        {
+            var zipStream = new ZipOutputStream(File.Create(zipFileMapPath));
+            try
+            {
+                int folderOffset = folderName.Length + (folderName.EndsWith("\\") ? 0 : 1);
+                zipStream.SetLevel(3); //0-9, 9 being the highest level of compression
+                CompressFolder(folderName, zipStream, folderOffset);
+                zipStream.Close();
+            }
+            catch (Exception ex)
+            {
+                zipStream.Close();
+                throw ex;
+            }
+        }
+
+        private static void CompressFolder(string path, ZipOutputStream zipStream, int folderOffset)
+        {
+
+            string[] files = Directory.GetFiles(path);
+
+            foreach (string filename in files)
+            {
+
+                FileInfo fi = new FileInfo(filename);
+
+                string entryName = filename.Substring(folderOffset); // Makes the name in zip based on the folder
+                entryName = ZipEntry.CleanName(entryName); // Removes drive from name and fixes slash direction
+                ZipEntry newEntry = new ZipEntry(entryName);
+                newEntry.DateTime = fi.LastWriteTime; // Note the zip format stores 2 second granularity
+
+                newEntry.Size = fi.Length;
+
+                zipStream.PutNextEntry(newEntry);
+
+                // Zip the file in buffered chunks
+                // the "using" will close the stream even if an exception occurs
+                byte[] buffer = new byte[4096];
+                using (FileStream streamReader = File.OpenRead(filename))
+                {
+                    ZipUtilCopy(streamReader, zipStream, buffer);
+                }
+                zipStream.CloseEntry();
+            }
+            string[] folders = Directory.GetDirectories(path);
+            foreach (string folder in folders)
+            {
+                CompressFolder(folder, zipStream, folderOffset);
+            }
+        }
+
+        /// <summary>
+        /// Copy the contents of one <see cref="Stream"/> to another.  Taken from StreamUtils on SharpZipLib as stripped
+        /// </summary>
+        /// <param name="source">The stream to source data from.</param>
+        /// <param name="destination">The stream to write data to.</param>
+        /// <param name="buffer">The buffer to use during copying.</param>
+        private static void ZipUtilCopy(Stream source, Stream destination, byte[] buffer)
+        {
+
+            // Ensure a reasonable size of buffer is used without being prohibitive.
+            if (buffer.Length < 128)
+            {
+                throw new ArgumentException("Buffer is too small", "buffer");
+            }
+
+            bool copying = true;
+
+            while (copying)
+            {
+                int bytesRead = source.Read(buffer, 0, buffer.Length);
+                if (bytesRead > 0)
+                {
+                    destination.Write(buffer, 0, bytesRead);
+                }
+                else
+                {
+                    destination.Flush();
+                    copying = false;
+                }
+            }
+        }
+
 
         public static void UnZip(string zipFileMapPath, string outputFolder)
         {
@@ -474,6 +560,38 @@ namespace NBrightDNN
                     {
                         rtnList.Add(tInfo.UniqueId, prefix + "" + tInfo.TabName);
                         GetTreeTabListOnUniqueId(rtnList, tabList, level + 1, tInfo.TabID, prefix);
+                    }
+                }
+            }
+
+            return rtnList;
+        }
+
+        public static Dictionary<int, string> GetTreeTabListOnTabId()
+        {
+            var tabList = DotNetNuke.Entities.Tabs.TabController.GetTabsBySortOrder(DotNetNuke.Entities.Portals.PortalSettings.Current.PortalId, Utils.GetCurrentCulture(), true);
+            var rtnList = new Dictionary<int, string>();
+            return GetTreeTabListOnTabId(rtnList, tabList, 0, 0);
+        }
+
+        private static Dictionary<int, string> GetTreeTabListOnTabId(Dictionary<int, string> rtnList, List<TabInfo> tabList, int level, int parentid, string prefix = "")
+        {
+
+            if (level > 20) // stop infinate loop
+            {
+                return rtnList;
+            }
+            if (parentid > 0) prefix += "..";
+            foreach (TabInfo tInfo in tabList)
+            {
+                var parenttestid = tInfo.ParentId;
+                if (parenttestid < 0) parenttestid = 0;
+                if (parentid == parenttestid)
+                {
+                    if (!tInfo.IsDeleted && tInfo.TabPermissions.Count > 2)
+                    {
+                        rtnList.Add(tInfo.TabID, prefix + "" + tInfo.TabName);
+                        GetTreeTabListOnTabId(rtnList, tabList, level + 1, tInfo.TabID, prefix);
                     }
                 }
             }

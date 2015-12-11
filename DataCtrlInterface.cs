@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Web;
 using System.Web.UI.WebControls;
 using System.Xml;
 using System.Xml.Serialization;
@@ -13,6 +15,7 @@ using DotNetNuke.Entities.Tabs;
 using NBrightCore.common;
 using NBrightCore.render;
 using NBrightDNN.controls;
+using RazorEngine.Text;
 
 namespace NBrightDNN
 {
@@ -387,18 +390,20 @@ namespace NBrightDNN
                     {
                         var dbl = Convert.ToDouble(Value, CultureInfo.GetCultureInfo(Utils.GetCurrentCulture()));
                         Value = dbl.ToString(CultureInfo.GetCultureInfo("en-US"));
-                        XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath + "/@datatype", "double", cdata);
                     }
                 }
                 if (DataTyp == System.TypeCode.DateTime)
                 {
-                    if (Utils.IsDate(Value, Utils.GetCurrentCulture()))
-                        Value = Utils.FormatToSave(Value, System.TypeCode.DateTime);
-                    XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath + "/@datatype", "date", cdata);
+                    if (Utils.IsDate(Value, Utils.GetCurrentCulture())) Value = Utils.FormatToSave(Value, System.TypeCode.DateTime);
                 }
                 XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath, Value, cdata);
+                
+                // do the datatype after the node is created
                 if (DataTyp == System.TypeCode.DateTime)
                     XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath + "/@datatype", "date", cdata);
+
+                if (DataTyp == System.TypeCode.Double)
+                    XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath + "/@datatype", "double", cdata);
             }
         }
 
@@ -482,6 +487,9 @@ namespace NBrightDNN
                 rtnDictionary = AddToDictionary(rtnDictionary, xpathroot + "genxml/dropdownlist/*");
                 rtnDictionary = AddToDictionary(rtnDictionary, xpathroot + "genxml/radiobuttonlist/*");
             }
+            if (!rtnDictionary.ContainsKey("moduleid")) rtnDictionary.Add("moduleid",ModuleId.ToString(""));
+            if (!rtnDictionary.ContainsKey("portalid")) rtnDictionary.Add("portalid", PortalId.ToString(""));
+            if (!rtnDictionary.ContainsKey("itemid")) rtnDictionary.Add("itemid", ItemID.ToString(""));
             return rtnDictionary;
         }
 
@@ -523,6 +531,7 @@ namespace NBrightDNN
 
         public void UpdateAjax(String ajaxStrData)
         {
+            ValidateXmlFormat(); // make sure we have correct structure so update works.
             var updateType = "save";
             if (!String.IsNullOrEmpty(Lang)) updateType = "lang";
             var ajaxInfo = new NBrightInfo();
@@ -606,6 +615,8 @@ namespace NBrightDNN
 
         public void ValidateXmlFormat()
         {
+            if (XMLDoc == null) XMLData = GenXmlFunctions.GetGenXml(new RepeaterItem(0, ListItemType.Item)); // if we don;t have anything, create an empty default to stop errors.
+
             if (XMLDoc.SelectSingleNode("genxml/hidden") == null) SetXmlProperty("genxml/hidden", "");
             if (XMLDoc.SelectSingleNode("genxml/textbox") == null) SetXmlProperty("genxml/textbox", "");
             if (XMLDoc.SelectSingleNode("genxml/checkbox") == null) SetXmlProperty("genxml/checkbox", "");
@@ -623,4 +634,74 @@ namespace NBrightDNN
         }
     }
 
+
+    public class NBrightRazor
+    {
+        public Dictionary<String,String> Settings { get; set; }
+        public NameValueCollection UrlParams { get; set; }
+        public List<object> List { get; set; }
+        public int ModuleId { get; set; }
+        public String ModuleRef { get; set; }
+
+        public NBrightRazor(List<object> list, Dictionary<String,String> settings, NameValueCollection urlParams)
+        {
+            Settings = settings;
+            UrlParams = urlParams;
+            List = list;
+
+            ModuleRef = "";
+            ModuleId = 0;
+
+            if (settings.ContainsKey("modref")) ModuleRef = settings["modref"];
+            if (settings.ContainsKey("moduleid") && Utils.IsNumeric(settings["moduleid"]))
+            {
+                ModuleId = Convert.ToInt32(settings["moduleid"]);
+            }
+        }
+        public NBrightRazor(List<object> list, Dictionary<String, String> settings)
+        {
+            Settings = settings;
+            UrlParams = new NameValueCollection();
+            List = list;
+        }
+        public NBrightRazor(List<object> list, NameValueCollection urlParams)
+        {
+            Settings = new Dictionary<string, string>();
+            UrlParams = urlParams;
+            List = list;
+        }
+
+        public String GetSetting(String key,String defaultValue = "")
+        {
+            if (Settings.ContainsKey(key)) return Settings[key];
+            return defaultValue; 
+        }
+
+        public int GetSettingInt(String key, int defaultValue = -1)
+        {
+            if (Settings.ContainsKey(key))
+            {
+                var s = Settings[key];
+                if (Utils.IsNumeric(s)) return Convert.ToInt32(s);
+            }
+            return defaultValue;
+        }
+
+        public IEncodedString GetSettingHtmlOf(String key, String defaultValue = "")
+        {
+            if (Settings.ContainsKey(key)) return new RawString(HttpUtility.HtmlDecode(Settings[key]));
+            return new RawString(defaultValue);
+        }
+
+        public String GetUrlParam(String key, String defaultValue = "")
+        {
+            var result = defaultValue;
+            if (UrlParams.Count != 0)
+            {
+                result = Convert.ToString(UrlParams[key]);
+            }
+            return (result == null) ? defaultValue : result.Trim(); 
+        }
+
+    }
 }
