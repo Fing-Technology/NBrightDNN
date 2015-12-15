@@ -118,6 +118,8 @@ namespace NBrightDNN
             var l = CBO.FillCollection<NBrightInfo>(DataProvider.Instance().GetList(portalId, moduleId, entityTypeCode, strFilter, "", 1, 1, 1, 1, lang));
             if (l.Count >= 1)
             {
+                NBrightInfo nbi = l[0];
+                if (lang != "" && nbi.Lang != lang) return null; // GetByType will return invalid langauge if langaugue record does not exists, so test for it.
                 return l[0];
             }
             return null;

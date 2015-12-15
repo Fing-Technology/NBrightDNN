@@ -109,7 +109,7 @@ namespace NBrightDNN.render
             var typeattr = "type='text'";
             if (attributes.ToLower().Contains(" type=")) typeattr = "";
 
-            var strOut = "<input value='" + value + "' id='" + id + "' " + attributes + " " + upd + " " + typeattr + " />";
+            var strOut = "<input value='" + value.Replace("'", "&#39;") + "' id='" + id + "' " + attributes + " " + upd + " " + typeattr + " />";
 
             return new RawString(strOut);
         }
