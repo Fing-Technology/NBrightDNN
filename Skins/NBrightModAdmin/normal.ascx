@@ -30,7 +30,7 @@
     <div id="ContentPane" runat="server" class="contentpane"></div>
   </div>
 </div>
-<div class="bottom"><div class="footer">NBright &copy; DNN Open Source Solutions</div></div>
+<div class="bottom"><div class="footer">NBright &copy; DNN Solutions</div></div>
 
 </div>
 </div>
