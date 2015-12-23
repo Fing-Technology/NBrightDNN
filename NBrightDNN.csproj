@@ -109,7 +109,9 @@
     <Content Include="ckeditor\nbrightconfig.js" />
     <Content Include="js\jquery.genxmlajax.js" />
     <Content Include="Skins\NBrightModAdmin\logo-nbright.png" />
-    <Content Include="Skins\NBrightModAdmin\normal.ascx" />
+    <Content Include="Skins\NBrightModAdmin\normal.ascx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
     <Content Include="Skins\NBrightModAdmin\skin.css" />
     <Content Include="Skins\NBrightModAdmin\skin.doctype.xml" />
   </ItemGroup>
