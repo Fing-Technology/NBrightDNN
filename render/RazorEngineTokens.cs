@@ -424,10 +424,18 @@ namespace NBrightDNN.render
 
         #region "extra tokens"
 
-        public IEncodedString EditCultureSelect(String cssclass, String cssclassli)
+        public IEncodedString EditCultureSelect(String cssclass, String cssclassli, Boolean addDefault = false)
         {
             var enabledlanguages = LocaleController.Instance.GetLocales(PortalSettings.Current.PortalId);
             var strOut = new StringBuilder("<ul class='" + cssclass + "'>");
+
+            if (addDefault)
+            {
+                strOut.Append("<li>");
+                strOut.Append("<a href='javascript:void(0)' lang='' class='selecteditlanguage " + cssclassli + "'><img src='/Images/Flags/None.gif' alt='default' /></a>");
+                strOut.Append("</li>");
+            }
+
             foreach (var l in enabledlanguages)
             {
                 strOut.Append("<li>");
