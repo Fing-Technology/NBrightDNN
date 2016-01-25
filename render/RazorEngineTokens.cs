@@ -407,6 +407,7 @@ namespace NBrightDNN.render
 
         public IEncodedString ResourceKey(String resourceFileKey, String lang = "",String resourceExtension = "Text")
         {
+            if (lang == "") lang = Utils.GetCurrentCulture();
             var strOut = "";
             if (Metadata.ContainsKey("resourcepath"))
             {
