@@ -642,6 +642,8 @@ namespace NBrightDNN
         public List<object> List { get; set; }
         public int ModuleId { get; set; }
         public String ModuleRef { get; set; }
+        public int ModuleIdDataSource { get; set; }
+        
 
         public NBrightRazor(List<object> list, Dictionary<String,String> settings, NameValueCollection urlParams)
         {
@@ -651,12 +653,19 @@ namespace NBrightDNN
 
             ModuleRef = "";
             ModuleId = 0;
+            ModuleIdDataSource = 0;
 
             if (settings.ContainsKey("modref")) ModuleRef = settings["modref"];
             if (settings.ContainsKey("moduleid") && Utils.IsNumeric(settings["moduleid"]))
             {
                 ModuleId = Convert.ToInt32(settings["moduleid"]);
+                ModuleIdDataSource = ModuleId;
             }
+            if (settings.ContainsKey("moduleiddatasource") && !String.IsNullOrWhiteSpace(settings["moduleiddatasource"]))
+            {
+                ModuleIdDataSource = Convert.ToInt32(settings["moduleiddatasource"]);
+            }
+
         }
         public NBrightRazor(List<object> list, Dictionary<String, String> settings)
         {

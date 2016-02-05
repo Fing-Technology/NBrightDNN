@@ -483,6 +483,11 @@ namespace NBrightDNN.render
             return new RawString(strOut);
         }
 
+        public IEncodedString HtmlOf(String htmlString)
+        {
+            return new RawString(System.Web.HttpUtility.HtmlDecode(htmlString));
+        }
+
         public IEncodedString BreakOf(NBrightInfo info, String xpath)
         {
             var strOut = info.GetXmlProperty(xpath);
