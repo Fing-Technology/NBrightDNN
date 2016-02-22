@@ -114,6 +114,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ckeditor\nbrightconfig.js" />
+    <Content Include="css\ui.fancytree.min.css" />
+    <Content Include="js\jquery.fancytree.min.js" />
     <Content Include="js\jquery.genxmlajax.js" />
     <Content Include="Skins\NBrightModAdmin\logo-nbright.png" />
     <Content Include="Skins\NBrightModAdmin\normal.ascx">
