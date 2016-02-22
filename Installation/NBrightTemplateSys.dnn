@@ -1,8 +1,8 @@
 ﻿<dotnetnuke type="Package" version="5.0">
 	<packages>
-		<package name="NBrightTemplateSys" type="Module" version="3.4.0">
+		<package name="NBrightTemplateSys" type="Module" version="8.0.0">
 			<friendlyName>NBrightTemplateSys</friendlyName>
-			<description>NBrightTemplateSys is the core support module for projects using the NBright Template System.  It only installs core dlls required by other projects. DNN7+ ONLY</description>
+			<description>NBrightTemplateSys is the core support module for projects using the NBright Template System.  It only installs core dlls required by other projects. DNN8+ ONLY</description>
 			<iconFile />
 			<owner>
 				<name>David Lee</name>
@@ -28,17 +28,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			</license>
 			<releaseNotes>
 
-Assemblies:
+        Assemblies:
 
-NBrightCore 
-NBrightDNN 
+        NBrightCore
+        NBrightDNN
+        RazorEngine
 
+        NOTES:
 
-NOTES:
+        GIT Branch:  https://nbrightdnn.codeplex.com/SourceControl/latest
 
-GIT Branch:  https://nbrightdnn.codeplex.com/SourceControl/latest   
-
-			</releaseNotes>
+      </releaseNotes>
 			<components>
         <component type="Script">
           <scripts>
