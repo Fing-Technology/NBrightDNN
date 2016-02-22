@@ -209,8 +209,19 @@ namespace NBrightDNN.render
             if (attributes.StartsWith("ResourceKey:")) attributes = ResourceKey(attributes.Replace("ResourceKey:", "")).ToString();
 
             var strOut = "";
-            var datav = datavalue.Split(',');
+
             var datat = datatext.Split(',');
+            if (datavalue == "")
+            {
+                var lp = 1;
+                foreach (var v in datat)
+                {
+                    datavalue += lp.ToString() + ",";
+                    lp += 1;
+                }
+                datavalue = datavalue.TrimEnd(',');
+            }
+                var datav = datavalue.Split(',');
             if (datav.Count() == datat.Count())
             {
                 var upd = getUpdateAttr(xpath, attributes);
@@ -562,6 +573,38 @@ namespace NBrightDNN.render
             return new RawString(strOut);
         }
 
+
+        public IEncodedString RenderTemplate(String templateRelPath, NBrightRazor model)
+        {
+            var TemplateData = "";
+            var strOut = "";
+            var templatePath = HttpContext.Current.Server.MapPath(templateRelPath);
+            if (File.Exists(templatePath))
+            {
+                string inputLine;
+                var inputStream = new FileStream(templatePath, FileMode.Open, FileAccess.Read);
+                var streamReader = new StreamReader(inputStream);
+
+                while ((inputLine = streamReader.ReadLine()) != null)
+                {
+                    TemplateData += inputLine + Environment.NewLine;
+                }
+                streamReader.Close();
+                inputStream.Close();
+
+                if (TemplateData.Contains("AddPreProcessMetaData("))
+                {
+                    // do razor and cache preprocessmetadata
+                    // Use the filename to link the preprocess data in cache, this shoud have been past as the param on the @AddPreProcessMetaData razor token in hte template.
+                    var razorTempl = RazorUtils.RazorRender(model, TemplateData, "preprocessmetadata" + Path.GetFileName(templatePath), false);
+                }
+
+                strOut = RazorUtils.RazorRender(model, TemplateData, "", false);
+
+            }
+
+            return new RawString(strOut);
+        }
 
         #endregion
 
