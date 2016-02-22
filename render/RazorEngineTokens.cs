@@ -369,6 +369,15 @@ namespace NBrightDNN.render
             return new RawString(strOut);
         }
 
+        public IEncodedString TreeViewTabsFancyTree()
+        {
+
+            var strOut = DnnUtils.GetTreeViewTabJSData();
+
+            return new RawString(strOut);
+        }
+
+
         public IEncodedString DnnLabel(String id, String resourceFileKey, String lang = "")
         {
             var strOut = new StringBuilder("<div class='dnnLabel'>");

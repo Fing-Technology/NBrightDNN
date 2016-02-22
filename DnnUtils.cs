@@ -600,6 +600,45 @@ namespace NBrightDNN
         }
 
 
+        public static String GetTreeViewTabJSData(String selectTabIdCVS = "")
+        {
+            var tabList = DotNetNuke.Entities.Tabs.TabController.GetTabsBySortOrder(DotNetNuke.Entities.Portals.PortalSettings.Current.PortalId, Utils.GetCurrentCulture(), true);
+            var rtnDataString = "";
+            var selecttabidlist = selectTabIdCVS.Split(',');
+            rtnDataString = GetTreeViewTabJSData(rtnDataString, tabList, 0, 0, selecttabidlist);
+            rtnDataString = rtnDataString.Replace(", children: []", "");
+            rtnDataString = "var treeData = [" + rtnDataString + "];";
+            return rtnDataString;
+        }
+
+        private static String GetTreeViewTabJSData(String rtnDataString, List<TabInfo> tabList, int level, int parentid, String[] selecttabidlist)
+        {
+
+            if (level > 20) // stop infinate loop
+            {
+                return rtnDataString;
+            }
+            foreach (TabInfo tInfo in tabList)
+            {
+                var parenttestid = tInfo.ParentId;
+                if (parenttestid < 0) parenttestid = 0;
+                if (parentid == parenttestid)
+                {
+                    if (!tInfo.IsDeleted && tInfo.TabPermissions.Count > 2)
+                    {
+                        var selectedvalue = "false";
+                        if (selecttabidlist.Contains(tInfo.TabID.ToString(""))) selectedvalue = "true";
+                        rtnDataString += "{title: '" + tInfo.TabName + "', key:'" + tInfo.TabID + "', selected: " + selectedvalue + ", children: [";
+                        rtnDataString = GetTreeViewTabJSData(rtnDataString, tabList, level + 1, tInfo.TabID, selecttabidlist);
+                        rtnDataString += "]},";
+                    }
+                }
+            }
+            rtnDataString = rtnDataString.TrimEnd(',');
+            return rtnDataString;
+        }
+
+
         public static Dictionary<string, string> GetUserProfileProperties(UserInfo userInfo)
         {
             var prop = new Dictionary<string, string>();
