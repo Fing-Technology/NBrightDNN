@@ -310,7 +310,10 @@ namespace NBrightDNN
                     // bool usually stored as "True" "False"
                     if (x.ToLower() == "true") return true;
                     // Test for 1 as true also.
-                    if (x.ToLower() == "1") return true;
+                    if (Utils.IsNumeric(x))
+                    {
+                        if (Convert.ToInt32(x) > 0) return true;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -683,8 +686,33 @@ namespace NBrightDNN
         public String GetSetting(String key,String defaultValue = "")
         {
             if (Settings.ContainsKey(key)) return Settings[key];
-            return defaultValue; 
+            return defaultValue;
         }
+
+        public Boolean GetSettingBool(String key, Boolean defaultValue = false)
+        {
+            try
+            {
+                if (Settings.ContainsKey(key))
+                {
+                    var x = Settings[key];
+                    // bool usually stored as "True" "False"
+                    if (x.ToLower() == "true") return true;
+                    // Test for 1 as true also.
+                    if (Utils.IsNumeric(x))
+                    {
+                        if (Convert.ToInt32(x) > 0) return true;
+                    }
+                    return false;
+                }
+                return defaultValue;
+            }
+            catch (Exception ex)
+            {
+                return defaultValue;
+            }
+        }
+
 
         public int GetSettingInt(String key, int defaultValue = -1)
         {
