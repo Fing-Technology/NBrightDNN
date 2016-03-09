@@ -622,6 +622,7 @@ namespace NBrightDNN.render
 
         public String getUpdateAttr(String xpath,String attributes)
         {
+            if (xpath == "") return "";
             var upd = "update='save'";
             if (xpath.StartsWith("genxml/lang/")) upd = "update='lang'";
             if (attributes.Contains("update=")) upd = "";

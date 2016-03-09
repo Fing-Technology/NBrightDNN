@@ -534,9 +534,14 @@ namespace NBrightDNN
 
         public void UpdateAjax(String ajaxStrData)
         {
+            UpdateAjax(ajaxStrData, "");
+        }
+
+        public void UpdateAjax(String ajaxStrData,String updateTypePrefix = "")
+        {
             ValidateXmlFormat(); // make sure we have correct structure so update works.
-            var updateType = "save";
-            if (!String.IsNullOrEmpty(Lang)) updateType = "lang";
+            var updateType = updateTypePrefix + "save";
+            if (!String.IsNullOrEmpty(Lang)) updateType = updateTypePrefix + "lang";
             var ajaxInfo = new NBrightInfo();
             var xmlData = GenXmlFunctions.GetGenXmlByAjax(ajaxStrData, "");
             ajaxInfo.XMLData = xmlData;
