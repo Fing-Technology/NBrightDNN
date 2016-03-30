@@ -25,7 +25,7 @@
                     var values = getgenxml(selformdiv);
                     var request = $.ajax({ type: "POST",
                         url: cmdupdate,
-                        data: { inputxml: escape(values) }
+                        data: { inputxml: encodeURI(values) }
                     });
 
                     $(this).dialog("close");
@@ -196,7 +196,7 @@
             } else if (element.attr("type") == 'checkbox') {
 				var typecode = 'cb';
 				if (parentflag) typecode = 'cbl';
-					values += '<f t="' + typecode + '" ' + strUpdate + ' id="' + shortID + '" for="' + $('label[for=' + strID + ']').text() + '" val="' + element.attr("value") + '">' + element.is(':checked') + '</f>';
+				values += '<f t="' + typecode + '" ' + strUpdate + ' id="' + shortID + '" for="' + $('label[for=' + strID + ']').text().replace('&', '&amp;') + '" val="' + element.attr("value") + '">' + element.is(':checked') + '</f>';
             } else if (element.attr("type") == 'text' || element.attr("type") == 'date' || element.attr("type") == 'email' || element.attr("type") == 'url') {
                 if (element.attr("datatype") === undefined) {
                     values += '<f t="txt" ' + strUpdate + ' id="' + shortID + '"><![CDATA[' + element.val() + ']]></f>';
