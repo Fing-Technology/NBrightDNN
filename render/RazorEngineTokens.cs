@@ -109,7 +109,7 @@ namespace NBrightDNN.render
             var typeattr = "type='text'";
             if (attributes.ToLower().Contains(" type=")) typeattr = "";
 
-            var strOut = "<input value='" + value + "' id='" + id + "' " + attributes + " " + upd + " " + typeattr + " />";
+            var strOut = "<input value='" + value.Replace("'", "&#39;") + "' id='" + id + "' " + attributes + " " + upd + " " + typeattr + " />";
 
             return new RawString(strOut);
         }
@@ -187,7 +187,7 @@ namespace NBrightDNN.render
             var upd = getUpdateAttr(xpath, attributes);
             var id = xpath.Split('/').Last();
             var strOut = " <textarea id='" + id + "' datatype='html' type='text' name='editor" + id + "' " + attributes + " " + upd + " >" + info.GetXmlProperty(xpath) + "</textarea>";
-            strOut += "<script> var editorvar" + id + " = CKEDITOR.replace('editor" + id + "', { customConfig: '/DesktopModules/NBright/NBrightData/ckeditor/nbrightconfig.js' } ); $('#savedata').click(function () { var value = editorvar" + id + ".getData(); $('#" + id + "').val(value);});  $('.selecteditlanguage').click(function () { var value = editorvar" + id + ".getData(); $('#" + id + "').val(value);});</script>";
+            strOut += "<script> var editorvar" + id + " = '';  $(document).ready(function () { editorvar" + id + " = CKEDITOR.replace('editor" + id + "', { customConfig: '/DesktopModules/NBright/NBrightData/ckeditor/nbrightconfig.js' } ); $('#savedata').click(function () { var value = editorvar" + id + ".getData(); $('#" + id + "').val(value);});  $('.selecteditlanguage').click(function () { var value = editorvar" + id + ".getData(); $('#" + id + "').val(value);}); });</script>";
             return new RawString(strOut);
         }
 
@@ -209,8 +209,19 @@ namespace NBrightDNN.render
             if (attributes.StartsWith("ResourceKey:")) attributes = ResourceKey(attributes.Replace("ResourceKey:", "")).ToString();
 
             var strOut = "";
-            var datav = datavalue.Split(',');
+
             var datat = datatext.Split(',');
+            if (datavalue == "")
+            {
+                var lp = 1;
+                foreach (var v in datat)
+                {
+                    datavalue += lp.ToString() + ",";
+                    lp += 1;
+                }
+                datavalue = datavalue.TrimEnd(',');
+            }
+                var datav = datavalue.Split(',');
             if (datav.Count() == datat.Count())
             {
                 var upd = getUpdateAttr(xpath, attributes);
@@ -358,6 +369,15 @@ namespace NBrightDNN.render
             return new RawString(strOut);
         }
 
+        public IEncodedString TreeViewTabsFancyTree()
+        {
+
+            var strOut = DnnUtils.GetTreeViewTabJSData();
+
+            return new RawString(strOut);
+        }
+
+
         public IEncodedString DnnLabel(String id, String resourceFileKey, String lang = "")
         {
             var strOut = new StringBuilder("<div class='dnnLabel'>");
@@ -407,6 +427,7 @@ namespace NBrightDNN.render
 
         public IEncodedString ResourceKey(String resourceFileKey, String lang = "",String resourceExtension = "Text")
         {
+            if (lang == "") lang = Utils.GetCurrentCulture();
             var strOut = "";
             if (Metadata.ContainsKey("resourcepath"))
             {
@@ -424,10 +445,18 @@ namespace NBrightDNN.render
 
         #region "extra tokens"
 
-        public IEncodedString EditCultureSelect(String cssclass, String cssclassli)
+        public IEncodedString EditCultureSelect(String cssclass, String cssclassli, Boolean addDefault = false)
         {
             var enabledlanguages = LocaleController.Instance.GetLocales(PortalSettings.Current.PortalId);
             var strOut = new StringBuilder("<ul class='" + cssclass + "'>");
+
+            if (addDefault)
+            {
+                strOut.Append("<li>");
+                strOut.Append("<a href='javascript:void(0)' lang='' class='selecteditlanguage " + cssclassli + "'><img src='/Images/Flags/None.gif' alt='default' /></a>");
+                strOut.Append("</li>");
+            }
+
             foreach (var l in enabledlanguages)
             {
                 strOut.Append("<li>");
@@ -472,6 +501,11 @@ namespace NBrightDNN.render
             var strOut = info.GetXmlProperty(xpath);
             strOut = System.Web.HttpUtility.HtmlDecode(strOut);
             return new RawString(strOut);
+        }
+
+        public IEncodedString HtmlOf(String htmlString)
+        {
+            return new RawString(System.Web.HttpUtility.HtmlDecode(htmlString));
         }
 
         public IEncodedString BreakOf(NBrightInfo info, String xpath)
@@ -549,6 +583,38 @@ namespace NBrightDNN.render
         }
 
 
+        public IEncodedString RenderTemplate(String templateRelPath, NBrightRazor model)
+        {
+            var TemplateData = "";
+            var strOut = "";
+            var templatePath = HttpContext.Current.Server.MapPath(templateRelPath);
+            if (File.Exists(templatePath))
+            {
+                string inputLine;
+                var inputStream = new FileStream(templatePath, FileMode.Open, FileAccess.Read);
+                var streamReader = new StreamReader(inputStream);
+
+                while ((inputLine = streamReader.ReadLine()) != null)
+                {
+                    TemplateData += inputLine + Environment.NewLine;
+                }
+                streamReader.Close();
+                inputStream.Close();
+
+                if (TemplateData.Contains("AddPreProcessMetaData("))
+                {
+                    // do razor and cache preprocessmetadata
+                    // Use the filename to link the preprocess data in cache, this shoud have been past as the param on the @AddPreProcessMetaData razor token in hte template.
+                    var razorTempl = RazorUtils.RazorRender(model, TemplateData, "preprocessmetadata" + Path.GetFileName(templatePath), false);
+                }
+
+                strOut = RazorUtils.RazorRender(model, TemplateData, "", false);
+
+            }
+
+            return new RawString(strOut);
+        }
+
         #endregion
 
 
@@ -556,6 +622,7 @@ namespace NBrightDNN.render
 
         public String getUpdateAttr(String xpath,String attributes)
         {
+            if (xpath == "") return "";
             var upd = "update='save'";
             if (xpath.StartsWith("genxml/lang/")) upd = "update='lang'";
             if (attributes.Contains("update=")) upd = "";

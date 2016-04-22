@@ -310,7 +310,10 @@ namespace NBrightDNN
                     // bool usually stored as "True" "False"
                     if (x.ToLower() == "true") return true;
                     // Test for 1 as true also.
-                    if (x.ToLower() == "1") return true;
+                    if (Utils.IsNumeric(x))
+                    {
+                        if (Convert.ToInt32(x) > 0) return true;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -531,9 +534,14 @@ namespace NBrightDNN
 
         public void UpdateAjax(String ajaxStrData)
         {
+            UpdateAjax(ajaxStrData, "");
+        }
+
+        public void UpdateAjax(String ajaxStrData,String updateTypePrefix = "")
+        {
             ValidateXmlFormat(); // make sure we have correct structure so update works.
-            var updateType = "save";
-            if (!String.IsNullOrEmpty(Lang)) updateType = "lang";
+            var updateType = updateTypePrefix + "save";
+            if (!String.IsNullOrEmpty(Lang)) updateType = updateTypePrefix + "lang";
             var ajaxInfo = new NBrightInfo();
             var xmlData = GenXmlFunctions.GetGenXmlByAjax(ajaxStrData, "");
             ajaxInfo.XMLData = xmlData;
@@ -642,6 +650,8 @@ namespace NBrightDNN
         public List<object> List { get; set; }
         public int ModuleId { get; set; }
         public String ModuleRef { get; set; }
+        public int ModuleIdDataSource { get; set; }
+        
 
         public NBrightRazor(List<object> list, Dictionary<String,String> settings, NameValueCollection urlParams)
         {
@@ -651,12 +661,19 @@ namespace NBrightDNN
 
             ModuleRef = "";
             ModuleId = 0;
+            ModuleIdDataSource = 0;
 
             if (settings.ContainsKey("modref")) ModuleRef = settings["modref"];
             if (settings.ContainsKey("moduleid") && Utils.IsNumeric(settings["moduleid"]))
             {
                 ModuleId = Convert.ToInt32(settings["moduleid"]);
+                ModuleIdDataSource = ModuleId;
             }
+            if (settings.ContainsKey("moduleiddatasource") && !String.IsNullOrWhiteSpace(settings["moduleiddatasource"]))
+            {
+                ModuleIdDataSource = Convert.ToInt32(settings["moduleiddatasource"]);
+            }
+
         }
         public NBrightRazor(List<object> list, Dictionary<String, String> settings)
         {
@@ -674,8 +691,33 @@ namespace NBrightDNN
         public String GetSetting(String key,String defaultValue = "")
         {
             if (Settings.ContainsKey(key)) return Settings[key];
-            return defaultValue; 
+            return defaultValue;
         }
+
+        public Boolean GetSettingBool(String key, Boolean defaultValue = false)
+        {
+            try
+            {
+                if (Settings.ContainsKey(key))
+                {
+                    var x = Settings[key];
+                    // bool usually stored as "True" "False"
+                    if (x.ToLower() == "true") return true;
+                    // Test for 1 as true also.
+                    if (Utils.IsNumeric(x))
+                    {
+                        if (Convert.ToInt32(x) > 0) return true;
+                    }
+                    return false;
+                }
+                return defaultValue;
+            }
+            catch (Exception ex)
+            {
+                return defaultValue;
+            }
+        }
+
 
         public int GetSettingInt(String key, int defaultValue = -1)
         {
