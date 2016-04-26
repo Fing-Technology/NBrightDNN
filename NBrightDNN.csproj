@@ -34,16 +34,19 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DotNetNuke, Version=7.2.0.607, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\DNN8x\bin\DotNetNuke.dll</HintPath>
+    <Reference Include="DotNetNuke">
+      <HintPath>..\..\Websites\Dev\htdocs\bin\DotNetNuke.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.ApplicationBlocks.Data">
       <HintPath>..\DNN7x\bin\Microsoft.ApplicationBlocks.Data.dll</HintPath>
     </Reference>
+    <Reference Include="NBrightCore, Version=3.4.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Websites\Dev\htdocs\bin\NBrightCore.dll</HintPath>
+    </Reference>
     <Reference Include="RazorEngine, Version=3.7.7.0, Culture=neutral, PublicKeyToken=9ee697374c7e744a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\DNN8x\bin\RazorEngine.dll</HintPath>
+      <HintPath>..\..\Websites\Dev\htdocs\bin\RazorEngine.dll</HintPath>
     </Reference>
     <Reference Include="SharpZipLib, Version=0.81.0.1407, Culture=neutral">
       <SpecificVersion>False</SpecificVersion>
@@ -118,17 +121,9 @@
     <Content Include="Skins\NBrightModAdmin\skin.css" />
     <Content Include="Skins\NBrightModAdmin\skin.doctype.xml" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\nbrightcore\NBrightCore.csproj">
-      <Project>{7b338113-6a9a-484d-a6c6-4d63fd5e58c6}</Project>
-      <Name>NBrightCore</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetFileName)" "..\..\..\NBrightTemplateSystem\bin\$(TargetFileName)"
-copy "NBrightCore.dll" "..\..\..\NBrightTemplateSystem\bin\NBrightCore.dll"
-copy "RazorEngine.dll" "..\..\..\NBrightTemplateSystem\bin\RazorEngine.dll"
+    <PostBuildEvent>
 </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
