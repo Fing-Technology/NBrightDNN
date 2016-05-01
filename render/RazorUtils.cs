@@ -19,7 +19,7 @@ namespace NBrightDNN.render
 
         public static String RazorRender(Object info, String razorTempl, String templateKey, Boolean debugMode = false)
         {
-            var service = (IRazorEngineService)HttpContext.Current.Application.Get("NBrightModIRazorEngineService");
+            var service = (IRazorEngineService)HttpContext.Current.Application.Get("NBrightDNNIRazorEngineService");
             if (service == null || debugMode)
             {
                 // do razor test
@@ -28,7 +28,7 @@ namespace NBrightDNN.render
                 config.BaseTemplateType = typeof(RazorEngineTokens<>);
                 service = RazorEngineService.Create(config);
                 Engine.Razor = service;
-                HttpContext.Current.Application.Set("NBrightModIRazorEngineService", service);
+                HttpContext.Current.Application.Set("NBrightDNNIRazorEngineService", service);
             }
 
             var result = Engine.Razor.RunCompile(razorTempl, templateKey, null, info);
@@ -38,7 +38,7 @@ namespace NBrightDNN.render
 
         public static String RazorRender(List<Object> infoList, String razorTempl, String templateKey, Boolean debugMode = false)
         {
-            var service = (IRazorEngineService)HttpContext.Current.Application.Get("NBrightModIRazorEngineService");
+            var service = (IRazorEngineService)HttpContext.Current.Application.Get("NBrightDNNIRazorEngineService");
             if (service == null || debugMode)
             {
                 // do razor test
@@ -47,7 +47,7 @@ namespace NBrightDNN.render
                 config.BaseTemplateType = typeof(RazorEngineTokens<>);
                 service = RazorEngineService.Create(config);
                 Engine.Razor = service;
-                HttpContext.Current.Application.Set("NBrightModIRazorEngineService", service);
+                HttpContext.Current.Application.Set("NBrightDNNIRazorEngineService", service);
             }
 
             var result = Engine.Razor.RunCompile(razorTempl, templateKey, null, infoList);
