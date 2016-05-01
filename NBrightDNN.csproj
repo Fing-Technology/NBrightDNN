@@ -35,18 +35,18 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DotNetNuke">
-      <HintPath>..\..\Websites\Dev\htdocs\bin\DotNetNuke.dll</HintPath>
+      <HintPath>..\..\Websites\dev.ot-gourgesdutarn.com\htdocs\bin\DotNetNuke.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.ApplicationBlocks.Data">
-      <HintPath>..\DNN7x\bin\Microsoft.ApplicationBlocks.Data.dll</HintPath>
+      <HintPath>..\..\Websites\dev.ot-gourgesdutarn.com\htdocs\bin\Microsoft.ApplicationBlocks.Data.dll</HintPath>
     </Reference>
     <Reference Include="NBrightCore, Version=3.4.0.1, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Websites\Dev\htdocs\bin\NBrightCore.dll</HintPath>
+      <HintPath>..\..\Websites\dev.ot-gourgesdutarn.com\htdocs\bin\NBrightCore.dll</HintPath>
     </Reference>
     <Reference Include="RazorEngine, Version=3.7.7.0, Culture=neutral, PublicKeyToken=9ee697374c7e744a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Websites\Dev\htdocs\bin\RazorEngine.dll</HintPath>
+      <HintPath>..\..\Websites\dev.ot-gourgesdutarn.com\htdocs\bin\RazorEngine.dll</HintPath>
     </Reference>
     <Reference Include="SharpZipLib, Version=0.81.0.1407, Culture=neutral">
       <SpecificVersion>False</SpecificVersion>
@@ -124,7 +124,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
-</PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

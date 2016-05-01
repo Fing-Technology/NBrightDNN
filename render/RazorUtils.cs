@@ -19,27 +19,35 @@ namespace NBrightDNN.render
 
         public static String RazorRender(Object info, String razorTempl, String templateKey, Boolean debugMode = false)
         {
-            // do razor test
-            var config = new TemplateServiceConfiguration();
-            config.Debug = debugMode;
-            config.BaseTemplateType = typeof (RazorEngineTokens<>);
-            var service = RazorEngineService.Create(config);
-            Engine.Razor = service;
+            var service = (IRazorEngineService)HttpContext.Current.Application.Get("NBrightModIRazorEngineService");
+            if (service == null || debugMode)
+            {
+                // do razor test
+                var config = new TemplateServiceConfiguration();
+                config.Debug = debugMode;
+                config.BaseTemplateType = typeof(RazorEngineTokens<>);
+                service = RazorEngineService.Create(config);
+                Engine.Razor = service;
+                HttpContext.Current.Application.Set("NBrightModIRazorEngineService", service);
+            }
 
             var result = Engine.Razor.RunCompile(razorTempl, templateKey, null, info);
+
             return result;
         }
 
         public static String RazorRender(List<Object> infoList, String razorTempl, String templateKey, Boolean debugMode = false)
         {
-            // do razor test
-            if (debugMode)
+            var service = (IRazorEngineService)HttpContext.Current.Application.Get("NBrightModIRazorEngineService");
+            if (service == null || debugMode)
             {
+                // do razor test
                 var config = new TemplateServiceConfiguration();
-                config.Debug = true;
+                config.Debug = debugMode;
                 config.BaseTemplateType = typeof(RazorEngineTokens<>);
-                var service = RazorEngineService.Create(config);
+                service = RazorEngineService.Create(config);
                 Engine.Razor = service;
+                HttpContext.Current.Application.Set("NBrightModIRazorEngineService", service);
             }
 
             var result = Engine.Razor.RunCompile(razorTempl, templateKey, null, infoList);
