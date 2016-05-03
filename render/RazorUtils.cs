@@ -27,10 +27,9 @@ namespace NBrightDNN.render
                 config.Debug = debugMode;
                 config.BaseTemplateType = typeof(RazorEngineTokens<>);
                 service = RazorEngineService.Create(config);
-                Engine.Razor = service;
                 HttpContext.Current.Application.Set("NBrightDNNIRazorEngineService", service);
             }
-
+            Engine.Razor = service;
             var result = Engine.Razor.RunCompile(razorTempl, templateKey, null, info);
 
             return result;

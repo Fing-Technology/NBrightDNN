@@ -601,14 +601,7 @@ namespace NBrightDNN.render
                 streamReader.Close();
                 inputStream.Close();
 
-                if (TemplateData.Contains("AddPreProcessMetaData("))
-                {
-                    // do razor and cache preprocessmetadata
-                    // Use the filename to link the preprocess data in cache, this shoud have been past as the param on the @AddPreProcessMetaData razor token in hte template.
-                    var razorTempl = RazorUtils.RazorRender(model, TemplateData, "preprocessmetadata" + Path.GetFileName(templatePath), false);
-                }
-
-                strOut = RazorUtils.RazorRender(model, TemplateData, "", false);
+                strOut = RazorUtils.RazorRender(model, TemplateData, templatePath, false);
 
             }
 
