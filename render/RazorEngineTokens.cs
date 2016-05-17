@@ -88,7 +88,7 @@ namespace NBrightDNN.render
             if (defaultValue.StartsWith("ResourceKey:")) defaultValue = ResourceKey(defaultValue.Replace("ResourceKey:", "")).ToString();
 
             var upd = getUpdateAttr(xpath, attributes);
-            var id = xpath.Split('/').Last();
+            var id = getIdFromXpath(xpath);
             var value = info.GetXmlProperty(xpath);
             if (value == "") value = defaultValue;
             var strOut = "<input value='" + value + "' id='" + id + "' " + attributes + " " + upd + " type='hidden' />";
@@ -102,7 +102,7 @@ namespace NBrightDNN.render
             if (defaultValue.StartsWith("ResourceKey:")) defaultValue = ResourceKey(defaultValue.Replace("ResourceKey:", "")).ToString();
 
             var upd = getUpdateAttr(xpath, attributes);
-            var id = xpath.Split('/').Last();
+            var id = getIdFromXpath(xpath);
             var value = info.GetXmlProperty(xpath);
             if (value == "") value = defaultValue;
 
@@ -137,7 +137,7 @@ namespace NBrightDNN.render
             {
                 strOut = "<div class='input-group'><div class='input-group-addon'><span class='glyphicon glyphicon-th'></span></div>" + strOut + "</div>";
             }
-            var id = xpath.Split('/').Last();
+            var id = getIdFromXpath(xpath);
             var currentculture = Utils.GetCurrentCulture();
             var datelang = "en";
             var localcodelist = "en-GB,fr-CH,it-CH,nl-BE,pt-BR,zh-CN,zh-TW";
@@ -161,7 +161,7 @@ namespace NBrightDNN.render
             if (defaultValue.StartsWith("ResourceKey:")) defaultValue = ResourceKey(defaultValue.Replace("ResourceKey:", "")).ToString();
 
             var upd = getUpdateAttr(xpath, attributes);
-            var id = xpath.Split('/').Last();
+            var id = getIdFromXpath(xpath);
             var value = info.GetXmlProperty(xpath);
             if (value == "") value = defaultValue;
             var strOut = "<textarea id='" + id + "' " + attributes + " " + upd + " type='text'>" + value + "</textarea>";
@@ -185,7 +185,7 @@ namespace NBrightDNN.render
             if (attributes.StartsWith("ResourceKey:")) attributes = ResourceKey(attributes.Replace("ResourceKey:", "")).ToString();
 
             var upd = getUpdateAttr(xpath, attributes);
-            var id = xpath.Split('/').Last();
+            var id = getIdFromXpath(xpath);
             var strOut = " <textarea id='" + id + "' datatype='html' type='text' name='editor" + id + "' " + attributes + " " + upd + " >" + info.GetXmlProperty(xpath) + "</textarea>";
             strOut += "<script> var editorvar" + id + " = '';  $(document).ready(function () { editorvar" + id + " = CKEDITOR.replace('editor" + id + "', { customConfig: '/DesktopModules/NBright/NBrightData/ckeditor/nbrightconfig.js' } ); $('#savedata').click(function () { var value = editorvar" + id + ".getData(); $('#" + id + "').val(value);});  $('.selecteditlanguage').click(function () { var value = editorvar" + id + ".getData(); $('#" + id + "').val(value);}); });</script>";
             return new RawString(strOut);
@@ -197,7 +197,7 @@ namespace NBrightDNN.render
             if (attributes.StartsWith("ResourceKey:")) attributes = ResourceKey(attributes.Replace("ResourceKey:", "")).ToString();
 
             var upd = getUpdateAttr(xpath, attributes);
-            var id = xpath.Split('/').Last();
+            var id = getIdFromXpath(xpath);
             var strOut = "    <input id='" + id + "' type='checkbox' " + getChecked(info, xpath, defaultValue) + " " + attributes + " " + upd + " /><label>" + text + "</label>";
             return new RawString(strOut);
         }
@@ -225,7 +225,7 @@ namespace NBrightDNN.render
             if (datav.Count() == datat.Count())
             {
                 var upd = getUpdateAttr(xpath, attributes);
-                var id = xpath.Split('/').Last();
+                var id = getIdFromXpath(xpath);
                 strOut = "<div id='" + id + "' " + upd + " " + attributes + ">";
                 var c = 0;
                 foreach (var v in datav)
@@ -251,7 +251,7 @@ namespace NBrightDNN.render
             if (datav.Count() == datat.Count())
             {
                 var upd = getUpdateAttr(xpath, attributes);
-                var id = xpath.Split('/').Last();
+                var id = getIdFromXpath(xpath); 
                 strOut = "<div " + attributes + ">";
                 var c = 0;
                 var s = "";
@@ -284,7 +284,7 @@ namespace NBrightDNN.render
             if (datav.Count() == datat.Count())
             {
                 var upd = getUpdateAttr(xpath,attributes);
-                var id = xpath.Split('/').Last();
+                var id = getIdFromXpath(xpath);
                 strOut = "<select id='" + id + "' " + upd + " " + attributes + ">";
                 var c = 0;
                 var s = "";
@@ -317,7 +317,7 @@ namespace NBrightDNN.render
             var strOut = "";
 
             var upd = getUpdateAttr(xpath, attributes);
-            var id = xpath.Split('/').Last();
+            var id = getIdFromXpath(xpath);
             strOut = "<select id='" + id + "' " + upd + " guidkey='tab' " + attributes + ">";
             var c = 0;
             var s = "";
@@ -351,7 +351,7 @@ namespace NBrightDNN.render
             var strOut = "";
 
             var upd = getUpdateAttr(xpath, attributes);
-            var id = xpath.Split('/').Last();
+            var id = getIdFromXpath(xpath);
             strOut = "<select id='" + id + "' " + upd + " guidkey='tab' " + attributes + ">";
             var c = 0;
             var s = "";
@@ -564,7 +564,7 @@ namespace NBrightDNN.render
             var strOut = "";
 
             var upd = getUpdateAttr(xpath, attributes);
-            var id = xpath.Split('/').Last();
+            var id = getIdFromXpath(xpath);
             strOut = "<select id='" + id + "' " + upd + " " + attributes + ">";
             var c = 0;
             var s = "";
@@ -612,6 +612,26 @@ namespace NBrightDNN.render
 
 
         #region functions
+
+
+        public String getIdFromXpath(String xpath)
+        {
+            if (xpath == "") return "";
+
+            // if we only have 1 "genxml" in the xpath, the id is the last element in the array.
+            if (xpath.LastIndexOf("genxml") == 0) return xpath.Split('/').Last();
+
+            // if we have multiple "genxml", we need to build an id based on the xpath structure
+            var rtnid = xpath.Replace("genxml/textbox/","");
+            rtnid = rtnid.Replace("genxml/dropdownlist/", "");
+            rtnid = rtnid.Replace("genxml/hidden/", "");
+            rtnid = rtnid.Replace("genxml/checkbox/", "");
+            rtnid = rtnid.Replace("genxml/checkboxlist/", "");
+            rtnid = rtnid.Replace("genxml/radiobuttonlist/", "");
+            rtnid = rtnid.Replace("genxml/", "");
+            rtnid = rtnid.Replace("/", "_");
+            return rtnid;
+        }
 
         public String getUpdateAttr(String xpath,String attributes)
         {
