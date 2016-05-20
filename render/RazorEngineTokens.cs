@@ -238,7 +238,7 @@ namespace NBrightDNN.render
             return new RawString(strOut);
         }
 
-        public IEncodedString RadioButtonList(NBrightInfo info, String xpath, String datavalue, String datatext, String attributes = "", String defaultValue = "")
+        public IEncodedString RadioButtonList(NBrightInfo info, String xpath, String datavalue, String datatext, String attributes = "", String defaultValue = "",String labelattributes = "")
         {
             if (datavalue.StartsWith("ResourceKey:")) datavalue = ResourceKey(datavalue.Replace("ResourceKey:", "")).ToString();
             if (datatext.StartsWith("ResourceKey:")) datatext = ResourceKey(datatext.Replace("ResourceKey:", "")).ToString();
@@ -263,7 +263,7 @@ namespace NBrightDNN.render
                         s = "checked";
                     else
                         s = "";
-                    strOut += "    <input id='" + id + "_" + c.ToString("") + "' " + upd + " name='" + id + "radio' type='radio' value='" + v + "'  " + s + "/><label>" + datat[c] + "</label>";
+                    strOut += "    <label " + labelattributes + "><input id='" + id + "_" + c.ToString("") + "' " + upd + " name='" + id + "radio' type='radio' value='" + v + "'  " + s + "/>" + datat[c] + "</label>";
                     c += 1;
                 }
                 strOut += "</div>";

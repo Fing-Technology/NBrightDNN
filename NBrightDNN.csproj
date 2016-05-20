@@ -123,8 +123,10 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetFileName)" "F:\Websites\dev.nbs.com\Website\bin\$(TargetFileName)"
+
+copy "$(AssemblyName).pdb" "F:\Websites\dev.nbs.com\Website\bin\$(AssemblyName).pdb"
+</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
