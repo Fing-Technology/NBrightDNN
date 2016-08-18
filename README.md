@@ -1,3 +1,7 @@
+# MOVED TO https://github.com/nbrightproject/NBrightTS
+
+This repository is kept only as a historical reference and is NOT in activate development.
+
 # NBrightDNN
 NBright Template System DNN interface
 
