@@ -40,9 +40,9 @@
     <Reference Include="Microsoft.ApplicationBlocks.Data">
       <HintPath>..\DNN8x\bin\Microsoft.ApplicationBlocks.Data.dll</HintPath>
     </Reference>
-    <Reference Include="NBrightCore, Version=3.4.0.1, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NBrightCore, Version=3.4.0.4, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\nbrightcore\bin\Release\NBrightCore.dll</HintPath>
+      <HintPath>..\NBrightCore\bin\Debug\NBrightCore.dll</HintPath>
     </Reference>
     <Reference Include="RazorEngine, Version=3.7.7.0, Culture=neutral, PublicKeyToken=9ee697374c7e744a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

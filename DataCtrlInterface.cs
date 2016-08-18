@@ -381,7 +381,7 @@ namespace NBrightDNN
             SetXmlProperty(xpath, value, System.TypeCode.Double, false);
         }
 
-        public void SetXmlProperty(string xpath, string Value, System.TypeCode DataTyp = System.TypeCode.String, bool cdata = true)
+        public void SetXmlProperty(string xpath, string Value, System.TypeCode DataTyp = System.TypeCode.String, bool cdata = true, bool ignoresecurityfilter = false, bool filterlinks = false)
         {
             if (!string.IsNullOrEmpty(XMLData))
             {
@@ -398,7 +398,7 @@ namespace NBrightDNN
                 {
                     if (Utils.IsDate(Value, Utils.GetCurrentCulture())) Value = Utils.FormatToSave(Value, System.TypeCode.DateTime);
                 }
-                XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath, Value, cdata);
+                XMLData = GenXmlFunctions.SetGenXmlValue(XMLData, xpath, Value, cdata,ignoresecurityfilter,filterlinks);
                 
                 // do the datatype after the node is created
                 if (DataTyp == System.TypeCode.DateTime)
@@ -533,16 +533,16 @@ namespace NBrightDNN
 
         public void UpdateAjax(String ajaxStrData)
         {
-            UpdateAjax(ajaxStrData, "");
+            UpdateAjax(ajaxStrData, "",false);
         }
-
-        public void UpdateAjax(String ajaxStrData,String updateTypePrefix = "")
+        
+        public void UpdateAjax(String ajaxStrData, String updateTypePrefix = "", bool ignoresecurityfilter = false, bool filterlinks = false)
         {
             ValidateXmlFormat(); // make sure we have correct structure so update works.
             var updateType = updateTypePrefix + "save";
             if (!String.IsNullOrEmpty(Lang)) updateType = updateTypePrefix + "lang";
             var ajaxInfo = new NBrightInfo();
-            var xmlData = GenXmlFunctions.GetGenXmlByAjax(ajaxStrData, "");
+            var xmlData = GenXmlFunctions.GetGenXmlByAjax(ajaxStrData, "", "genxml", ignoresecurityfilter, filterlinks);
             ajaxInfo.XMLData = xmlData;
             var nodList2 = ajaxInfo.XMLDoc.SelectNodes("genxml/*");
             if (nodList2 != null)
